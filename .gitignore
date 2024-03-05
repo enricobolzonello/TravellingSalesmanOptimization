@@ -42,3 +42,5 @@
 # Project logs files
 /log/*
 !/log/.gitkeep
+
+.DS_Store

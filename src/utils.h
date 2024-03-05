@@ -14,6 +14,8 @@ typedef struct {
 } options;
 
 typedef struct {
+    options options_t;
+
     int nnodes;
     point* points;
     char* inputfile;
