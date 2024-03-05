@@ -1,6 +1,7 @@
 #include <stdarg.h>
 #include <stddef.h>
 #include <setjmp.h>
+#include "../src/utils.h"
 #include <cmocka.h>
 
 
@@ -10,13 +11,18 @@
 
 
 /* A test case that does nothing and succeeds. */
-static void null_test_success(void **state) {
+static void parseCommandline_n(void **state) {
 
-    /**
-     * If you want to know how to use cmocka, please refer to:
-     * https://api.cmocka.org/group__cmocka__asserts.html
-     */
-    (void) state; /* unused */
+    int argc = 3;
+    char* argv[argc];
+    argv[0] = "tsp";
+    argv[1] = "-n";
+    argv[2] = "100";
+
+    instance inst;
+    parse_commandline(argc, argv, &inst);
+    
+    assert_int_equal(inst.nnodes, 100);
 }
 
 
@@ -25,12 +31,8 @@ static void null_test_success(void **state) {
  */
 int
 main(void) {
-
-    /**
-     * Insert here your test functions
-     */
     const struct CMUnitTest tests[] = {
-        cmocka_unit_test(null_test_success),
+        cmocka_unit_test(parseCommandline_n),
     };
 
 
