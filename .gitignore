@@ -44,3 +44,4 @@
 !/log/.gitkeep
 
 .DS_Store
+/.vscode
