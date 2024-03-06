@@ -12,26 +12,13 @@
 #define COLOR_BOLD  "\033[1m"
 #define COLOR_OFF   "\033[m"
 
-typedef struct {
-    double x;
-    double y;
-} point;
+#define MAX_COORDINATE 10000
+#define MIN_COORDINATE -10000
 
-typedef struct {
-    time_t timelimit;
-    int seed;
-    char* inputfile;
-} options;
-
-typedef struct {
-    options options_t;
-
-    int nnodes;
-    point* points;
-} instance;
+#define TSP_RAND() ( ((double)rand() / RAND_MAX) * (MAX_COORDINATE - MIN_COORDINATE) + MIN_COORDINATE )
 
 
-void parse_commandline(int argc, char** argv, instance* inst);
 bool file_exists (const char *filename);
+bool invalid_input(int i, int argc, bool* help);
 
 #endif
