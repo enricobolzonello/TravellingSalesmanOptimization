@@ -17,6 +17,11 @@
 
 #define TSP_RAND() ( ((double)rand() / RAND_MAX) * (MAX_COORDINATE - MIN_COORDINATE) + MIN_COORDINATE )
 
+typedef struct {
+    double x;
+    double y;
+} point;
+
 
 bool file_exists (const char *filename);
 bool invalid_input(int i, int argc, bool* help);

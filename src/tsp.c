@@ -1,12 +1,13 @@
 #include"tsp.h"
 
-// TODO: make it either set the file name or nnodes
 void tsp_parse_commandline(int argc, char** argv, instance* inst){
     if(argc < 2){
         printf("Type %s --help to see the full list of commands\n", argv[0]);
         exit(1);
     }
 
+    inst->options_t.graph_random = false;
+    inst->options_t.graph_input = false;
     inst->options_t.timelimit = -1;
     inst->options_t.seed = 0;
     inst->nnodes = -1;
@@ -20,6 +21,11 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
+            if(inst->options_t.graph_random){
+                perror("Arguments: you can't have both random generation and input file");
+                exit(1);
+            }
+
             const char* path = argv[++i];
             if(!file_exists(path)){
                 perror("Arguments: file does not exist!");
@@ -27,6 +33,9 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
             }
             inst->options_t.inputfile = (char*) calloc(strlen(path), sizeof(char));
             strcpy(inst->options_t.inputfile, path);
+
+            inst->options_t.graph_input = true;
+
             continue;
         }
 
@@ -75,12 +84,20 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
+            if(inst->options_t.graph_input){
+                perror("Arguments: you can't have both random generation and input file");
+                exit(1);
+            }
+
             int n = atoi(argv[++i]);
             if(n <= 0){
                 perror("Arguments: number of nodes should be greater than 0");
                 exit(1);
             }
             inst->nnodes = n;
+
+            inst->options_t.graph_random = true;
+
             continue;
         }
 
@@ -125,15 +142,22 @@ void tsp_generate_randompoints(instance* inst){
     inst->points = (point*) calloc(inst->nnodes, sizeof(point));
 
     for(int i=0; i<inst->nnodes; i++){
+        inst->points[i].x = TSP_RAND();
+        inst->points[i].y = TSP_RAND();
+    }
+}
 
-        double n1 = TSP_RAND();
-        printf("n1: %f\n", n1);
-        double n2 = TSP_RAND();
-        inst->points[i].x = n1;
-        inst->points[i].y = n2;
+void tsp_plot_points(instance* inst, char* name){
+    int i;
+    PLOT plot = plot_open(name);
+    // fill it with data
+    fprintf(plot, "plot '-' with points pointtype 7\n");
+
+    for(i=0; i<inst->nnodes; i++){
+        plot_point(plot, &inst->points[i]);
     }
 
-    printf("%f\n", inst->points[0].x);
+    plot_free(plot);
 }
 
 
