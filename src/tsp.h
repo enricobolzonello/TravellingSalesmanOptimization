@@ -11,10 +11,13 @@
  * @copyright Copyright (c) 2024
  * 
  */
-#include "utils.h"
-#include "plot.h"
+#include "utils/utils.h"
+#include "utils/plot.h"
 
+// TODO: implement verbose
+// https://symfony.com/doc/current/console/verbosity.html
 typedef struct {
+    int verbose;
     int timelimit;              // time limit of the algorithm (in seconds)
     int seed;                   // seed for random generation, if not set by the user, defaults to current time
     bool graph_random;          // flag to indicate wheter the graph is randomly generated

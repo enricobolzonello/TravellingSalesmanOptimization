@@ -93,7 +93,7 @@ TEST_BINARY := $(BINARY)_test_runner
 
 
 # %.o file names
-NAMES := $(notdir $(basename $(wildcard $(SRCDIR)/*.$(SRCEXT))))
+NAMES := $(notdir $(basename  $(shell find src -type f -name "*.$(SRCEXT)")))
 OBJECTS :=$(patsubst %,$(LIBDIR)/%.o,$(NAMES))
 
 

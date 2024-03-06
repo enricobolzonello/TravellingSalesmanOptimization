@@ -33,6 +33,11 @@ typedef struct {
     double y;
 } point;
 
+// TODO: define error codes
+typedef enum{
+    SEG_ERROR = 1
+} error_codes;
+
 
 bool utils_file_exists (const char *filename);
 bool utils_invalid_input(int i, int argc, bool* help);
