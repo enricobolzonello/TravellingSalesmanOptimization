@@ -1,8 +1,8 @@
 #ifndef TSP_H_
 #define TSP_H_
 
-#include "utils/utils.h"
-#include "utils/plot.h"
+#include "utils.h"
+#include "plot.h"
 
 typedef struct {
     int timelimit;              // time limit of the algorithm (in seconds)
