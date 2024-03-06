@@ -17,7 +17,7 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
     for(int i=1; i<argc; i++){
 
         if (strcmp("-f", argv[i]) == 0 || strcmp("-file", argv[i]) == 0){
-            if(invalid_input(i, argc, &help)){
+            if(utils_invalid_input(i, argc, &help)){
                 continue;
             }
 
@@ -27,7 +27,7 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
             }
 
             const char* path = argv[++i];
-            if(!file_exists(path)){
+            if(!utils_file_exists(path)){
                 perror("Arguments: file does not exist!");
                 exit(1);
             }
@@ -40,7 +40,7 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-t", argv[i]) == 0 || strcmp("-time", argv[i]) == 0){
-            if(invalid_input(i, argc, &help)){
+            if(utils_invalid_input(i, argc, &help)){
                 continue;
             }
 
@@ -54,7 +54,7 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-seed", argv[i]) == 0){
-            if(invalid_input(i, argc, &help)){
+            if(utils_invalid_input(i, argc, &help)){
                 continue;
             }
 
@@ -64,7 +64,7 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
 
         // TODO: add flags for algorithm chosen
         if (strcmp("-alg", argv[i]) == 0){
-            if(invalid_input(i, argc, &help)){
+            if(utils_invalid_input(i, argc, &help)){
                 continue;
             }
 
@@ -80,7 +80,7 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-n", argv[i]) == 0){
-            if(invalid_input(i, argc, &help)){
+            if(utils_invalid_input(i, argc, &help)){
                 continue;
             }
 
@@ -147,7 +147,6 @@ void tsp_generate_randompoints(instance* inst){
     }
 }
 
-// TODO: doesnt save to file
 void tsp_plot_points(instance* inst, char* name, bool to_file){
     int i;
     PLOT plot = plot_open(name);
@@ -173,7 +172,7 @@ void tsp_free_instance(instance *inst){
 
 void tsp_read_input(instance* inst){
     FILE *input_file = fopen(inst->options_t.inputfile, "r");
-	if ( input_file == NULL ) print_error(" input file not found!");
+	if ( input_file == NULL ) utils_print_error(" input file not found!");
 
     inst->nnodes = -1;
 
@@ -189,7 +188,7 @@ void tsp_read_input(instance* inst){
 	    parameter = strtok(line, " :");
 
         if ( strncmp(parameter, "DIMENSION", 9) == 0 ) {
-			if ( inst->nnodes >= 0 ) print_error("two DIMENSION parameters in the file");
+			if ( inst->nnodes >= 0 ) utils_print_error("two DIMENSION parameters in the file");
 			token1 = strtok(NULL, " :");
 			inst->nnodes = atoi(token1);	 
 			inst->points = (point *) calloc(inst->nnodes, sizeof(point));
@@ -198,7 +197,7 @@ void tsp_read_input(instance* inst){
 
         if ( strncmp(parameter, "NODE_COORD_SECTION", 18) == 0 ) 
 		{
-			if ( inst->nnodes <= 0 ) print_error("DIMENSION not found");
+			if ( inst->nnodes <= 0 ) utils_print_error("DIMENSION not found");
 			node_section = 1;   
 			continue;
 		}

@@ -34,8 +34,8 @@ typedef struct {
 } point;
 
 
-bool file_exists (const char *filename);
-bool invalid_input(int i, int argc, bool* help);
-void print_error(char* message);
+bool utils_file_exists (const char *filename);
+bool utils_invalid_input(int i, int argc, bool* help);
+void utils_print_error(char* message);
 
 #endif

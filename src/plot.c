@@ -10,10 +10,12 @@ void plot_point(PLOT plot, point* p){
     fprintf(plot, "%lf %lf \n", p->x, p->y);
 }
 
+
+// TODO: doesn't print the plot
 void plot_tofile(PLOT plot, char* filename){
-    mkdir("../plots", 0700);
+    mkdir("plots", 0777);
     fprintf(plot, "set terminal png size 700, 700\n");
-    fprintf(plot, "set output '../plots/%s.jpg'\n", filename);
+    fprintf(plot, "set output \"plots/%s.png\"\n", filename);
 }
 
 void plot_args(PLOT plot, char* args){

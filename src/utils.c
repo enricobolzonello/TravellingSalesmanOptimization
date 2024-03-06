@@ -1,11 +1,11 @@
 #include "utils.h"
 
-bool file_exists (const char *filename) {
+bool utils_file_exists (const char *filename) {
   struct stat  buffer;   
   return (stat (filename, &buffer) == 0);
 }
 
-bool invalid_input(int i, int argc, bool* help){
+bool utils_invalid_input(int i, int argc, bool* help){
     if (i+1 > argc){
         *help = 1;
         return true;
@@ -14,7 +14,7 @@ bool invalid_input(int i, int argc, bool* help){
     return false;
 }
 
-void print_error(char* message){
+void utils_print_error(char* message){
   printf("Error: %s\n", message);
   exit(1);
 }
