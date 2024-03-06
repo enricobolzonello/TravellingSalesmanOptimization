@@ -48,10 +48,10 @@ END_COLOR=\$(COLOR_PREFIX)[0m
 
 
 # Source code directory structure
-BINDIR := bin
+BINDIR := make/bin
 SRCDIR := src
-LOGDIR := log
-LIBDIR := lib
+LOGDIR := make/log
+LIBDIR := make/lib
 TESTDIR := test
 UTILSDIR = $(SRCDIR)/utils
 

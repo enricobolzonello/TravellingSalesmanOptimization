@@ -1,0 +1,38 @@
+\doxysection{tsp.\+h}
+\hypertarget{tsp_8h_source}{}\label{tsp_8h_source}\index{src/tsp.h@{src/tsp.h}}
+\mbox{\hyperlink{tsp_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ TSP\_H\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ TSP\_H\_}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils.h}}"{}}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{plot_8h}{plot.h}}"{}}}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{int}\ timelimit;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ time\ limit\ of\ the\ algorithm\ (in\ seconds)}}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{int}\ seed;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ seed\ for\ random\ generation,\ if\ not\ set\ by\ the\ user,\ defaults\ to\ current\ time}}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{bool}\ graph\_random;\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ flag\ to\ indicate\ wheter\ the\ graph\ is\ randomly\ generated}}
+\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordtype}{bool}\ graph\_input;\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ flag\ to\ indicate\ wheter\ the\ graph\ is\ from\ the\ input\ file}}
+\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordtype}{char}*\ inputfile;\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ input\ file\ path}}
+\DoxyCodeLine{00023\ \}\ \mbox{\hyperlink{structoptions}{options}};}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{structoptions}{options}}\ options\_t;}
+\DoxyCodeLine{00027\ }
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{int}\ nnodes;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ number\ of\ nodes\ to\ be\ generated\ randomly}}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{structpoint}{point}}*\ points;\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ dynamic\ array\ of\ points}}
+\DoxyCodeLine{00030\ \}\ \mbox{\hyperlink{structinstance}{instance}};}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00039\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_aec1769cd42e345ca55555b93edf21758}{tsp\_parse\_commandline}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}**\ argv,\ \mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00046\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_a0b5e78c90fe8cedb98972cad2b75832d}{tsp\_generate\_randompoints}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00047\ }
+\DoxyCodeLine{00055\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_a03adbb94c013d907964c9e16c97e3f92}{tsp\_plot\_points}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst,\ \textcolor{keywordtype}{char}*\ name,\ \textcolor{keywordtype}{bool}\ to\_file);}
+\DoxyCodeLine{00056\ }
+\DoxyCodeLine{00062\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_aa134f6647aa23efa07d133f5bc320793}{tsp\_free\_instance}}(\mbox{\hyperlink{structinstance}{instance}}\ *inst);}
+\DoxyCodeLine{00063\ }
+\DoxyCodeLine{00069\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_aa402a99be7db4e96baa14adec528cbd6}{tsp\_read\_input}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

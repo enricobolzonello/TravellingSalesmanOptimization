@@ -1,6 +1,17 @@
 #ifndef UTILS_H_
 #define UTILS_H_
 
+/**
+ * @file utils.h
+ * @author Enrico Bolzonello (enrico.bolzonello@studenti.unidp.it)
+ * @brief General utilities for TSP
+ * @version 0.1
+ * @date 2024-03-06
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
+
 #include <time.h>
 #include <string.h>
 #include <sys/stat.h> 

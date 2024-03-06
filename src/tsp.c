@@ -147,7 +147,8 @@ void tsp_generate_randompoints(instance* inst){
     }
 }
 
-void tsp_plot_points(instance* inst, char* name){
+// TODO: doesnt save to file
+void tsp_plot_points(instance* inst, char* name, bool to_file){
     int i;
     PLOT plot = plot_open(name);
     // fill it with data
@@ -155,6 +156,10 @@ void tsp_plot_points(instance* inst, char* name){
 
     for(i=0; i<inst->nnodes; i++){
         plot_point(plot, &inst->points[i]);
+    }
+
+    if(to_file){
+        plot_tofile(plot, name);
     }
 
     plot_free(plot);
@@ -187,7 +192,7 @@ void tsp_read_input(instance* inst){
 			if ( inst->nnodes >= 0 ) print_error("two DIMENSION parameters in the file");
 			token1 = strtok(NULL, " :");
 			inst->nnodes = atoi(token1);	 
-			inst->points = (double *) calloc(inst->nnodes, sizeof(double));
+			inst->points = (point *) calloc(inst->nnodes, sizeof(point));
 			continue;
 		}
 
