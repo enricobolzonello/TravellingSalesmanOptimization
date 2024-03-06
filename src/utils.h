@@ -20,5 +20,6 @@
 
 bool file_exists (const char *filename);
 bool invalid_input(int i, int argc, bool* help);
+void print_error(char* message);
 
 #endif

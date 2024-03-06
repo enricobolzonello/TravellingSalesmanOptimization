@@ -141,3 +141,54 @@ void tsp_free_instance(instance *inst){
     free(inst->options_t.inputfile);
     free(inst->points);
 }
+
+void tsp_read_input(instance* inst){
+    FILE *input_file = fopen(inst->options_t.inputfile, "r");
+	if ( input_file == NULL ) print_error(" input file not found!");
+
+    inst->nnodes = -1;
+
+    char line[300];
+    char* parameter;
+    char* token1;
+	char* token2;
+
+    int node_section = 0;
+
+    while ( fgets(line, sizeof(line), input_file) != NULL ) {
+        if ( strlen(line) <= 1 ) continue; // skip empty lines
+	    parameter = strtok(line, " :");
+
+        if ( strncmp(parameter, "DIMENSION", 9) == 0 ) {
+			if ( inst->nnodes >= 0 ) print_error("two DIMENSION parameters in the file");
+			token1 = strtok(NULL, " :");
+			inst->nnodes = atoi(token1);	 
+			inst->points = (double *) calloc(inst->nnodes, sizeof(double));
+			continue;
+		}
+
+        if ( strncmp(parameter, "NODE_COORD_SECTION", 18) == 0 ) 
+		{
+			if ( inst->nnodes <= 0 ) print_error("DIMENSION not found");
+			node_section = 1;   
+			continue;
+		}
+
+        if ( strncmp(parameter, "EOF", 3) == 0 ) {
+			break;
+		}
+
+        if (node_section) {
+			int i = atoi(parameter) - 1; //index 
+			token1 = strtok(NULL, " :,");
+			token2 = strtok(NULL, " :,");
+            point new_point;
+            new_point.x = atof(token1);
+            new_point.y = atof(token2);
+			inst->points[i] = new_point;
+			continue;
+		}
+
+
+    }
+}

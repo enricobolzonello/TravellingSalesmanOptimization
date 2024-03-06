@@ -13,3 +13,8 @@ bool invalid_input(int i, int argc, bool* help){
 
     return false;
 }
+
+void print_error(char* message){
+  printf("Error: %s\n", message);
+  exit(1);
+}
