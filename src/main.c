@@ -1,4 +1,5 @@
 #include "tsp.h"
+#include "algorithms/heuristics.h"
 
 int main(int argc, char* argv[]){
     instance inst;
@@ -11,6 +12,6 @@ int main(int argc, char* argv[]){
         tsp_generate_randompoints(&inst);
     }
     
-    tsp_plot_points(&inst, "graph_test", true);
+    tsp_plot_points(&inst, "graph test", false);
     exit(0);
 }

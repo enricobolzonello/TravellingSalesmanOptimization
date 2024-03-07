@@ -150,15 +150,15 @@ void tsp_generate_randompoints(instance* inst){
 void tsp_plot_points(instance* inst, char* name, bool to_file){
     int i;
     PLOT plot = plot_open(name);
-    // fill it with data
+
+    if(to_file){
+        plot_tofile(plot, name);
+    }
+
     fprintf(plot, "plot '-' with points pointtype 7\n");
 
     for(i=0; i<inst->nnodes; i++){
         plot_point(plot, &inst->points[i]);
-    }
-
-    if(to_file){
-        plot_tofile(plot, name);
     }
 
     plot_free(plot);

@@ -32,15 +32,15 @@
 *.dSYM/
 
 # Project binary files
-/bin/*
+/make/bin/*
 !/bin/.gitkeep
 
 # Project object files
-/lib/*
+/make/lib/*
 !/lib/.gitkeep
 
 # Project logs files
-/log/*
+/make/log/*
 !/log/.gitkeep
 
 .DS_Store
@@ -48,6 +48,3 @@
 
 #make
 Makefile
-/make/bin/*
-/make/lib/*
-/make/log/*
