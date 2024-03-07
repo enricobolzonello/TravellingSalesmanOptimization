@@ -202,6 +202,13 @@ void tsp_read_input(instance* inst){
 			continue;
 		}
 
+        if ( strncmp(parameter, "TYPE", 4) == 0 ) 
+		{
+			token1 = strtok(NULL, " :");  
+			if ( strncmp(token1, "TSP",3) != 0 ) utils_print_error(" format error:  only TSP file type accepted");
+			continue;
+		}
+
         if ( strncmp(parameter, "EOF", 3) == 0 ) {
 			break;
 		}
