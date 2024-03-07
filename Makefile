@@ -91,10 +91,15 @@ TEST_LIBS := -l cmocka -L /usr/local/lib -rpath /usr/local/lib
 TEST_BINARY := $(BINARY)_test_runner
 
 
+# Find all .c files in SRCDIR and its subdirectories
+SRCS := $(wildcard $(SRCDIR)/**/*.c)
+SRCS += $(wildcard $(SRCDIR)/*.c)
 
-# %.o file names
-NAMES := $(notdir $(basename  $(shell find src -type f -name "*.$(SRCEXT)")))
-OBJECTS :=$(patsubst %,$(LIBDIR)/%.o,$(NAMES))
+# Extract the names of the files with their relative paths
+NAMES := $(patsubst $(SRCDIR)/%.$(SRCEXT),%,$(SRCS))
+
+# Generate object file paths
+OBJECTS := $(patsubst %,$(LIBDIR)/%.o,$(NAMES))
 
 
 #
@@ -127,18 +132,14 @@ start:
 	@echo "Happy hacking o/"
 
 
-# Rule for link and generate the binary file
 all: $(OBJECTS)
 	@echo -en "$(BROWN)LD $(END_COLOR)";
 	$(CC) -o $(BINDIR)/$(BINARY) $+ $(DEBUG) $(CFLAGS) $(LIBS)
-	@echo -en "\n--\nBinary file placed at" \
-			  "$(BROWN)$(BINDIR)/$(BINARY)$(END_COLOR)\n";
 
 
-# Rule for object binaries compilation
 $(LIBDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo -en "$(BROWN)CC $(END_COLOR)";
-	$(CC) -c $^ -o $@ $(DEBUG) $(CFLAGS) $(LIBS)
+	$(CC) -c $< -o $@ $(DEBUG) $(CFLAGS) $(LIBS)
 
 
 # Rule for run valgrind tool
@@ -163,4 +164,4 @@ tests:
 
 # Rule for cleaning the project
 clean:
-	@rm -rvf $(BINDIR)/* $(LIBDIR)/* $(LOGDIR)/*;
+	@rm -rvf $(BINDIR)/* $(LIBDIR)/utils/* $(LIBDIR)/algorithms/* $(LOGDIR)/*;

@@ -3,6 +3,7 @@
 PLOT plot_open(char* title){
     PLOT plot = popen("gnuplot -persistent", "w");
     fprintf(plot, "set title '%s'\n", title);
+    fprintf(plot, "set terminal '%s' size 700, 700\n", "x11");
     return plot;
 }
 

@@ -45,3 +45,9 @@
 
 .DS_Store
 /.vscode
+
+#make
+Makefile
+/make/bin/*
+/make/lib/*
+/make/log/*
