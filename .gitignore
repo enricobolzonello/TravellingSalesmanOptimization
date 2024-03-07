@@ -33,15 +33,16 @@
 
 # Project binary files
 /make/bin/*
-!/bin/.gitkeep
+!/make/bin/.gitkeep
 
 # Project object files
-/make/lib/*
-!/lib/.gitkeep
+/make/lib/algorithsm/*
+!/make/lib/algorithms/.gitkeep
+!/make/lib/utils/.gitkeep
 
 # Project logs files
 /make/log/*
-!/log/.gitkeep
+!/make/log/.gitkeep
 
 .DS_Store
 /.vscode
