@@ -1,0 +1,103 @@
+\doxysection{src/utils/plot.c File Reference}
+\hypertarget{plot_8c}{}\label{plot_8c}\index{src/utils/plot.c@{src/utils/plot.c}}
+{\ttfamily \#include "{}plot.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} \mbox{\hyperlink{plot_8c_a4d6f631984f72125902b6bd457b85ad6}{plot\+\_\+open}} (char \texorpdfstring{$\ast$}{*}title)
+\begin{DoxyCompactList}\small\item\em Opens a new gnuplot. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{plot_8c_a9137910278243c7b2b37eff3a21bff1f}{plot\+\_\+point}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot, \mbox{\hyperlink{structpoint}{point}} \texorpdfstring{$\ast$}{*}p)
+\begin{DoxyCompactList}\small\item\em Plots a single point. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{plot_8c_a36c160a703e277292b9bebfceb585c03}{plot\+\_\+tofile}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot, char \texorpdfstring{$\ast$}{*}filename)
+\begin{DoxyCompactList}\small\item\em Saves the plot to a jpg file in the directory /plots. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{plot_8c_ada820101c948b0bad1dbf84c311fff6d}{plot\+\_\+args}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot, char \texorpdfstring{$\ast$}{*}args)
+\begin{DoxyCompactList}\small\item\em Add additional arguments to the plot, like style options. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{plot_8c_a3f17b0b373dfaf3ed278bcf51c123233}{plot\+\_\+free}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot)
+\begin{DoxyCompactList}\small\item\em Free resources. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{plot_8c_ada820101c948b0bad1dbf84c311fff6d}\label{plot_8c_ada820101c948b0bad1dbf84c311fff6d} 
+\index{plot.c@{plot.c}!plot\_args@{plot\_args}}
+\index{plot\_args@{plot\_args}!plot.c@{plot.c}}
+\doxysubsubsection{\texorpdfstring{plot\_args()}{plot\_args()}}
+{\footnotesize\ttfamily void plot\+\_\+args (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}}}]{plot,  }\item[{char \texorpdfstring{$\ast$}{*}}]{args }\end{DoxyParamCaption})}
+
+
+
+Add additional arguments to the plot, like style options. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em plot} & plot instance \\
+\hline
+{\em args} & string with gnuplot commands \\
+\hline
+\end{DoxyParams}
+\Hypertarget{plot_8c_a3f17b0b373dfaf3ed278bcf51c123233}\label{plot_8c_a3f17b0b373dfaf3ed278bcf51c123233} 
+\index{plot.c@{plot.c}!plot\_free@{plot\_free}}
+\index{plot\_free@{plot\_free}!plot.c@{plot.c}}
+\doxysubsubsection{\texorpdfstring{plot\_free()}{plot\_free()}}
+{\footnotesize\ttfamily void plot\+\_\+free (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}}}]{plot }\end{DoxyParamCaption})}
+
+
+
+Free resources. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em plot} & plot instance \\
+\hline
+\end{DoxyParams}
+\Hypertarget{plot_8c_a4d6f631984f72125902b6bd457b85ad6}\label{plot_8c_a4d6f631984f72125902b6bd457b85ad6} 
+\index{plot.c@{plot.c}!plot\_open@{plot\_open}}
+\index{plot\_open@{plot\_open}!plot.c@{plot.c}}
+\doxysubsubsection{\texorpdfstring{plot\_open()}{plot\_open()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot\+\_\+open (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{title }\end{DoxyParamCaption})}
+
+
+
+Opens a new gnuplot. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em title} & name of the plot \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+PLOT plot instance 
+\end{DoxyReturn}
+\Hypertarget{plot_8c_a9137910278243c7b2b37eff3a21bff1f}\label{plot_8c_a9137910278243c7b2b37eff3a21bff1f} 
+\index{plot.c@{plot.c}!plot\_point@{plot\_point}}
+\index{plot\_point@{plot\_point}!plot.c@{plot.c}}
+\doxysubsubsection{\texorpdfstring{plot\_point()}{plot\_point()}}
+{\footnotesize\ttfamily void plot\+\_\+point (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}}}]{plot,  }\item[{\mbox{\hyperlink{structpoint}{point}} \texorpdfstring{$\ast$}{*}}]{p }\end{DoxyParamCaption})}
+
+
+
+Plots a single point. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em plot} & \\
+\hline
+{\em p} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{plot_8c_a36c160a703e277292b9bebfceb585c03}\label{plot_8c_a36c160a703e277292b9bebfceb585c03} 
+\index{plot.c@{plot.c}!plot\_tofile@{plot\_tofile}}
+\index{plot\_tofile@{plot\_tofile}!plot.c@{plot.c}}
+\doxysubsubsection{\texorpdfstring{plot\_tofile()}{plot\_tofile()}}
+{\footnotesize\ttfamily void plot\+\_\+tofile (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}}}]{plot,  }\item[{char \texorpdfstring{$\ast$}{*}}]{filename }\end{DoxyParamCaption})}
+
+
+
+Saves the plot to a jpg file in the directory /plots. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em plot} & plot instance \\
+\hline
+{\em filename} & name of the output file \\
+\hline
+\end{DoxyParams}

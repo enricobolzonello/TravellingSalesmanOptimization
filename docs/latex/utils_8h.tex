@@ -1,5 +1,5 @@
-\doxysection{src/utils.h File Reference}
-\hypertarget{utils_8h}{}\label{utils_8h}\index{src/utils.h@{src/utils.h}}
+\doxysection{src/utils/utils.h File Reference}
+\hypertarget{utils_8h}{}\label{utils_8h}\index{src/utils/utils.h@{src/utils/utils.h}}
 
 
 General utilities for TSP.  
@@ -11,6 +11,7 @@ General utilities for TSP.
 {\ttfamily \#include $<$stdbool.\+h$>$}\newline
 {\ttfamily \#include $<$stdio.\+h$>$}\newline
 {\ttfamily \#include $<$stdlib.\+h$>$}\newline
+{\ttfamily \#include $<$errno.\+h$>$}\newline
 \doxysubsubsection*{Data Structures}
 \begin{DoxyCompactItemize}
 \item 
@@ -19,32 +20,24 @@ struct \mbox{\hyperlink{structpoint}{point}}
 \doxysubsubsection*{Macros}
 \begin{DoxyCompactItemize}
 \item 
-\Hypertarget{utils_8h_a302607d6f585b7e9ba1c3eab8d2199d5}\label{utils_8h_a302607d6f585b7e9ba1c3eab8d2199d5} 
-\#define {\bfseries COLOR\+\_\+\+BOLD}~"{}\textbackslash{}033\mbox{[}1m"{}
+\#define \mbox{\hyperlink{utils_8h_a302607d6f585b7e9ba1c3eab8d2199d5}{COLOR\+\_\+\+BOLD}}~"{}\textbackslash{}033\mbox{[}1m"{}
 \item 
-\Hypertarget{utils_8h_a8cb8d305059f6c44741bbb4e1c40fd3d}\label{utils_8h_a8cb8d305059f6c44741bbb4e1c40fd3d} 
-\#define {\bfseries COLOR\+\_\+\+OFF}~"{}\textbackslash{}033\mbox{[}m"{}
+\#define \mbox{\hyperlink{utils_8h_a8cb8d305059f6c44741bbb4e1c40fd3d}{COLOR\+\_\+\+OFF}}~"{}\textbackslash{}033\mbox{[}m"{}
 \item 
-\Hypertarget{utils_8h_af85e90654ab929ca38457939a307b134}\label{utils_8h_af85e90654ab929ca38457939a307b134} 
-\#define {\bfseries MAX\+\_\+\+COORDINATE}~10000
+\#define \mbox{\hyperlink{utils_8h_af85e90654ab929ca38457939a307b134}{MAX\+\_\+\+COORDINATE}}~10000
 \item 
-\Hypertarget{utils_8h_a547597a89a5e85d709dd9a3038819fda}\label{utils_8h_a547597a89a5e85d709dd9a3038819fda} 
-\#define {\bfseries MIN\+\_\+\+COORDINATE}~-\/10000
+\#define \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}}~-\/10000
 \item 
-\Hypertarget{utils_8h_a15213e34350a5468606b1b12ecab0849}\label{utils_8h_a15213e34350a5468606b1b12ecab0849} 
-\#define {\bfseries TSP\+\_\+\+RAND}()~( ((double)rand() / RAND\+\_\+\+MAX) \texorpdfstring{$\ast$}{*} (MAX\+\_\+\+COORDINATE -\/ MIN\+\_\+\+COORDINATE) + MIN\+\_\+\+COORDINATE )
+\#define \mbox{\hyperlink{utils_8h_a15213e34350a5468606b1b12ecab0849}{TSP\+\_\+\+RAND}}()~( ((double)rand() / RAND\+\_\+\+MAX) \texorpdfstring{$\ast$}{*} (\mbox{\hyperlink{utils_8h_af85e90654ab929ca38457939a307b134}{MAX\+\_\+\+COORDINATE}} -\/ \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}}) + \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}} )
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-\Hypertarget{utils_8h_a0038df898c35b6a483fa874b3671735b}\label{utils_8h_a0038df898c35b6a483fa874b3671735b} 
-bool {\bfseries file\+\_\+exists} (const char \texorpdfstring{$\ast$}{*}filename)
+bool \mbox{\hyperlink{utils_8h_a14c176eae900a91d3566b87d1eb6f060}{utils\+\_\+file\+\_\+exists}} (const char \texorpdfstring{$\ast$}{*}filename)
 \item 
-\Hypertarget{utils_8h_a2472dbb1703a622c90544e7ae98d6922}\label{utils_8h_a2472dbb1703a622c90544e7ae98d6922} 
-bool {\bfseries invalid\+\_\+input} (int i, int argc, bool \texorpdfstring{$\ast$}{*}help)
+bool \mbox{\hyperlink{utils_8h_ae943d7925c35564206c9dc3681783cd8}{utils\+\_\+invalid\+\_\+input}} (int i, int argc, bool \texorpdfstring{$\ast$}{*}help)
 \item 
-\Hypertarget{utils_8h_ab8d5a53dabb5d733bbcd2ddf81813ac9}\label{utils_8h_ab8d5a53dabb5d733bbcd2ddf81813ac9} 
-void {\bfseries print\+\_\+error} (char \texorpdfstring{$\ast$}{*}message)
+void \mbox{\hyperlink{utils_8h_ab53d28d3561831ee01727163e38b65a1}{utils\+\_\+print\+\_\+error}} (char \texorpdfstring{$\ast$}{*}message)
 \end{DoxyCompactItemize}
 
 
@@ -63,3 +56,57 @@ Enrico Bolzonello (\href{mailto:enrico.bolzonello@studenti.unidp.it}{\texttt{ en
 \begin{DoxyCopyright}{Copyright}
 Copyright (c) 2024 
 \end{DoxyCopyright}
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{utils_8h_a302607d6f585b7e9ba1c3eab8d2199d5}\label{utils_8h_a302607d6f585b7e9ba1c3eab8d2199d5} 
+\index{utils.h@{utils.h}!COLOR\_BOLD@{COLOR\_BOLD}}
+\index{COLOR\_BOLD@{COLOR\_BOLD}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{COLOR\_BOLD}{COLOR\_BOLD}}
+{\footnotesize\ttfamily \#define COLOR\+\_\+\+BOLD~"{}\textbackslash{}033\mbox{[}1m"{}}
+
+\Hypertarget{utils_8h_a8cb8d305059f6c44741bbb4e1c40fd3d}\label{utils_8h_a8cb8d305059f6c44741bbb4e1c40fd3d} 
+\index{utils.h@{utils.h}!COLOR\_OFF@{COLOR\_OFF}}
+\index{COLOR\_OFF@{COLOR\_OFF}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{COLOR\_OFF}{COLOR\_OFF}}
+{\footnotesize\ttfamily \#define COLOR\+\_\+\+OFF~"{}\textbackslash{}033\mbox{[}m"{}}
+
+\Hypertarget{utils_8h_af85e90654ab929ca38457939a307b134}\label{utils_8h_af85e90654ab929ca38457939a307b134} 
+\index{utils.h@{utils.h}!MAX\_COORDINATE@{MAX\_COORDINATE}}
+\index{MAX\_COORDINATE@{MAX\_COORDINATE}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{MAX\_COORDINATE}{MAX\_COORDINATE}}
+{\footnotesize\ttfamily \#define MAX\+\_\+\+COORDINATE~10000}
+
+\Hypertarget{utils_8h_a547597a89a5e85d709dd9a3038819fda}\label{utils_8h_a547597a89a5e85d709dd9a3038819fda} 
+\index{utils.h@{utils.h}!MIN\_COORDINATE@{MIN\_COORDINATE}}
+\index{MIN\_COORDINATE@{MIN\_COORDINATE}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{MIN\_COORDINATE}{MIN\_COORDINATE}}
+{\footnotesize\ttfamily \#define MIN\+\_\+\+COORDINATE~-\/10000}
+
+\Hypertarget{utils_8h_a15213e34350a5468606b1b12ecab0849}\label{utils_8h_a15213e34350a5468606b1b12ecab0849} 
+\index{utils.h@{utils.h}!TSP\_RAND@{TSP\_RAND}}
+\index{TSP\_RAND@{TSP\_RAND}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{TSP\_RAND}{TSP\_RAND}}
+{\footnotesize\ttfamily \#define TSP\+\_\+\+RAND(\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})~( ((double)rand() / RAND\+\_\+\+MAX) \texorpdfstring{$\ast$}{*} (\mbox{\hyperlink{utils_8h_af85e90654ab929ca38457939a307b134}{MAX\+\_\+\+COORDINATE}} -\/ \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}}) + \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}} )}
+
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{utils_8h_a14c176eae900a91d3566b87d1eb6f060}\label{utils_8h_a14c176eae900a91d3566b87d1eb6f060} 
+\index{utils.h@{utils.h}!utils\_file\_exists@{utils\_file\_exists}}
+\index{utils\_file\_exists@{utils\_file\_exists}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{utils\_file\_exists()}{utils\_file\_exists()}}
+{\footnotesize\ttfamily bool utils\+\_\+file\+\_\+exists (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{filename }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8h_ae943d7925c35564206c9dc3681783cd8}\label{utils_8h_ae943d7925c35564206c9dc3681783cd8} 
+\index{utils.h@{utils.h}!utils\_invalid\_input@{utils\_invalid\_input}}
+\index{utils\_invalid\_input@{utils\_invalid\_input}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{utils\_invalid\_input()}{utils\_invalid\_input()}}
+{\footnotesize\ttfamily bool utils\+\_\+invalid\+\_\+input (\begin{DoxyParamCaption}\item[{int}]{i,  }\item[{int}]{argc,  }\item[{bool \texorpdfstring{$\ast$}{*}}]{help }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8h_ab53d28d3561831ee01727163e38b65a1}\label{utils_8h_ab53d28d3561831ee01727163e38b65a1} 
+\index{utils.h@{utils.h}!utils\_print\_error@{utils\_print\_error}}
+\index{utils\_print\_error@{utils\_print\_error}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{utils\_print\_error()}{utils\_print\_error()}}
+{\footnotesize\ttfamily void utils\+\_\+print\+\_\+error (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{message }\end{DoxyParamCaption})}
+

@@ -1,12 +1,25 @@
 #ifndef ERRORS_H_
 #define ERRORS_H_
 
+/**
+ * @file errors.h
+ * @author Enrico Bolzonello (enrico.bolzonello@studenti.unipd.it)
+ * @brief defines helpers for logging and handling errors
+ * @version 0.1
+ * @date 2024-03-08
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 #include<stdbool.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
+/**
+ * @brief error codes as refered in <a href="https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto">Google's RPC standard</a> 
+ * 
+ */
 
-// https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 typedef enum{
     OK = 0,
     CANCELLED = 1,
@@ -27,15 +40,23 @@ typedef enum{
     DATA_LOSS = 15
 } ERROR_CODE;
 
+/**
+ * @brief logging types
+ * 
+ */
 typedef enum{
     LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL
 } LOGGING_TYPE;
 
-// https://symfony.com/doc/current/console/verbosity.html
-// -q nothing, only output
-// (none) normal, only warn, errors and fatal
-// -v + info
-// -vv + debug, trace
+/**
+ * @brief verbosity levels
+ * -q QUIET, only output
+ * (none) NORMAL, only warn, errors and fatal
+ * -v VERBOSE, normal verbosity plus info
+ * -vv VERY_VERBOSE, verbose plus debug and trace
+ * 
+ * reference: https://symfony.com/doc/current/console/verbosity.html
+ */
 typedef enum{
   QUIET = 0,
   NORMAL = 1,
@@ -62,8 +83,31 @@ static const char *level_colors[] = {
   "\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
 };
 
+/**
+ * @brief returns true if the error\_code is OK
+ * 
+ * @param error 
+ * @return true 
+ * @return false 
+ */
 bool err_ok(ERROR_CODE error);
+
+/**
+ * @brief set verbosity levels, as defined in \link VERBOSITY \endlink
+ * 
+ * @param verbosity 
+ */
 void err_setverbosity(VERBOSITY verbosity);
+
+/**
+ * @brief helper function to print logs
+ * 
+ * @param level 
+ * @param file 
+ * @param line 
+ * @param message 
+ * @param ... 
+ */
 void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, ...);
 
 #endif

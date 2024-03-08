@@ -1,0 +1,73 @@
+\doxysection{src/utils/errors.c File Reference}
+\hypertarget{errors_8c}{}\label{errors_8c}\index{src/utils/errors.c@{src/utils/errors.c}}
+{\ttfamily \#include "{}errors.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{errors_8c_a0800388b9e85869762ce68502b873bdb}{err\+\_\+ok}} (\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} error)
+\begin{DoxyCompactList}\small\item\em returns true if the error\+\_\+code is OK \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{errors_8c_af6cf36506c3aaef662a05f7266bb98a8}{err\+\_\+setverbosity}} (\mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}} \mbox{\hyperlink{errors_8h_a1bdcfae3209cbd96db35a2ae356fa15e}{verbosity}})
+\begin{DoxyCompactList}\small\item\em set verbosity levels, as defined in \doxylink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY} \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}} (\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\+\_\+\+TYPE}} level, const char \texorpdfstring{$\ast$}{*}file, int line, char \texorpdfstring{$\ast$}{*}message,...)
+\begin{DoxyCompactList}\small\item\em helper function to print logs \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}\label{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c} 
+\index{errors.c@{errors.c}!err\_logging@{err\_logging}}
+\index{err\_logging@{err\_logging}!errors.c@{errors.c}}
+\doxysubsubsection{\texorpdfstring{err\_logging()}{err\_logging()}}
+{\footnotesize\ttfamily void err\+\_\+logging (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\+\_\+\+TYPE}}}]{level,  }\item[{const char \texorpdfstring{$\ast$}{*}}]{file,  }\item[{int}]{line,  }\item[{char \texorpdfstring{$\ast$}{*}}]{message,  }\item[{}]{... }\end{DoxyParamCaption})}
+
+
+
+helper function to print logs 
+
+
+\begin{DoxyParams}{Parameters}
+{\em level} & \\
+\hline
+{\em file} & \\
+\hline
+{\em line} & \\
+\hline
+{\em message} & \\
+\hline
+{\em ...} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{errors_8c_a0800388b9e85869762ce68502b873bdb}\label{errors_8c_a0800388b9e85869762ce68502b873bdb} 
+\index{errors.c@{errors.c}!err\_ok@{err\_ok}}
+\index{err\_ok@{err\_ok}!errors.c@{errors.c}}
+\doxysubsubsection{\texorpdfstring{err\_ok()}{err\_ok()}}
+{\footnotesize\ttfamily bool err\+\_\+ok (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}}}]{error }\end{DoxyParamCaption})}
+
+
+
+returns true if the error\+\_\+code is OK 
+
+
+\begin{DoxyParams}{Parameters}
+{\em error} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
+\Hypertarget{errors_8c_af6cf36506c3aaef662a05f7266bb98a8}\label{errors_8c_af6cf36506c3aaef662a05f7266bb98a8} 
+\index{errors.c@{errors.c}!err\_setverbosity@{err\_setverbosity}}
+\index{err\_setverbosity@{err\_setverbosity}!errors.c@{errors.c}}
+\doxysubsubsection{\texorpdfstring{err\_setverbosity()}{err\_setverbosity()}}
+{\footnotesize\ttfamily void err\+\_\+setverbosity (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}}}]{verbosity }\end{DoxyParamCaption})}
+
+
+
+set verbosity levels, as defined in \doxylink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY} 
+
+
+\begin{DoxyParams}{Parameters}
+{\em verbosity} & \\
+\hline
+\end{DoxyParams}

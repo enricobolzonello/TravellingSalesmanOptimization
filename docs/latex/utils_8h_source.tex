@@ -1,5 +1,5 @@
 \doxysection{utils.\+h}
-\hypertarget{utils_8h_source}{}\label{utils_8h_source}\index{src/utils.h@{src/utils.h}}
+\hypertarget{utils_8h_source}{}\label{utils_8h_source}\index{src/utils/utils.h@{src/utils/utils.h}}
 \mbox{\hyperlink{utils_8h}{Go to the documentation of this file.}}
 \begin{DoxyCode}{0}
 \DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ UTILS\_H\_}}
@@ -11,26 +11,27 @@
 \DoxyCodeLine{00018\ \textcolor{preprocessor}{\#include\ <stdbool.h>}\ }
 \DoxyCodeLine{00019\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
 \DoxyCodeLine{00020\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
-\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00021\ \textcolor{preprocessor}{\#include\ <errno.h>}}
 \DoxyCodeLine{00022\ }
-\DoxyCodeLine{00023\ \textcolor{preprocessor}{\#define\ COLOR\_BOLD\ \ "{}\(\backslash\)033[1m"{}}}
-\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#define\ COLOR\_OFF\ \ \ "{}\(\backslash\)033[m"{}}}
-\DoxyCodeLine{00025\ }
-\DoxyCodeLine{00026\ \textcolor{preprocessor}{\#define\ MAX\_COORDINATE\ 10000}}
-\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#define\ MIN\_COORDINATE\ -\/10000}}
-\DoxyCodeLine{00028\ }
-\DoxyCodeLine{00029\ \textcolor{preprocessor}{\#define\ TSP\_RAND()\ (\ ((double)rand()\ /\ RAND\_MAX)\ *\ (MAX\_COORDINATE\ -\/\ MIN\_COORDINATE)\ +\ MIN\_COORDINATE\ )}}
-\DoxyCodeLine{00030\ }
-\DoxyCodeLine{00031\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
-\DoxyCodeLine{00032\ \ \ \ \ \textcolor{keywordtype}{double}\ x;}
-\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordtype}{double}\ y;}
-\DoxyCodeLine{00034\ \}\ \mbox{\hyperlink{structpoint}{point}};}
-\DoxyCodeLine{00035\ }
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \textcolor{preprocessor}{\#define\ COLOR\_BOLD\ \ "{}\(\backslash\)033[1m"{}}}
+\DoxyCodeLine{00025\ \textcolor{preprocessor}{\#define\ COLOR\_OFF\ \ \ "{}\(\backslash\)033[m"{}}}
+\DoxyCodeLine{00026\ }
+\DoxyCodeLine{00027\ \textcolor{preprocessor}{\#define\ MAX\_COORDINATE\ 10000}}
+\DoxyCodeLine{00028\ \textcolor{preprocessor}{\#define\ MIN\_COORDINATE\ -\/10000}}
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{preprocessor}{\#define\ TSP\_RAND()\ (\ ((double)rand()\ /\ RAND\_MAX)\ *\ (MAX\_COORDINATE\ -\/\ MIN\_COORDINATE)\ +\ MIN\_COORDINATE\ )}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00033\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{structpoint_af88b946fb90d5f08b5fb740c70e98c10}{x}};}
+\DoxyCodeLine{00034\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{structpoint_ab927965981178aa1fba979a37168db2a}{y}};}
+\DoxyCodeLine{00035\ \}\ \mbox{\hyperlink{structpoint}{point}};}
 \DoxyCodeLine{00036\ }
-\DoxyCodeLine{00037\ \textcolor{keywordtype}{bool}\ file\_exists\ (\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filename);}
-\DoxyCodeLine{00038\ \textcolor{keywordtype}{bool}\ invalid\_input(\textcolor{keywordtype}{int}\ i,\ \textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{bool}*\ help);}
-\DoxyCodeLine{00039\ \textcolor{keywordtype}{void}\ print\_error(\textcolor{keywordtype}{char}*\ message);}
-\DoxyCodeLine{00040\ }
-\DoxyCodeLine{00041\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00037\ }
+\DoxyCodeLine{00038\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{utils_8h_a14c176eae900a91d3566b87d1eb6f060}{utils\_file\_exists}}\ (\textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *filename);}
+\DoxyCodeLine{00039\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{utils_8h_ae943d7925c35564206c9dc3681783cd8}{utils\_invalid\_input}}(\textcolor{keywordtype}{int}\ i,\ \textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{bool}*\ help);}
+\DoxyCodeLine{00040\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{utils_8h_ab53d28d3561831ee01727163e38b65a1}{utils\_print\_error}}(\textcolor{keywordtype}{char}*\ message);}
+\DoxyCodeLine{00041\ }
+\DoxyCodeLine{00042\ \textcolor{preprocessor}{\#endif}}
 
 \end{DoxyCode}

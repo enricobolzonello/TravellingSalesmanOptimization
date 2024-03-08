@@ -1,0 +1,351 @@
+\doxysection{src/utils/errors.h File Reference}
+\hypertarget{errors_8h}{}\label{errors_8h}\index{src/utils/errors.h@{src/utils/errors.h}}
+
+
+defines helpers for logging and handling errors  
+
+
+{\ttfamily \#include $<$stdbool.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+{\ttfamily \#include $<$time.\+h$>$}\newline
+{\ttfamily \#include $<$stdlib.\+h$>$}\newline
+\doxysubsubsection*{Macros}
+\begin{DoxyCompactItemize}
+\item 
+\#define \mbox{\hyperlink{errors_8h_af89cb876e6e1d43cfeacdd58a7c9b78c}{log\+\_\+trace}}(...)~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca5b76dd51db62558b1952158ba38b723f}{LOG\+\_\+\+TRACE}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)
+\item 
+\#define \mbox{\hyperlink{errors_8h_aa77e596ef13d2f0f75d0ac9540ed358d}{log\+\_\+debug}}(...)~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acab9f002c6ffbfd511da8090213227454e}{LOG\+\_\+\+DEBUG}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)
+\item 
+\#define \mbox{\hyperlink{errors_8h_aa1cfe5444875c8eca0ea6f6993977d6d}{log\+\_\+info}}(...)~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca6e98ff471e3ce6c4ef2d75c37ee51837}{LOG\+\_\+\+INFO}},  \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)
+\item 
+\#define \mbox{\hyperlink{errors_8h_a04af09851c431d178f16b24fa1aac1e9}{log\+\_\+warn}}(...)~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac8041ffa22bc823d4726701cdb13fc13}{LOG\+\_\+\+WARN}},  \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)
+\item 
+\#define \mbox{\hyperlink{errors_8h_a6ae72553ea9805dd87a463d6f710364d}{log\+\_\+error}}(...)~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca230506cce5c68c3bac5a821c42ed3473}{LOG\+\_\+\+ERROR}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)
+\item 
+\#define \mbox{\hyperlink{errors_8h_a704a43b1e2ff3bb554aff101efdbeecf}{log\+\_\+fatal}}(...)~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac630750884d91cb9767ef2200bbb048b}{LOG\+\_\+\+FATAL}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)
+\end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \{ \newline
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca2bc49ec37d6a5715dd23e85f1ff5bb59}{OK}} = 0
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3c862c356e44394920d592cde81bec7b}{CANCELLED}} = 1
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca6ce26a62afab55d7606ad4e92428b30c}{UNKNOWN}} = 2
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca5eee2964b285af6b0b8bf73c72fdf0f4}{INVALID\+\_\+\+ARGUMENT}} = 3
+, \newline
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca0b6c972b96e5fd28122aeeec07756704}{DEADLINE\+\_\+\+EXCEEDED}} = 4
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cacdaa2919bac56fe1090eb3dbb9526472}{NOT\+\_\+\+FOUND}} = 5
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf9e128c760c2cd2066ae3533d4b31c43}{ALREADY\+\_\+\+EXISTS}} = 6
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca78bd980fff20ef643df9c7119fbd8520}{PERMISSION\+\_\+\+DENIED}} = 7
+, \newline
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caaf198e7f40b15882ade16e0761a0e948}{UNAUTHENTICATED}} = 16
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93db917bca3bf882630b297acaf2dbea}{RESOURCE\+\_\+\+EXHAUSTED}} = 8
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93dc1516e84e63b9df703edee0aa994d}{FAILED\+\_\+\+PRECONDITION}} = 9
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3ae09818606786b529d9ca89180fa29a}{ABORTED}} = 10
+, \newline
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3f26dd98dc0ab63a635667a0c49fc709}{OUT\+\_\+\+OF\+\_\+\+RANGE}} = 11
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf2645dc3e76aada2b584fbc8a088fd76}{UNIMPLEMENTED}} = 12
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cadc7588f17692aa631f375290d50a2c8e}{INTERNAL}} = 13
+, \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3fde93396dcd04d746a8cd3b6b5914bb}{UNAVAILABLE}} = 14
+, \newline
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca693105a2a42ce8f1db6babbb9b0ee560}{DATA\+\_\+\+LOSS}} = 15
+ \}
+\begin{DoxyCompactList}\small\item\em error codes as refered in \href{https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto}{\texttt{ Google\textquotesingle{}s RPC standard}} \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\+\_\+\+TYPE}} \{ \newline
+\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca5b76dd51db62558b1952158ba38b723f}{LOG\+\_\+\+TRACE}}
+, \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acab9f002c6ffbfd511da8090213227454e}{LOG\+\_\+\+DEBUG}}
+, \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca6e98ff471e3ce6c4ef2d75c37ee51837}{LOG\+\_\+\+INFO}}
+, \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac8041ffa22bc823d4726701cdb13fc13}{LOG\+\_\+\+WARN}}
+, \newline
+\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca230506cce5c68c3bac5a821c42ed3473}{LOG\+\_\+\+ERROR}}
+, \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac630750884d91cb9767ef2200bbb048b}{LOG\+\_\+\+FATAL}}
+ \}
+\begin{DoxyCompactList}\small\item\em logging types \end{DoxyCompactList}\item 
+enum \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}} \{ \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a4e8e36e4a6c3348cb98fd3223fb07b28}{QUIET}} = 0
+, \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a50d1448013c6f17125caee18aa418af7}{NORMAL}} = 1
+, \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84ace3e26676763569084c86b8c3b67d601}{VERBOSE}} = 2
+, \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a05ac9ca266f9e1731e2832c50fc14849}{VERY\+\_\+\+VERBOSE}} = 3
+ \}
+\begin{DoxyCompactList}\small\item\em verbosity levels -\/q QUIET, only output (none) NORMAL, only warn, errors and fatal -\/v VERBOSE, normal verbosity plus info -\/vv VERY\+\_\+\+VERBOSE, verbose plus debug and trace \end{DoxyCompactList}\end{DoxyCompactItemize}
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+bool \mbox{\hyperlink{errors_8h_a0800388b9e85869762ce68502b873bdb}{err\+\_\+ok}} (\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} error)
+\begin{DoxyCompactList}\small\item\em returns true if the error\+\_\+code is OK \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{errors_8h_af6cf36506c3aaef662a05f7266bb98a8}{err\+\_\+setverbosity}} (\mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}} \mbox{\hyperlink{errors_8h_a1bdcfae3209cbd96db35a2ae356fa15e}{verbosity}})
+\begin{DoxyCompactList}\small\item\em set verbosity levels, as defined in \doxylink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY} \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{errors_8h_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}} (\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\+\_\+\+TYPE}} level, const char \texorpdfstring{$\ast$}{*}file, int line, char \texorpdfstring{$\ast$}{*}message,...)
+\begin{DoxyCompactList}\small\item\em helper function to print logs \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+defines helpers for logging and handling errors 
+
+\begin{DoxyAuthor}{Author}
+Enrico Bolzonello (\href{mailto:enrico.bolzonello@studenti.unipd.it}{\texttt{ enrico.\+bolzonello@studenti.\+unipd.\+it}}) 
+\end{DoxyAuthor}
+\begin{DoxyVersion}{Version}
+0.\+1 
+\end{DoxyVersion}
+\begin{DoxyDate}{Date}
+2024-\/03-\/08
+\end{DoxyDate}
+\begin{DoxyCopyright}{Copyright}
+Copyright (c) 2024 
+\end{DoxyCopyright}
+
+
+\doxysubsection{Macro Definition Documentation}
+\Hypertarget{errors_8h_aa77e596ef13d2f0f75d0ac9540ed358d}\label{errors_8h_aa77e596ef13d2f0f75d0ac9540ed358d} 
+\index{errors.h@{errors.h}!log\_debug@{log\_debug}}
+\index{log\_debug@{log\_debug}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{log\_debug}{log\_debug}}
+{\footnotesize\ttfamily \#define log\+\_\+debug(\begin{DoxyParamCaption}\item[{}]{... }\end{DoxyParamCaption})~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acab9f002c6ffbfd511da8090213227454e}{LOG\+\_\+\+DEBUG}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)}
+
+\Hypertarget{errors_8h_a6ae72553ea9805dd87a463d6f710364d}\label{errors_8h_a6ae72553ea9805dd87a463d6f710364d} 
+\index{errors.h@{errors.h}!log\_error@{log\_error}}
+\index{log\_error@{log\_error}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{log\_error}{log\_error}}
+{\footnotesize\ttfamily \#define log\+\_\+error(\begin{DoxyParamCaption}\item[{}]{... }\end{DoxyParamCaption})~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca230506cce5c68c3bac5a821c42ed3473}{LOG\+\_\+\+ERROR}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)}
+
+\Hypertarget{errors_8h_a704a43b1e2ff3bb554aff101efdbeecf}\label{errors_8h_a704a43b1e2ff3bb554aff101efdbeecf} 
+\index{errors.h@{errors.h}!log\_fatal@{log\_fatal}}
+\index{log\_fatal@{log\_fatal}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{log\_fatal}{log\_fatal}}
+{\footnotesize\ttfamily \#define log\+\_\+fatal(\begin{DoxyParamCaption}\item[{}]{... }\end{DoxyParamCaption})~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac630750884d91cb9767ef2200bbb048b}{LOG\+\_\+\+FATAL}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)}
+
+\Hypertarget{errors_8h_aa1cfe5444875c8eca0ea6f6993977d6d}\label{errors_8h_aa1cfe5444875c8eca0ea6f6993977d6d} 
+\index{errors.h@{errors.h}!log\_info@{log\_info}}
+\index{log\_info@{log\_info}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{log\_info}{log\_info}}
+{\footnotesize\ttfamily \#define log\+\_\+info(\begin{DoxyParamCaption}\item[{}]{... }\end{DoxyParamCaption})~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca6e98ff471e3ce6c4ef2d75c37ee51837}{LOG\+\_\+\+INFO}},  \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)}
+
+\Hypertarget{errors_8h_af89cb876e6e1d43cfeacdd58a7c9b78c}\label{errors_8h_af89cb876e6e1d43cfeacdd58a7c9b78c} 
+\index{errors.h@{errors.h}!log\_trace@{log\_trace}}
+\index{log\_trace@{log\_trace}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{log\_trace}{log\_trace}}
+{\footnotesize\ttfamily \#define log\+\_\+trace(\begin{DoxyParamCaption}\item[{}]{... }\end{DoxyParamCaption})~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca5b76dd51db62558b1952158ba38b723f}{LOG\+\_\+\+TRACE}}, \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)}
+
+\Hypertarget{errors_8h_a04af09851c431d178f16b24fa1aac1e9}\label{errors_8h_a04af09851c431d178f16b24fa1aac1e9} 
+\index{errors.h@{errors.h}!log\_warn@{log\_warn}}
+\index{log\_warn@{log\_warn}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{log\_warn}{log\_warn}}
+{\footnotesize\ttfamily \#define log\+\_\+warn(\begin{DoxyParamCaption}\item[{}]{... }\end{DoxyParamCaption})~\mbox{\hyperlink{errors_8c_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\+\_\+logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac8041ffa22bc823d4726701cdb13fc13}{LOG\+\_\+\+WARN}},  \+\_\+\+\_\+\+FILE\+\_\+\+\_\+, \+\_\+\+\_\+\+LINE\+\_\+\+\_\+, \+\_\+\+\_\+\+VA\+\_\+\+ARGS\+\_\+\+\_\+)}
+
+
+
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c} 
+\index{errors.h@{errors.h}!ERROR\_CODE@{ERROR\_CODE}}
+\index{ERROR\_CODE@{ERROR\_CODE}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{ERROR\_CODE}{ERROR\_CODE}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}}}
+
+
+
+error codes as refered in \href{https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto}{\texttt{ Google\textquotesingle{}s RPC standard}} 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OK@{OK}!errors.h@{errors.h}}\index{errors.h@{errors.h}!OK@{OK}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca2bc49ec37d6a5715dd23e85f1ff5bb59}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca2bc49ec37d6a5715dd23e85f1ff5bb59} 
+OK&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{CANCELLED@{CANCELLED}!errors.h@{errors.h}}\index{errors.h@{errors.h}!CANCELLED@{CANCELLED}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3c862c356e44394920d592cde81bec7b}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3c862c356e44394920d592cde81bec7b} 
+CANCELLED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UNKNOWN@{UNKNOWN}!errors.h@{errors.h}}\index{errors.h@{errors.h}!UNKNOWN@{UNKNOWN}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca6ce26a62afab55d7606ad4e92428b30c}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca6ce26a62afab55d7606ad4e92428b30c} 
+UNKNOWN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INVALID\_ARGUMENT@{INVALID\_ARGUMENT}!errors.h@{errors.h}}\index{errors.h@{errors.h}!INVALID\_ARGUMENT@{INVALID\_ARGUMENT}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca5eee2964b285af6b0b8bf73c72fdf0f4}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca5eee2964b285af6b0b8bf73c72fdf0f4} 
+INVALID\+\_\+\+ARGUMENT&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DEADLINE\_EXCEEDED@{DEADLINE\_EXCEEDED}!errors.h@{errors.h}}\index{errors.h@{errors.h}!DEADLINE\_EXCEEDED@{DEADLINE\_EXCEEDED}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca0b6c972b96e5fd28122aeeec07756704}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca0b6c972b96e5fd28122aeeec07756704} 
+DEADLINE\+\_\+\+EXCEEDED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{NOT\_FOUND@{NOT\_FOUND}!errors.h@{errors.h}}\index{errors.h@{errors.h}!NOT\_FOUND@{NOT\_FOUND}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cacdaa2919bac56fe1090eb3dbb9526472}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cacdaa2919bac56fe1090eb3dbb9526472} 
+NOT\+\_\+\+FOUND&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ALREADY\_EXISTS@{ALREADY\_EXISTS}!errors.h@{errors.h}}\index{errors.h@{errors.h}!ALREADY\_EXISTS@{ALREADY\_EXISTS}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf9e128c760c2cd2066ae3533d4b31c43}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf9e128c760c2cd2066ae3533d4b31c43} 
+ALREADY\+\_\+\+EXISTS&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{PERMISSION\_DENIED@{PERMISSION\_DENIED}!errors.h@{errors.h}}\index{errors.h@{errors.h}!PERMISSION\_DENIED@{PERMISSION\_DENIED}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca78bd980fff20ef643df9c7119fbd8520}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca78bd980fff20ef643df9c7119fbd8520} 
+PERMISSION\+\_\+\+DENIED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UNAUTHENTICATED@{UNAUTHENTICATED}!errors.h@{errors.h}}\index{errors.h@{errors.h}!UNAUTHENTICATED@{UNAUTHENTICATED}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caaf198e7f40b15882ade16e0761a0e948}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caaf198e7f40b15882ade16e0761a0e948} 
+UNAUTHENTICATED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{RESOURCE\_EXHAUSTED@{RESOURCE\_EXHAUSTED}!errors.h@{errors.h}}\index{errors.h@{errors.h}!RESOURCE\_EXHAUSTED@{RESOURCE\_EXHAUSTED}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93db917bca3bf882630b297acaf2dbea}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93db917bca3bf882630b297acaf2dbea} 
+RESOURCE\+\_\+\+EXHAUSTED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{FAILED\_PRECONDITION@{FAILED\_PRECONDITION}!errors.h@{errors.h}}\index{errors.h@{errors.h}!FAILED\_PRECONDITION@{FAILED\_PRECONDITION}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93dc1516e84e63b9df703edee0aa994d}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93dc1516e84e63b9df703edee0aa994d} 
+FAILED\+\_\+\+PRECONDITION&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ABORTED@{ABORTED}!errors.h@{errors.h}}\index{errors.h@{errors.h}!ABORTED@{ABORTED}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3ae09818606786b529d9ca89180fa29a}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3ae09818606786b529d9ca89180fa29a} 
+ABORTED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{OUT\_OF\_RANGE@{OUT\_OF\_RANGE}!errors.h@{errors.h}}\index{errors.h@{errors.h}!OUT\_OF\_RANGE@{OUT\_OF\_RANGE}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3f26dd98dc0ab63a635667a0c49fc709}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3f26dd98dc0ab63a635667a0c49fc709} 
+OUT\+\_\+\+OF\+\_\+\+RANGE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UNIMPLEMENTED@{UNIMPLEMENTED}!errors.h@{errors.h}}\index{errors.h@{errors.h}!UNIMPLEMENTED@{UNIMPLEMENTED}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf2645dc3e76aada2b584fbc8a088fd76}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf2645dc3e76aada2b584fbc8a088fd76} 
+UNIMPLEMENTED&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{INTERNAL@{INTERNAL}!errors.h@{errors.h}}\index{errors.h@{errors.h}!INTERNAL@{INTERNAL}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cadc7588f17692aa631f375290d50a2c8e}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cadc7588f17692aa631f375290d50a2c8e} 
+INTERNAL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{UNAVAILABLE@{UNAVAILABLE}!errors.h@{errors.h}}\index{errors.h@{errors.h}!UNAVAILABLE@{UNAVAILABLE}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3fde93396dcd04d746a8cd3b6b5914bb}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3fde93396dcd04d746a8cd3b6b5914bb} 
+UNAVAILABLE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{DATA\_LOSS@{DATA\_LOSS}!errors.h@{errors.h}}\index{errors.h@{errors.h}!DATA\_LOSS@{DATA\_LOSS}}}\Hypertarget{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca693105a2a42ce8f1db6babbb9b0ee560}\label{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca693105a2a42ce8f1db6babbb9b0ee560} 
+DATA\+\_\+\+LOSS&\\
+\hline
+
+\end{DoxyEnumFields}
+\Hypertarget{errors_8h_a536beda7876abdc3c801dacade0282ac}\label{errors_8h_a536beda7876abdc3c801dacade0282ac} 
+\index{errors.h@{errors.h}!LOGGING\_TYPE@{LOGGING\_TYPE}}
+\index{LOGGING\_TYPE@{LOGGING\_TYPE}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{LOGGING\_TYPE}{LOGGING\_TYPE}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\+\_\+\+TYPE}}}
+
+
+
+logging types 
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LOG\_TRACE@{LOG\_TRACE}!errors.h@{errors.h}}\index{errors.h@{errors.h}!LOG\_TRACE@{LOG\_TRACE}}}\Hypertarget{errors_8h_a536beda7876abdc3c801dacade0282aca5b76dd51db62558b1952158ba38b723f}\label{errors_8h_a536beda7876abdc3c801dacade0282aca5b76dd51db62558b1952158ba38b723f} 
+LOG\+\_\+\+TRACE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LOG\_DEBUG@{LOG\_DEBUG}!errors.h@{errors.h}}\index{errors.h@{errors.h}!LOG\_DEBUG@{LOG\_DEBUG}}}\Hypertarget{errors_8h_a536beda7876abdc3c801dacade0282acab9f002c6ffbfd511da8090213227454e}\label{errors_8h_a536beda7876abdc3c801dacade0282acab9f002c6ffbfd511da8090213227454e} 
+LOG\+\_\+\+DEBUG&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LOG\_INFO@{LOG\_INFO}!errors.h@{errors.h}}\index{errors.h@{errors.h}!LOG\_INFO@{LOG\_INFO}}}\Hypertarget{errors_8h_a536beda7876abdc3c801dacade0282aca6e98ff471e3ce6c4ef2d75c37ee51837}\label{errors_8h_a536beda7876abdc3c801dacade0282aca6e98ff471e3ce6c4ef2d75c37ee51837} 
+LOG\+\_\+\+INFO&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LOG\_WARN@{LOG\_WARN}!errors.h@{errors.h}}\index{errors.h@{errors.h}!LOG\_WARN@{LOG\_WARN}}}\Hypertarget{errors_8h_a536beda7876abdc3c801dacade0282acac8041ffa22bc823d4726701cdb13fc13}\label{errors_8h_a536beda7876abdc3c801dacade0282acac8041ffa22bc823d4726701cdb13fc13} 
+LOG\+\_\+\+WARN&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LOG\_ERROR@{LOG\_ERROR}!errors.h@{errors.h}}\index{errors.h@{errors.h}!LOG\_ERROR@{LOG\_ERROR}}}\Hypertarget{errors_8h_a536beda7876abdc3c801dacade0282aca230506cce5c68c3bac5a821c42ed3473}\label{errors_8h_a536beda7876abdc3c801dacade0282aca230506cce5c68c3bac5a821c42ed3473} 
+LOG\+\_\+\+ERROR&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{LOG\_FATAL@{LOG\_FATAL}!errors.h@{errors.h}}\index{errors.h@{errors.h}!LOG\_FATAL@{LOG\_FATAL}}}\Hypertarget{errors_8h_a536beda7876abdc3c801dacade0282acac630750884d91cb9767ef2200bbb048b}\label{errors_8h_a536beda7876abdc3c801dacade0282acac630750884d91cb9767ef2200bbb048b} 
+LOG\+\_\+\+FATAL&\\
+\hline
+
+\end{DoxyEnumFields}
+\Hypertarget{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}\label{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84} 
+\index{errors.h@{errors.h}!VERBOSITY@{VERBOSITY}}
+\index{VERBOSITY@{VERBOSITY}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{VERBOSITY}{VERBOSITY}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}}}
+
+
+
+verbosity levels -\/q QUIET, only output (none) NORMAL, only warn, errors and fatal -\/v VERBOSE, normal verbosity plus info -\/vv VERY\+\_\+\+VERBOSE, verbose plus debug and trace 
+
+reference\+: \href{https://symfony.com/doc/current/console/verbosity.html}{\texttt{ https\+://symfony.\+com/doc/current/console/verbosity.\+html}} \begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{QUIET@{QUIET}!errors.h@{errors.h}}\index{errors.h@{errors.h}!QUIET@{QUIET}}}\Hypertarget{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a4e8e36e4a6c3348cb98fd3223fb07b28}\label{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a4e8e36e4a6c3348cb98fd3223fb07b28} 
+QUIET&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{NORMAL@{NORMAL}!errors.h@{errors.h}}\index{errors.h@{errors.h}!NORMAL@{NORMAL}}}\Hypertarget{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a50d1448013c6f17125caee18aa418af7}\label{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a50d1448013c6f17125caee18aa418af7} 
+NORMAL&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{VERBOSE@{VERBOSE}!errors.h@{errors.h}}\index{errors.h@{errors.h}!VERBOSE@{VERBOSE}}}\Hypertarget{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84ace3e26676763569084c86b8c3b67d601}\label{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84ace3e26676763569084c86b8c3b67d601} 
+VERBOSE&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{VERY\_VERBOSE@{VERY\_VERBOSE}!errors.h@{errors.h}}\index{errors.h@{errors.h}!VERY\_VERBOSE@{VERY\_VERBOSE}}}\Hypertarget{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a05ac9ca266f9e1731e2832c50fc14849}\label{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a05ac9ca266f9e1731e2832c50fc14849} 
+VERY\+\_\+\+VERBOSE&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{errors_8h_a91d7d2142b8e7801d8cd58ed60e3d26c}\label{errors_8h_a91d7d2142b8e7801d8cd58ed60e3d26c} 
+\index{errors.h@{errors.h}!err\_logging@{err\_logging}}
+\index{err\_logging@{err\_logging}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{err\_logging()}{err\_logging()}}
+{\footnotesize\ttfamily void err\+\_\+logging (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\+\_\+\+TYPE}}}]{level,  }\item[{const char \texorpdfstring{$\ast$}{*}}]{file,  }\item[{int}]{line,  }\item[{char \texorpdfstring{$\ast$}{*}}]{message,  }\item[{}]{... }\end{DoxyParamCaption})}
+
+
+
+helper function to print logs 
+
+
+\begin{DoxyParams}{Parameters}
+{\em level} & \\
+\hline
+{\em file} & \\
+\hline
+{\em line} & \\
+\hline
+{\em message} & \\
+\hline
+{\em ...} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{errors_8h_a0800388b9e85869762ce68502b873bdb}\label{errors_8h_a0800388b9e85869762ce68502b873bdb} 
+\index{errors.h@{errors.h}!err\_ok@{err\_ok}}
+\index{err\_ok@{err\_ok}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{err\_ok()}{err\_ok()}}
+{\footnotesize\ttfamily bool err\+\_\+ok (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}}}]{error }\end{DoxyParamCaption})}
+
+
+
+returns true if the error\+\_\+code is OK 
+
+
+\begin{DoxyParams}{Parameters}
+{\em error} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true 
+
+false 
+\end{DoxyReturn}
+\Hypertarget{errors_8h_af6cf36506c3aaef662a05f7266bb98a8}\label{errors_8h_af6cf36506c3aaef662a05f7266bb98a8} 
+\index{errors.h@{errors.h}!err\_setverbosity@{err\_setverbosity}}
+\index{err\_setverbosity@{err\_setverbosity}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{err\_setverbosity()}{err\_setverbosity()}}
+{\footnotesize\ttfamily void err\+\_\+setverbosity (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}}}]{verbosity }\end{DoxyParamCaption})}
+
+
+
+set verbosity levels, as defined in \doxylink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY} 
+
+
+\begin{DoxyParams}{Parameters}
+{\em verbosity} & \\
+\hline
+\end{DoxyParams}
+
+
+\doxysubsection{Variable Documentation}
+\Hypertarget{errors_8h_a1bdcfae3209cbd96db35a2ae356fa15e}\label{errors_8h_a1bdcfae3209cbd96db35a2ae356fa15e} 
+\index{errors.h@{errors.h}!verbosity@{verbosity}}
+\index{verbosity@{verbosity}!errors.h@{errors.h}}
+\doxysubsubsection{\texorpdfstring{verbosity}{verbosity}}
+{\footnotesize\ttfamily int verbosity}
+

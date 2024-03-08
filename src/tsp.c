@@ -163,6 +163,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    -alg <option>           selects the algorithm to solve TSP, run --all_algs to see the options\n");
         printf("    -n <value>              number of nodes\n");
         printf("    --all_algs              prints all possible algorithms\n");
+        printf("    -q                      quiet verbosity level, prints only output");
+        printf("    -v                      verbose verbosity level, prints info, warnings, errors or fatal errors");
+        printf("    -vv                      verbose verbosity level, prints also debug and trace");
     }
 
     if(algs){

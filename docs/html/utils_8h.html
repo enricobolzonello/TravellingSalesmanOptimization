@@ -5,7 +5,7 @@
 <meta http-equiv="X-UA-Compatible" content="IE=11"/>
 <meta name="generator" content="Doxygen 1.10.0"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>Traveling Salesman Optimization: src/utils.h File Reference</title>
+<title>Traveling Salesman Optimization: src/utils/utils.h File Reference</title>
 <link href="tabs.css" rel="stylesheet" type="text/css"/>
 <script type="text/javascript" src="jquery.js"></script>
 <script type="text/javascript" src="dynsections.js"></script>
@@ -72,7 +72,7 @@ $(function() {
 
 <div id="nav-path" class="navpath">
   <ul>
-<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li>  </ul>
+<li class="navelem"><a class="el" href="dir_68267d1309a1af8e8297ef4c3efbcdba.html">src</a></li><li class="navelem"><a class="el" href="dir_313caf1132e152dd9b58bea13a4052ca.html">utils</a></li>  </ul>
 </div>
 </div><!-- top -->
 <div class="header">
@@ -92,6 +92,7 @@ $(function() {
 <code>#include &lt;stdbool.h&gt;</code><br />
 <code>#include &lt;stdio.h&gt;</code><br />
 <code>#include &lt;stdlib.h&gt;</code><br />
+<code>#include &lt;errno.h&gt;</code><br />
 </div>
 <p><a href="utils_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -102,33 +103,25 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
 Macros</h2></td></tr>
-<tr class="memitem:a302607d6f585b7e9ba1c3eab8d2199d5" id="r_a302607d6f585b7e9ba1c3eab8d2199d5"><td class="memItemLeft" align="right" valign="top"><a id="a302607d6f585b7e9ba1c3eab8d2199d5" name="a302607d6f585b7e9ba1c3eab8d2199d5"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>COLOR_BOLD</b>&#160;&#160;&#160;&quot;\033[1m&quot;</td></tr>
+<tr class="memitem:a302607d6f585b7e9ba1c3eab8d2199d5" id="r_a302607d6f585b7e9ba1c3eab8d2199d5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a302607d6f585b7e9ba1c3eab8d2199d5">COLOR_BOLD</a>&#160;&#160;&#160;&quot;\033[1m&quot;</td></tr>
 <tr class="separator:a302607d6f585b7e9ba1c3eab8d2199d5"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a8cb8d305059f6c44741bbb4e1c40fd3d" id="r_a8cb8d305059f6c44741bbb4e1c40fd3d"><td class="memItemLeft" align="right" valign="top"><a id="a8cb8d305059f6c44741bbb4e1c40fd3d" name="a8cb8d305059f6c44741bbb4e1c40fd3d"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>COLOR_OFF</b>&#160;&#160;&#160;&quot;\033[m&quot;</td></tr>
+<tr class="memitem:a8cb8d305059f6c44741bbb4e1c40fd3d" id="r_a8cb8d305059f6c44741bbb4e1c40fd3d"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8cb8d305059f6c44741bbb4e1c40fd3d">COLOR_OFF</a>&#160;&#160;&#160;&quot;\033[m&quot;</td></tr>
 <tr class="separator:a8cb8d305059f6c44741bbb4e1c40fd3d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:af85e90654ab929ca38457939a307b134" id="r_af85e90654ab929ca38457939a307b134"><td class="memItemLeft" align="right" valign="top"><a id="af85e90654ab929ca38457939a307b134" name="af85e90654ab929ca38457939a307b134"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>MAX_COORDINATE</b>&#160;&#160;&#160;10000</td></tr>
+<tr class="memitem:af85e90654ab929ca38457939a307b134" id="r_af85e90654ab929ca38457939a307b134"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af85e90654ab929ca38457939a307b134">MAX_COORDINATE</a>&#160;&#160;&#160;10000</td></tr>
 <tr class="separator:af85e90654ab929ca38457939a307b134"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a547597a89a5e85d709dd9a3038819fda" id="r_a547597a89a5e85d709dd9a3038819fda"><td class="memItemLeft" align="right" valign="top"><a id="a547597a89a5e85d709dd9a3038819fda" name="a547597a89a5e85d709dd9a3038819fda"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>MIN_COORDINATE</b>&#160;&#160;&#160;-10000</td></tr>
+<tr class="memitem:a547597a89a5e85d709dd9a3038819fda" id="r_a547597a89a5e85d709dd9a3038819fda"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a547597a89a5e85d709dd9a3038819fda">MIN_COORDINATE</a>&#160;&#160;&#160;-10000</td></tr>
 <tr class="separator:a547597a89a5e85d709dd9a3038819fda"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a15213e34350a5468606b1b12ecab0849" id="r_a15213e34350a5468606b1b12ecab0849"><td class="memItemLeft" align="right" valign="top"><a id="a15213e34350a5468606b1b12ecab0849" name="a15213e34350a5468606b1b12ecab0849"></a>
-#define&#160;</td><td class="memItemRight" valign="bottom"><b>TSP_RAND</b>()&#160;&#160;&#160;( ((double)rand() / RAND_MAX) * (MAX_COORDINATE - MIN_COORDINATE) + MIN_COORDINATE )</td></tr>
+<tr class="memitem:a15213e34350a5468606b1b12ecab0849" id="r_a15213e34350a5468606b1b12ecab0849"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a15213e34350a5468606b1b12ecab0849">TSP_RAND</a>()&#160;&#160;&#160;( ((double)rand() / RAND_MAX) * (<a class="el" href="#af85e90654ab929ca38457939a307b134">MAX_COORDINATE</a> - <a class="el" href="#a547597a89a5e85d709dd9a3038819fda">MIN_COORDINATE</a>) + <a class="el" href="#a547597a89a5e85d709dd9a3038819fda">MIN_COORDINATE</a> )</td></tr>
 <tr class="separator:a15213e34350a5468606b1b12ecab0849"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:a0038df898c35b6a483fa874b3671735b" id="r_a0038df898c35b6a483fa874b3671735b"><td class="memItemLeft" align="right" valign="top"><a id="a0038df898c35b6a483fa874b3671735b" name="a0038df898c35b6a483fa874b3671735b"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>file_exists</b> (const char *filename)</td></tr>
-<tr class="separator:a0038df898c35b6a483fa874b3671735b"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a2472dbb1703a622c90544e7ae98d6922" id="r_a2472dbb1703a622c90544e7ae98d6922"><td class="memItemLeft" align="right" valign="top"><a id="a2472dbb1703a622c90544e7ae98d6922" name="a2472dbb1703a622c90544e7ae98d6922"></a>
-bool&#160;</td><td class="memItemRight" valign="bottom"><b>invalid_input</b> (int i, int argc, bool *help)</td></tr>
-<tr class="separator:a2472dbb1703a622c90544e7ae98d6922"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:ab8d5a53dabb5d733bbcd2ddf81813ac9" id="r_ab8d5a53dabb5d733bbcd2ddf81813ac9"><td class="memItemLeft" align="right" valign="top"><a id="ab8d5a53dabb5d733bbcd2ddf81813ac9" name="ab8d5a53dabb5d733bbcd2ddf81813ac9"></a>
-void&#160;</td><td class="memItemRight" valign="bottom"><b>print_error</b> (char *message)</td></tr>
-<tr class="separator:ab8d5a53dabb5d733bbcd2ddf81813ac9"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a14c176eae900a91d3566b87d1eb6f060" id="r_a14c176eae900a91d3566b87d1eb6f060"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a14c176eae900a91d3566b87d1eb6f060">utils_file_exists</a> (const char *filename)</td></tr>
+<tr class="separator:a14c176eae900a91d3566b87d1eb6f060"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae943d7925c35564206c9dc3681783cd8" id="r_ae943d7925c35564206c9dc3681783cd8"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae943d7925c35564206c9dc3681783cd8">utils_invalid_input</a> (int i, int argc, bool *help)</td></tr>
+<tr class="separator:ae943d7925c35564206c9dc3681783cd8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab53d28d3561831ee01727163e38b65a1" id="r_ab53d28d3561831ee01727163e38b65a1"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab53d28d3561831ee01727163e38b65a1">utils_print_error</a> (char *message)</td></tr>
+<tr class="separator:ab53d28d3561831ee01727163e38b65a1"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table>
 <a name="details" id="details"></a><h2 class="groupheader">Detailed Description</h2>
 <div class="textblock"><p>General utilities for TSP. </p>
@@ -136,7 +129,142 @@ void&#160;</td><td class="memItemRight" valign="bottom"><b>print_error</b> (char
 <dl class="section version"><dt>Version</dt><dd>0.1 </dd></dl>
 <dl class="section date"><dt>Date</dt><dd>2024-03-06</dd></dl>
 <dl class="section copyright"><dt>Copyright</dt><dd>Copyright (c) 2024 </dd></dl>
-</div></div><!-- contents -->
+</div><h2 class="groupheader">Macro Definition Documentation</h2>
+<a id="a302607d6f585b7e9ba1c3eab8d2199d5" name="a302607d6f585b7e9ba1c3eab8d2199d5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a302607d6f585b7e9ba1c3eab8d2199d5">&#9670;&#160;</a></span>COLOR_BOLD</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define COLOR_BOLD&#160;&#160;&#160;&quot;\033[1m&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a8cb8d305059f6c44741bbb4e1c40fd3d" name="a8cb8d305059f6c44741bbb4e1c40fd3d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8cb8d305059f6c44741bbb4e1c40fd3d">&#9670;&#160;</a></span>COLOR_OFF</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define COLOR_OFF&#160;&#160;&#160;&quot;\033[m&quot;</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="af85e90654ab929ca38457939a307b134" name="af85e90654ab929ca38457939a307b134"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af85e90654ab929ca38457939a307b134">&#9670;&#160;</a></span>MAX_COORDINATE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MAX_COORDINATE&#160;&#160;&#160;10000</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a547597a89a5e85d709dd9a3038819fda" name="a547597a89a5e85d709dd9a3038819fda"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a547597a89a5e85d709dd9a3038819fda">&#9670;&#160;</a></span>MIN_COORDINATE</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MIN_COORDINATE&#160;&#160;&#160;-10000</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a15213e34350a5468606b1b12ecab0849" name="a15213e34350a5468606b1b12ecab0849"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a15213e34350a5468606b1b12ecab0849">&#9670;&#160;</a></span>TSP_RAND</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define TSP_RAND</td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"></span></td><td>)</td>
+          <td>&#160;&#160;&#160;( ((double)rand() / RAND_MAX) * (<a class="el" href="#af85e90654ab929ca38457939a307b134">MAX_COORDINATE</a> - <a class="el" href="#a547597a89a5e85d709dd9a3038819fda">MIN_COORDINATE</a>) + <a class="el" href="#a547597a89a5e85d709dd9a3038819fda">MIN_COORDINATE</a> )</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="a14c176eae900a91d3566b87d1eb6f060" name="a14c176eae900a91d3566b87d1eb6f060"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a14c176eae900a91d3566b87d1eb6f060">&#9670;&#160;</a></span>utils_file_exists()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool utils_file_exists </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>filename</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ae943d7925c35564206c9dc3681783cd8" name="ae943d7925c35564206c9dc3681783cd8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae943d7925c35564206c9dc3681783cd8">&#9670;&#160;</a></span>utils_invalid_input()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool utils_invalid_input </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>i</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">bool *</td>          <td class="paramname"><span class="paramname"><em>help</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="ab53d28d3561831ee01727163e38b65a1" name="ab53d28d3561831ee01727163e38b65a1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab53d28d3561831ee01727163e38b65a1">&#9670;&#160;</a></span>utils_print_error()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void utils_print_error </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>message</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0

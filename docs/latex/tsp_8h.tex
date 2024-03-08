@@ -5,8 +5,9 @@
 TSP-\/specific utilities.  
 
 
-{\ttfamily \#include "{}utils.\+h"{}}\newline
-{\ttfamily \#include "{}plot.\+h"{}}\newline
+{\ttfamily \#include "{}utils/utils.\+h"{}}\newline
+{\ttfamily \#include "{}utils/plot.\+h"{}}\newline
+{\ttfamily \#include "{}utils/errors.\+h"{}}\newline
 \doxysubsubsection*{Data Structures}
 \begin{DoxyCompactItemize}
 \item 
@@ -17,14 +18,16 @@ struct \mbox{\hyperlink{structinstance}{instance}}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
-void \mbox{\hyperlink{tsp_8h_aec1769cd42e345ca55555b93edf21758}{tsp\+\_\+parse\+\_\+commandline}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, \mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_a55af3ce92a45803be2817044822704e8}{tsp\+\_\+parse\+\_\+commandline}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, \mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
 \begin{DoxyCompactList}\small\item\em Parser for the command-\/line arguments. \end{DoxyCompactList}\item 
-void \mbox{\hyperlink{tsp_8h_a0b5e78c90fe8cedb98972cad2b75832d}{tsp\+\_\+generate\+\_\+randompoints}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_ae1fade0fe4c9455f61e8752b73c7a3c0}{tsp\+\_\+generate\+\_\+randompoints}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
 \begin{DoxyCompactList}\small\item\em Generate random points with given seed and number of nodes. \end{DoxyCompactList}\item 
-void \mbox{\hyperlink{tsp_8h_a03adbb94c013d907964c9e16c97e3f92}{tsp\+\_\+plot\+\_\+points}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, char \texorpdfstring{$\ast$}{*}name, bool to\+\_\+file)
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_a355ba11dffd22d52577ada31b5c10ed4}{tsp\+\_\+plot\+\_\+points}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, char \texorpdfstring{$\ast$}{*}name, bool to\+\_\+file)
 \begin{DoxyCompactList}\small\item\em Outputs a plot. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{tsp_8h_aa134f6647aa23efa07d133f5bc320793}{tsp\+\_\+free\+\_\+instance}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
 \begin{DoxyCompactList}\small\item\em Frees all dynamically allocated resources. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{tsp_8h_a16065dcb7d3c60d95ab42278153cd042}{tsp\+\_\+handlefatal}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\item 
 void \mbox{\hyperlink{tsp_8h_aa402a99be7db4e96baa14adec528cbd6}{tsp\+\_\+read\+\_\+input}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
 \begin{DoxyCompactList}\small\item\em Reads a TSPLIB formatted input file. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
@@ -62,11 +65,11 @@ Frees all dynamically allocated resources.
 {\em inst,pointer} & to an instance \\
 \hline
 \end{DoxyParams}
-\Hypertarget{tsp_8h_a0b5e78c90fe8cedb98972cad2b75832d}\label{tsp_8h_a0b5e78c90fe8cedb98972cad2b75832d} 
+\Hypertarget{tsp_8h_ae1fade0fe4c9455f61e8752b73c7a3c0}\label{tsp_8h_ae1fade0fe4c9455f61e8752b73c7a3c0} 
 \index{tsp.h@{tsp.h}!tsp\_generate\_randompoints@{tsp\_generate\_randompoints}}
 \index{tsp\_generate\_randompoints@{tsp\_generate\_randompoints}!tsp.h@{tsp.h}}
 \doxysubsubsection{\texorpdfstring{tsp\_generate\_randompoints()}{tsp\_generate\_randompoints()}}
-{\footnotesize\ttfamily void tsp\+\_\+generate\+\_\+randompoints (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tsp\+\_\+generate\+\_\+randompoints (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
 
 
 
@@ -77,11 +80,17 @@ Generate random points with given seed and number of nodes.
 {\em inst,pointer} & to an instance \\
 \hline
 \end{DoxyParams}
-\Hypertarget{tsp_8h_aec1769cd42e345ca55555b93edf21758}\label{tsp_8h_aec1769cd42e345ca55555b93edf21758} 
+\Hypertarget{tsp_8h_a16065dcb7d3c60d95ab42278153cd042}\label{tsp_8h_a16065dcb7d3c60d95ab42278153cd042} 
+\index{tsp.h@{tsp.h}!tsp\_handlefatal@{tsp\_handlefatal}}
+\index{tsp\_handlefatal@{tsp\_handlefatal}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{tsp\_handlefatal()}{tsp\_handlefatal()}}
+{\footnotesize\ttfamily void tsp\+\_\+handlefatal (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+\Hypertarget{tsp_8h_a55af3ce92a45803be2817044822704e8}\label{tsp_8h_a55af3ce92a45803be2817044822704e8} 
 \index{tsp.h@{tsp.h}!tsp\_parse\_commandline@{tsp\_parse\_commandline}}
 \index{tsp\_parse\_commandline@{tsp\_parse\_commandline}!tsp.h@{tsp.h}}
 \doxysubsubsection{\texorpdfstring{tsp\_parse\_commandline()}{tsp\_parse\_commandline()}}
-{\footnotesize\ttfamily void tsp\+\_\+parse\+\_\+commandline (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{argv,  }\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tsp\+\_\+parse\+\_\+commandline (\begin{DoxyParamCaption}\item[{int}]{argc,  }\item[{char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}}]{argv,  }\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
 
 
 
@@ -96,11 +105,11 @@ Parser for the command-\/line arguments.
 {\em inst,pointer} & to an instance \\
 \hline
 \end{DoxyParams}
-\Hypertarget{tsp_8h_a03adbb94c013d907964c9e16c97e3f92}\label{tsp_8h_a03adbb94c013d907964c9e16c97e3f92} 
+\Hypertarget{tsp_8h_a355ba11dffd22d52577ada31b5c10ed4}\label{tsp_8h_a355ba11dffd22d52577ada31b5c10ed4} 
 \index{tsp.h@{tsp.h}!tsp\_plot\_points@{tsp\_plot\_points}}
 \index{tsp\_plot\_points@{tsp\_plot\_points}!tsp.h@{tsp.h}}
 \doxysubsubsection{\texorpdfstring{tsp\_plot\_points()}{tsp\_plot\_points()}}
-{\footnotesize\ttfamily void tsp\+\_\+plot\+\_\+points (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{char \texorpdfstring{$\ast$}{*}}]{name,  }\item[{bool}]{to\+\_\+file }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tsp\+\_\+plot\+\_\+points (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{char \texorpdfstring{$\ast$}{*}}]{name,  }\item[{bool}]{to\+\_\+file }\end{DoxyParamCaption})}
 
 
 

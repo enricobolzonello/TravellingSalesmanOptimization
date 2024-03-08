@@ -85,8 +85,9 @@ $(function() {
 
 <p>TSP-specific utilities.  
 <a href="#details">More...</a></p>
-<div class="textblock"><code>#include &quot;<a class="el" href="utils_8h_source.html">utils.h</a>&quot;</code><br />
-<code>#include &quot;<a class="el" href="plot_8h_source.html">plot.h</a>&quot;</code><br />
+<div class="textblock"><code>#include &quot;<a class="el" href="utils_8h_source.html">utils/utils.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="plot_8h_source.html">utils/plot.h</a>&quot;</code><br />
+<code>#include &quot;<a class="el" href="errors_8h_source.html">utils/errors.h</a>&quot;</code><br />
 </div>
 <p><a href="tsp_8h_source.html">Go to the source code of this file.</a></p>
 <table class="memberdecls">
@@ -99,18 +100,20 @@ Data Structures</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aec1769cd42e345ca55555b93edf21758" id="r_aec1769cd42e345ca55555b93edf21758"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aec1769cd42e345ca55555b93edf21758">tsp_parse_commandline</a> (int argc, char **argv, <a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
-<tr class="memdesc:aec1769cd42e345ca55555b93edf21758"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parser for the command-line arguments.  <br /></td></tr>
-<tr class="separator:aec1769cd42e345ca55555b93edf21758"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0b5e78c90fe8cedb98972cad2b75832d" id="r_a0b5e78c90fe8cedb98972cad2b75832d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a0b5e78c90fe8cedb98972cad2b75832d">tsp_generate_randompoints</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
-<tr class="memdesc:a0b5e78c90fe8cedb98972cad2b75832d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate random points with given seed and number of nodes.  <br /></td></tr>
-<tr class="separator:a0b5e78c90fe8cedb98972cad2b75832d"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a03adbb94c013d907964c9e16c97e3f92" id="r_a03adbb94c013d907964c9e16c97e3f92"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a03adbb94c013d907964c9e16c97e3f92">tsp_plot_points</a> (<a class="el" href="structinstance.html">instance</a> *inst, char *name, bool to_file)</td></tr>
-<tr class="memdesc:a03adbb94c013d907964c9e16c97e3f92"><td class="mdescLeft">&#160;</td><td class="mdescRight">Outputs a plot.  <br /></td></tr>
-<tr class="separator:a03adbb94c013d907964c9e16c97e3f92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a55af3ce92a45803be2817044822704e8" id="r_a55af3ce92a45803be2817044822704e8"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a55af3ce92a45803be2817044822704e8">tsp_parse_commandline</a> (int argc, char **argv, <a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
+<tr class="memdesc:a55af3ce92a45803be2817044822704e8"><td class="mdescLeft">&#160;</td><td class="mdescRight">Parser for the command-line arguments.  <br /></td></tr>
+<tr class="separator:a55af3ce92a45803be2817044822704e8"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae1fade0fe4c9455f61e8752b73c7a3c0" id="r_ae1fade0fe4c9455f61e8752b73c7a3c0"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae1fade0fe4c9455f61e8752b73c7a3c0">tsp_generate_randompoints</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
+<tr class="memdesc:ae1fade0fe4c9455f61e8752b73c7a3c0"><td class="mdescLeft">&#160;</td><td class="mdescRight">Generate random points with given seed and number of nodes.  <br /></td></tr>
+<tr class="separator:ae1fade0fe4c9455f61e8752b73c7a3c0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a355ba11dffd22d52577ada31b5c10ed4" id="r_a355ba11dffd22d52577ada31b5c10ed4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a355ba11dffd22d52577ada31b5c10ed4">tsp_plot_points</a> (<a class="el" href="structinstance.html">instance</a> *inst, char *name, bool to_file)</td></tr>
+<tr class="memdesc:a355ba11dffd22d52577ada31b5c10ed4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Outputs a plot.  <br /></td></tr>
+<tr class="separator:a355ba11dffd22d52577ada31b5c10ed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa134f6647aa23efa07d133f5bc320793" id="r_aa134f6647aa23efa07d133f5bc320793"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa134f6647aa23efa07d133f5bc320793">tsp_free_instance</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
 <tr class="memdesc:aa134f6647aa23efa07d133f5bc320793"><td class="mdescLeft">&#160;</td><td class="mdescRight">Frees all dynamically allocated resources.  <br /></td></tr>
 <tr class="separator:aa134f6647aa23efa07d133f5bc320793"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a16065dcb7d3c60d95ab42278153cd042" id="r_a16065dcb7d3c60d95ab42278153cd042"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a16065dcb7d3c60d95ab42278153cd042">tsp_handlefatal</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
+<tr class="separator:a16065dcb7d3c60d95ab42278153cd042"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aa402a99be7db4e96baa14adec528cbd6" id="r_aa402a99be7db4e96baa14adec528cbd6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aa402a99be7db4e96baa14adec528cbd6">tsp_read_input</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
 <tr class="memdesc:aa402a99be7db4e96baa14adec528cbd6"><td class="mdescLeft">&#160;</td><td class="mdescRight">Reads a TSPLIB formatted input file.  <br /></td></tr>
 <tr class="separator:aa402a99be7db4e96baa14adec528cbd6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -147,14 +150,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a0b5e78c90fe8cedb98972cad2b75832d" name="a0b5e78c90fe8cedb98972cad2b75832d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a0b5e78c90fe8cedb98972cad2b75832d">&#9670;&#160;</a></span>tsp_generate_randompoints()</h2>
+<a id="ae1fade0fe4c9455f61e8752b73c7a3c0" name="ae1fade0fe4c9455f61e8752b73c7a3c0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae1fade0fe4c9455f61e8752b73c7a3c0">&#9670;&#160;</a></span>tsp_generate_randompoints()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void tsp_generate_randompoints </td>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> tsp_generate_randompoints </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
           <td></td>
@@ -172,14 +175,31 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="aec1769cd42e345ca55555b93edf21758" name="aec1769cd42e345ca55555b93edf21758"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aec1769cd42e345ca55555b93edf21758">&#9670;&#160;</a></span>tsp_parse_commandline()</h2>
+<a id="a16065dcb7d3c60d95ab42278153cd042" name="a16065dcb7d3c60d95ab42278153cd042"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a16065dcb7d3c60d95ab42278153cd042">&#9670;&#160;</a></span>tsp_handlefatal()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void tsp_parse_commandline </td>
+          <td class="memname">void tsp_handlefatal </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a55af3ce92a45803be2817044822704e8" name="a55af3ce92a45803be2817044822704e8"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a55af3ce92a45803be2817044822704e8">&#9670;&#160;</a></span>tsp_parse_commandline()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> tsp_parse_commandline </td>
           <td>(</td>
           <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em>, </span></td>
         </tr>
@@ -208,14 +228,14 @@ Functions</h2></td></tr>
 
 </div>
 </div>
-<a id="a03adbb94c013d907964c9e16c97e3f92" name="a03adbb94c013d907964c9e16c97e3f92"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#a03adbb94c013d907964c9e16c97e3f92">&#9670;&#160;</a></span>tsp_plot_points()</h2>
+<a id="a355ba11dffd22d52577ada31b5c10ed4" name="a355ba11dffd22d52577ada31b5c10ed4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a355ba11dffd22d52577ada31b5c10ed4">&#9670;&#160;</a></span>tsp_plot_points()</h2>
 
 <div class="memitem">
 <div class="memproto">
       <table class="memname">
         <tr>
-          <td class="memname">void tsp_plot_points </td>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> tsp_plot_points </td>
           <td>(</td>
           <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em>, </span></td>
         </tr>

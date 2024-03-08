@@ -1,0 +1,70 @@
+\doxysection{errors.\+h}
+\hypertarget{errors_8h_source}{}\label{errors_8h_source}\index{src/utils/errors.h@{src/utils/errors.h}}
+\mbox{\hyperlink{errors_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ ERRORS\_H\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ ERRORS\_H\_}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include<stdbool.h>}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ <stdio.h>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <time.h>}}
+\DoxyCodeLine{00017\ \textcolor{preprocessor}{\#include\ <stdlib.h>}}
+\DoxyCodeLine{00023\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\{}
+\DoxyCodeLine{00024\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca2bc49ec37d6a5715dd23e85f1ff5bb59}{OK}}\ =\ 0,}
+\DoxyCodeLine{00025\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3c862c356e44394920d592cde81bec7b}{CANCELLED}}\ =\ 1,}
+\DoxyCodeLine{00026\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca6ce26a62afab55d7606ad4e92428b30c}{UNKNOWN}}\ =\ 2,}
+\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca5eee2964b285af6b0b8bf73c72fdf0f4}{INVALID\_ARGUMENT}}\ =\ 3,}
+\DoxyCodeLine{00028\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca0b6c972b96e5fd28122aeeec07756704}{DEADLINE\_EXCEEDED}}\ =\ 4,}
+\DoxyCodeLine{00029\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cacdaa2919bac56fe1090eb3dbb9526472}{NOT\_FOUND}}\ =\ 5,}
+\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf9e128c760c2cd2066ae3533d4b31c43}{ALREADY\_EXISTS}}\ =\ 6,}
+\DoxyCodeLine{00031\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca78bd980fff20ef643df9c7119fbd8520}{PERMISSION\_DENIED}}\ =\ 7,}
+\DoxyCodeLine{00032\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caaf198e7f40b15882ade16e0761a0e948}{UNAUTHENTICATED}}\ =\ 16,}
+\DoxyCodeLine{00033\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93db917bca3bf882630b297acaf2dbea}{RESOURCE\_EXHAUSTED}}\ =\ 8,}
+\DoxyCodeLine{00034\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca93dc1516e84e63b9df703edee0aa994d}{FAILED\_PRECONDITION}}\ =\ 9,}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3ae09818606786b529d9ca89180fa29a}{ABORTED}}\ =\ 10,}
+\DoxyCodeLine{00036\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3f26dd98dc0ab63a635667a0c49fc709}{OUT\_OF\_RANGE}}\ =\ 11,}
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28caf2645dc3e76aada2b584fbc8a088fd76}{UNIMPLEMENTED}}\ =\ 12,}
+\DoxyCodeLine{00038\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28cadc7588f17692aa631f375290d50a2c8e}{INTERNAL}}\ =\ 13,}
+\DoxyCodeLine{00039\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca3fde93396dcd04d746a8cd3b6b5914bb}{UNAVAILABLE}}\ =\ 14,}
+\DoxyCodeLine{00040\ \ \ \ \ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28ca693105a2a42ce8f1db6babbb9b0ee560}{DATA\_LOSS}}\ =\ 15}
+\DoxyCodeLine{00041\ \}\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}};}
+\DoxyCodeLine{00042\ }
+\DoxyCodeLine{00047\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\{}
+\DoxyCodeLine{00048\ \ \ \ \ \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca5b76dd51db62558b1952158ba38b723f}{LOG\_TRACE}},\ \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acab9f002c6ffbfd511da8090213227454e}{LOG\_DEBUG}},\ \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca6e98ff471e3ce6c4ef2d75c37ee51837}{LOG\_INFO}},\ \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac8041ffa22bc823d4726701cdb13fc13}{LOG\_WARN}},\ \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282aca230506cce5c68c3bac5a821c42ed3473}{LOG\_ERROR}},\ \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282acac630750884d91cb9767ef2200bbb048b}{LOG\_FATAL}}}
+\DoxyCodeLine{00049\ \}\ \mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\_TYPE}};}
+\DoxyCodeLine{00050\ }
+\DoxyCodeLine{00060\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\{}
+\DoxyCodeLine{00061\ \ \ \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a4e8e36e4a6c3348cb98fd3223fb07b28}{QUIET}}\ =\ 0,}
+\DoxyCodeLine{00062\ \ \ \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a50d1448013c6f17125caee18aa418af7}{NORMAL}}\ =\ 1,}
+\DoxyCodeLine{00063\ \ \ \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84ace3e26676763569084c86b8c3b67d601}{VERBOSE}}\ =\ 2,}
+\DoxyCodeLine{00064\ \ \ \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84a05ac9ca266f9e1731e2832c50fc14849}{VERY\_VERBOSE}}\ =\ 3}
+\DoxyCodeLine{00065\ \}\ \mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}};}
+\DoxyCodeLine{00066\ }
+\DoxyCodeLine{00067\ \textcolor{preprocessor}{\#define\ log\_trace(...)\ err\_logging(LOG\_TRACE,\ \_\_FILE\_\_,\ \_\_LINE\_\_,\ \_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00068\ \textcolor{preprocessor}{\#define\ log\_debug(...)\ err\_logging(LOG\_DEBUG,\ \_\_FILE\_\_,\ \_\_LINE\_\_,\ \_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00069\ \textcolor{preprocessor}{\#define\ log\_info(...)\ \ err\_logging(LOG\_INFO,\ \ \_\_FILE\_\_,\ \_\_LINE\_\_,\ \_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00070\ \textcolor{preprocessor}{\#define\ log\_warn(...)\ \ err\_logging(LOG\_WARN,\ \ \_\_FILE\_\_,\ \_\_LINE\_\_,\ \_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00071\ \textcolor{preprocessor}{\#define\ log\_error(...)\ err\_logging(LOG\_ERROR,\ \_\_FILE\_\_,\ \_\_LINE\_\_,\ \_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00072\ \textcolor{preprocessor}{\#define\ log\_fatal(...)\ err\_logging(LOG\_FATAL,\ \_\_FILE\_\_,\ \_\_LINE\_\_,\ \_\_VA\_ARGS\_\_)}}
+\DoxyCodeLine{00073\ }
+\DoxyCodeLine{00074\ \textcolor{keyword}{static}\ \textcolor{keyword}{struct}\{}
+\DoxyCodeLine{00075\ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{errors_8h_a1bdcfae3209cbd96db35a2ae356fa15e}{verbosity}};}
+\DoxyCodeLine{00076\ \}\ L;}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00078\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *level\_strings[]\ =\ \{}
+\DoxyCodeLine{00079\ \ \ \textcolor{stringliteral}{"{}TRACE"{}},\ \textcolor{stringliteral}{"{}DEBUG"{}},\ \textcolor{stringliteral}{"{}INFO"{}},\ \textcolor{stringliteral}{"{}WARN"{}},\ \textcolor{stringliteral}{"{}ERROR"{}},\ \textcolor{stringliteral}{"{}FATAL"{}}}
+\DoxyCodeLine{00080\ \};}
+\DoxyCodeLine{00081\ }
+\DoxyCodeLine{00082\ \textcolor{keyword}{static}\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *level\_colors[]\ =\ \{}
+\DoxyCodeLine{00083\ \ \ \textcolor{stringliteral}{"{}\(\backslash\)x1b[94m"{}},\ \textcolor{stringliteral}{"{}\(\backslash\)x1b[36m"{}},\ \textcolor{stringliteral}{"{}\(\backslash\)x1b[32m"{}},\ \textcolor{stringliteral}{"{}\(\backslash\)x1b[33m"{}},\ \textcolor{stringliteral}{"{}\(\backslash\)x1b[31m"{}},\ \textcolor{stringliteral}{"{}\(\backslash\)x1b[35m"{}}}
+\DoxyCodeLine{00084\ \};}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00093\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{errors_8h_a0800388b9e85869762ce68502b873bdb}{err\_ok}}(\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ error);}
+\DoxyCodeLine{00094\ }
+\DoxyCodeLine{00100\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{errors_8h_af6cf36506c3aaef662a05f7266bb98a8}{err\_setverbosity}}(\mbox{\hyperlink{errors_8h_ab16e0dc2a4f7533119f355cdb8b42a84}{VERBOSITY}}\ \mbox{\hyperlink{errors_8h_a1bdcfae3209cbd96db35a2ae356fa15e}{verbosity}});}
+\DoxyCodeLine{00101\ }
+\DoxyCodeLine{00111\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{errors_8h_a91d7d2142b8e7801d8cd58ed60e3d26c}{err\_logging}}(\mbox{\hyperlink{errors_8h_a536beda7876abdc3c801dacade0282ac}{LOGGING\_TYPE}}\ level,\ \textcolor{keyword}{const}\ \textcolor{keywordtype}{char}\ *file,\ \textcolor{keywordtype}{int}\ line,\ \textcolor{keywordtype}{char}*\ message,\ ...);}
+\DoxyCodeLine{00112\ }
+\DoxyCodeLine{00113\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}
