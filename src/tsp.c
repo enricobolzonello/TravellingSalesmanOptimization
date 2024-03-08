@@ -11,6 +11,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     inst->options_t.timelimit = -1;
     inst->options_t.seed = 0;
     inst->nnodes = -1;
+    inst->costs_computed = false;
     err_setverbosity(NORMAL);
     bool help = false;
     bool algs = false;
@@ -188,6 +189,8 @@ ERROR_CODE tsp_generate_randompoints(instance* inst){
         inst->points[i].y = TSP_RAND();
     }
 
+    tsp_compute_costs(inst);
+
     return OK;
 }
 
@@ -221,7 +224,16 @@ void tsp_free_instance(instance *inst){
     if(inst->options_t.graph_input){
         free(inst->options_t.inputfile);
     }
+    
     free(inst->points);
+
+    if(inst->costs_computed){
+        for(int i = 0; i < inst->nnodes; i++){
+            free(inst->costs[i]);
+        }
+        free(inst->costs);
+    }
+    
 }
 
 void tsp_read_input(instance* inst){
@@ -277,7 +289,32 @@ void tsp_read_input(instance* inst){
 			inst->points[i] = new_point;
 			continue;
 		}
-
-
     }
+
+    tsp_compute_costs(inst);
+}
+
+void tsp_compute_costs(instance* inst){
+    if(inst->nnodes <= 0) utils_print_error("computing costs of empty graph");
+
+    inst->costs = (double *) calloc(inst->nnodes, sizeof(double*));
+
+    for (int i = 0; i < inst->nnodes; i++) {
+        inst->costs[i] = calloc(inst->nnodes, sizeof(double));
+        // Initialize each element of the matrix to -1 -> infinite cost
+        for (int j = 0; j < inst->nnodes; j++) {
+            inst->costs[i][j] = -1.0f;
+        }
+    }
+
+    // computation of costs of edges with euclidean distance
+    for (int i = 0; i < inst->nnodes; i++) {
+        for (int j = i + 1; j < inst->nnodes; j++) {
+            float distance = sqrtf(pow(inst->points[j].x - inst->points[i].x, 2) + pow(inst->points[j].y - inst->points[i].y, 2));
+            inst->costs[i][j] = distance;
+            inst->costs[j][i] = distance;
+        }
+    }
+
+    inst->costs_computed = false;
 }

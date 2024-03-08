@@ -14,6 +14,7 @@
 #include "utils/utils.h"
 #include "utils/plot.h"
 #include "utils/errors.h"
+#include <math.h>
 
 typedef struct {
     int timelimit;              // time limit of the algorithm (in seconds)
@@ -28,6 +29,9 @@ typedef struct {
 
     int nnodes;                 // number of nodes to be generated randomly
     point* points;              // dynamic array of points
+
+    double** costs;
+    bool costs_computed;
 } instance;
 
 /**
@@ -70,5 +74,7 @@ void tsp_handlefatal(instance *inst);
  * @param inst, pointer to an instance
  */
 void tsp_read_input(instance* inst);
+
+void tsp_compute_costs(instance* inst);
 
 #endif

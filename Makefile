@@ -80,7 +80,7 @@ CFLAGS := -O3 $(STD) $(STACK) $(WARNS)
 DEBUG := -g3 -DDEBUG=1
 
 # Dependency libraries
-LIBS := # -lm  -I path/to/library
+LIBS := -lm  #-I path/to/library
 
 # Test libraries
 TEST_LIBS := -l cmocka -L /usr/local/lib -rpath /usr/local/lib
@@ -164,4 +164,4 @@ tests:
 
 # Rule for cleaning the project
 clean:
-	@rm -rvf $(BINDIR)/* $(LIBDIR)/utils/* $(LIBDIR)/algorithms/* $(LOGDIR)/*;
+	@rm -rvf $(BINDIR)/* $(LIBDIR)/utils/* $(LIBDIR)/algorithms/* $(LIBDIR)/*.o $(LOGDIR)/*;
