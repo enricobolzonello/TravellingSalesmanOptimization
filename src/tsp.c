@@ -213,6 +213,26 @@ ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file){
     return OK;
 }
 
+ERROR_CODE tsp_plot_solution(instance* inst, char* name,bool to_file){
+    int i;
+    PLOT plot = plot_open(name);
+    if(to_file){
+        plot_tofile(plot, name);
+    }
+
+    plot_args(plot, "plot '-' using 1:2 w lines");
+
+    int v;
+    for(i=0; i<inst->nnodes; i++){
+        v = inst->solution_path[i];
+        plot_edge(plot, inst->points[i], inst->points[v]);
+    }
+
+    plot_free(plot);
+
+    return OK;
+}
+
 void tsp_handlefatal(instance *inst){
     log_info("shutting down application");
     tsp_free_instance(inst);
@@ -297,7 +317,7 @@ void tsp_read_input(instance* inst){
 void tsp_compute_costs(instance* inst){
     if(inst->nnodes <= 0) utils_print_error("computing costs of empty graph");
 
-    inst->costs = (double *) calloc(inst->nnodes, sizeof(double*));
+    inst->costs = (double **) calloc(inst->nnodes, sizeof(double**));
 
     for (int i = 0; i < inst->nnodes; i++) {
         inst->costs[i] = calloc(inst->nnodes, sizeof(double));

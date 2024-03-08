@@ -34,6 +34,9 @@ typedef struct {
 
     double** costs;
     bool costs_computed;
+
+    double solution_cost;
+    int* solution_path;
 } instance;
 
 /**
@@ -60,6 +63,8 @@ ERROR_CODE tsp_generate_randompoints(instance* inst);
  * @param to_file, if you want to save a jpg file
  */
 ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file);
+
+ERROR_CODE tsp_plot_solution(instance* inst, char* name, bool to_file);
 
 /**
  * @brief Frees all dynamically allocated resources

@@ -36,13 +36,18 @@ typedef struct {
     double y;
 } point;
 
+typedef struct {
+    int u;
+    int v;
+} edge;
+
 struct utils_clock{
     bool started;
     clock_t starting_time;
 };
 
 
-bool utils_file_exists (const char *filename);
+bool utils_file_exists(const char *filename);
 bool utils_invalid_input(int i, int argc, bool* help);
 void utils_print_error(char* message);
 struct utils_clock utils_startclock(void);

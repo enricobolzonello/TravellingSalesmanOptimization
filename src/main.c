@@ -15,6 +15,8 @@ int main(int argc, char* argv[]){
         tsp_generate_randompoints(&inst);
     }
     
-    tsp_plot_points(&inst, "graph test", false);
+    //tsp_plot_points(&inst, "graph test", false);
+    h_greedy(&inst, 0);
+    tsp_plot_solution(&inst, "test", false);
     exit(0);
 }

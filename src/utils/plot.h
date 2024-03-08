@@ -33,6 +33,15 @@ PLOT plot_open(char* title);
 void plot_point(PLOT plot, point* p);
 
 /**
+ * @brief Plots an edge between two points
+ * 
+ * @param plot 
+ * @param u
+ * @param v
+ */
+void plot_edge(PLOT plot, point u, point v);
+
+/**
  * @brief Saves the plot to a jpg file in the directory /plots
  * 
  * @param plot  plot instance
