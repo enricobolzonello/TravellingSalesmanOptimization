@@ -18,6 +18,7 @@
 #include <stdbool.h> 
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 
 
 #define COLOR_BOLD  "\033[1m"
@@ -32,11 +33,6 @@ typedef struct {
     double x;
     double y;
 } point;
-
-// TODO: define error codes
-typedef enum{
-    SEG_ERROR = 1
-} error_codes;
 
 
 bool utils_file_exists (const char *filename);

@@ -3,7 +3,10 @@
 
 int main(int argc, char* argv[]){
     instance inst;
-    tsp_parse_commandline(argc, argv, &inst);
+    ERROR_CODE e = tsp_parse_commandline(argc, argv, &inst);
+    if(!err_ok(e)){
+        exit(0);
+    }
 
     if(inst.options_t.graph_input){
         tsp_read_input(&inst);

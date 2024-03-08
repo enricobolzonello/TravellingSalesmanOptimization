@@ -13,6 +13,7 @@
  */
 #include "utils/utils.h"
 #include "utils/plot.h"
+#include "utils/errors.h"
 
 // TODO: implement verbose
 // https://symfony.com/doc/current/console/verbosity.html
@@ -39,14 +40,14 @@ typedef struct {
  * @param argv, arguments on command-line
  * @param inst, pointer to an instance
  */
-void tsp_parse_commandline(int argc, char** argv, instance* inst);
+ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst);
 
 /**
  * @brief Generate random points with given seed and number of nodes
  * 
  * @param inst, pointer to an instance
  */
-void tsp_generate_randompoints(instance* inst);
+ERROR_CODE tsp_generate_randompoints(instance* inst);
 
 /**
  * @brief Outputs a plot 
@@ -55,7 +56,7 @@ void tsp_generate_randompoints(instance* inst);
  * @param name, title of the plot
  * @param to_file, if you want to save a jpg file
  */
-void tsp_plot_points(instance* inst, char* name, bool to_file);
+ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file);
 
 /**
  * @brief Frees all dynamically allocated resources
@@ -63,6 +64,8 @@ void tsp_plot_points(instance* inst, char* name, bool to_file);
  * @param inst, pointer to an instance
  */
 void tsp_free_instance(instance *inst);
+
+void tsp_handlefatal(instance *inst);
 
 /**
  * @brief Reads a TSPLIB formatted input file

@@ -1,6 +1,6 @@
 #include "tsp.h"
 
-void tsp_parse_commandline(int argc, char** argv, instance* inst){
+ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     if(argc < 2){
         printf("Type %s --help to see the full list of commands\n", argv[0]);
         exit(1);
@@ -17,20 +17,25 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
     for(int i=1; i<argc; i++){
 
         if (strcmp("-f", argv[i]) == 0 || strcmp("-file", argv[i]) == 0){
-            if(utils_invalid_input(i, argc, &help)){
-                continue;
-            }
+            log_info("parsing input file argument");
 
-            if(inst->options_t.graph_random){
-                perror("Arguments: you can't have both random generation and input file");
-                exit(1);
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
             }
 
             const char* path = argv[++i];
             if(!utils_file_exists(path)){
-                perror("Arguments: file does not exist!");
-                exit(1);
+                log_fatal("file does not exist");
+                tsp_handlefatal(inst);
             }
+
+            if(inst->options_t.graph_random){
+                log_error("you can't have both random generation and input file");
+                log_info("ignoring input file, random graphs will be used");
+                continue;
+            }
+
             inst->options_t.inputfile = (char*) calloc(strlen(path), sizeof(char));
             strcpy(inst->options_t.inputfile, path);
 
@@ -40,21 +45,28 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-t", argv[i]) == 0 || strcmp("-time", argv[i]) == 0){
+            log_info("parsing time limit argument");
+
             if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
                 continue;
             }
 
             const int t = atoi(argv[++i]);
             if(t<0){
-                perror("Arguments: time cannot be negative");
-                exit(1);
+                log_warn("time cannot be negative");
+                log_info("ignoring time limit");
+                continue;
             }
             inst->options_t.timelimit = t;
             continue;
         }
 
         if (strcmp("-seed", argv[i]) == 0){
+            log_info("parsing seed argument");
+
             if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
                 continue;
             }
 
@@ -64,7 +76,10 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
 
         // TODO: add flags for algorithm chosen
         if (strcmp("-alg", argv[i]) == 0){
+            log_info("parsing algorithm argument");
+
             if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
                 continue;
             }
 
@@ -80,20 +95,25 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-n", argv[i]) == 0){
-            if(utils_invalid_input(i, argc, &help)){
-                continue;
-            }
+            log_info("parsing number of nodes argument");
 
-            if(inst->options_t.graph_input){
-                perror("Arguments: you can't have both random generation and input file");
-                exit(1);
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
             }
 
             int n = atoi(argv[++i]);
             if(n <= 0){
-                perror("Arguments: number of nodes should be greater than 0");
-                exit(1);
+                log_fatal("number of nodes should be greater than 0");
+                tsp_handlefatal(inst);
             }
+
+            if(inst->options_t.graph_input){
+                log_error("you can't have both random generation and input file");
+                log_info("ignoring number of nodes, graph from input file will be used");
+                continue;
+            }
+
             inst->nnodes = n;
 
             inst->options_t.graph_random = true;
@@ -134,9 +154,11 @@ void tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - GREEDY\n");
         printf("    - 2OPT-GREEDY\n");
     }
+
+    return OK;
 }
 
-void tsp_generate_randompoints(instance* inst){
+ERROR_CODE tsp_generate_randompoints(instance* inst){
     srand(inst->options_t.seed);
 
     inst->points = (point*) calloc(inst->nnodes, sizeof(point));
@@ -145,9 +167,11 @@ void tsp_generate_randompoints(instance* inst){
         inst->points[i].x = TSP_RAND();
         inst->points[i].y = TSP_RAND();
     }
+
+    return OK;
 }
 
-void tsp_plot_points(instance* inst, char* name, bool to_file){
+ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file){
     int i;
     PLOT plot = plot_open(name);
 
@@ -162,11 +186,21 @@ void tsp_plot_points(instance* inst, char* name, bool to_file){
     }
 
     plot_free(plot);
+
+    return OK;
 }
 
+void tsp_handlefatal(instance *inst){
+    log_info("shutting down application");
+    tsp_free_instance(inst);
+    exit(0);
+}
 
+// TODO: if points is not allocated, it returns abort
 void tsp_free_instance(instance *inst){
-    free(inst->options_t.inputfile);
+    if(inst->options_t.graph_input){
+        free(inst->options_t.inputfile);
+    }
     free(inst->points);
 }
 
