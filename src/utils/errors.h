@@ -19,7 +19,6 @@
  * @brief error codes as refered in <a href="https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto">Google's RPC standard</a> 
  * 
  */
-
 typedef enum{
     OK = 0,
     CANCELLED = 1,

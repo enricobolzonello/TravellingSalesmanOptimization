@@ -38,5 +38,7 @@ typedef struct {
 bool utils_file_exists (const char *filename);
 bool utils_invalid_input(int i, int argc, bool* help);
 void utils_print_error(char* message);
+void utils_startclock();
+int utils_timeelapsed();
 
 #endif

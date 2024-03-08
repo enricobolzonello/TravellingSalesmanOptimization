@@ -26,15 +26,16 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }
 
             const char* path = argv[++i];
-            if(!utils_file_exists(path)){
-                log_fatal("file does not exist");
-                tsp_handlefatal(inst);
-            }
 
             if(inst->options_t.graph_random){
                 log_error("you can't have both random generation and input file");
                 log_info("ignoring input file, random graphs will be used");
                 continue;
+            }
+
+            if(!utils_file_exists(path)){
+                log_fatal("file does not exist");
+                tsp_handlefatal(inst);
             }
 
             inst->options_t.inputfile = (char*) calloc(strlen(path), sizeof(char));

@@ -3,7 +3,7 @@
 
 #include "../tsp.h"
 
-void h_greedy(instance* inst, int starting_node);
+ERROR_CODE h_greedy(instance* inst, int starting_node);
 void h_2opt();
 
 #endif
