@@ -15,8 +15,11 @@ int main(int argc, char* argv[]){
         tsp_generate_randompoints(&inst);
     }
     
-    //tsp_plot_points(&inst, "graph test", false);
     h_greedy(&inst, 0);
-    tsp_plot_solution(&inst, "test", false);
+    log_trace("from 0: %f\n", inst.best_solution_cost);
+
+    h_Greedy_iterative(&inst);
+    log_trace("from 0: %f\n", inst.best_solution_cost);
+
     exit(0);
 }

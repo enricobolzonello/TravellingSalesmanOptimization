@@ -37,6 +37,8 @@ typedef struct {
 
     double solution_cost;
     int* solution_path;
+    double best_solution_cost;
+    int* best_solution_path;
 } instance;
 
 /**

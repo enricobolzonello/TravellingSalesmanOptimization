@@ -1,6 +1,5 @@
 #include "heuristics.h"
 
-// TODO: save tsp path
 ERROR_CODE h_greedy(instance* inst, int starting_node){
     if(starting_node >= inst->nnodes || starting_node < 0){
         return UNAVAILABLE;
@@ -60,6 +59,41 @@ ERROR_CODE h_greedy(instance* inst, int starting_node){
     inst->solution_cost = sol_cost;
 
     free(visited);
+
+    return OK;
+}
+
+ERROR_CODE h_Greedy_iterative(instance* inst){
+    int i;
+    ERROR_CODE error;
+    struct utils_clock c = utils_startclock();
+
+    double best_cost = __DBL_MAX__;
+    int* best_path = (int*) calloc(inst->nnodes, sizeof(int*));
+    for(i=0; i<inst->nnodes; i++){
+        double ex_time = utils_timeelapsed(c);
+        if(ex_time > inst->options_t.timelimit){
+            return DEADLINE_EXCEEDED;
+        }
+
+        log_info("starting greedy with node %d\n", i);
+        error = h_greedy(inst, i);
+        if(error != OK){
+            log_error("code %d\n", error);
+            break;
+        }
+
+        if(inst->solution_cost < best_cost){
+            log_info("found new best, node %d\n", i);
+            best_cost = inst->solution_cost;
+            memcpy(best_path, inst->solution_path, inst->nnodes * sizeof(int));
+        }
+    }
+
+    inst->best_solution_cost = best_cost;
+    memcpy(inst->best_solution_path, best_path, inst->nnodes * sizeof(int));
+
+    free(best_path);
 
     return OK;
 }
