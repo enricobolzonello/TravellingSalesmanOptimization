@@ -16,7 +16,7 @@
 #include "utils/errors.h"
 
 typedef struct {
-    int timelimit;              // time limit of the algorithm (in seconds)
+    double timelimit;              // time limit of the algorithm (in seconds)
     int seed;                   // seed for random generation, if not set by the user, defaults to current time
     bool graph_random;          // flag to indicate wheter the graph is randomly generated
     bool graph_input;           // flag to indicate wheter the graph is from the input file

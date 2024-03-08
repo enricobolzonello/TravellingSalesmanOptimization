@@ -11,7 +11,7 @@
  * @copyright Copyright (c) 2024
  * 
  */
-#include<stdbool.h>
+#include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>

@@ -54,7 +54,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            const int t = atoi(argv[++i]);
+            const double t = atof(argv[++i]);
             if(t<0){
                 log_warn("time cannot be negative");
                 log_info("ignoring time limit");
