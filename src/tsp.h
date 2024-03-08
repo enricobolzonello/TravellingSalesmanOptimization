@@ -26,7 +26,9 @@ typedef struct {
 typedef struct {
     options options_t;
 
-    int nnodes;                 // number of nodes to be generated randomly
+    int nnodes;                 // number of nodes
+    
+    bool points_allocated;
     point* points;              // dynamic array of points
 } instance;
 

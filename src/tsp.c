@@ -216,12 +216,14 @@ void tsp_handlefatal(instance *inst){
     exit(0);
 }
 
-// TODO: if points is not allocated, it returns abort
 void tsp_free_instance(instance *inst){
     if(inst->options_t.graph_input){
         free(inst->options_t.inputfile);
     }
-    free(inst->points);
+
+    if(inst->points_allocated){
+        free(inst->points);
+    }
 }
 
 void tsp_read_input(instance* inst){
@@ -246,6 +248,7 @@ void tsp_read_input(instance* inst){
 			token1 = strtok(NULL, " :");
 			inst->nnodes = atoi(token1);	 
 			inst->points = (point *) calloc(inst->nnodes, sizeof(point));
+            inst->points_allocated = true;
 			continue;
 		}
 
