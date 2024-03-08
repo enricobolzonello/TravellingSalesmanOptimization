@@ -17,7 +17,7 @@
 #include <math.h>
 
 typedef struct {
-    int timelimit;              // time limit of the algorithm (in seconds)
+    double timelimit;              // time limit of the algorithm (in seconds)
     int seed;                   // seed for random generation, if not set by the user, defaults to current time
     bool graph_random;          // flag to indicate wheter the graph is randomly generated
     bool graph_input;           // flag to indicate wheter the graph is from the input file
@@ -27,7 +27,9 @@ typedef struct {
 typedef struct {
     options options_t;
 
-    int nnodes;                 // number of nodes to be generated randomly
+    int nnodes;                 // number of nodes
+    
+    bool points_allocated;
     point* points;              // dynamic array of points
 
     double** costs;

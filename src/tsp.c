@@ -55,7 +55,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            const int t = atoi(argv[++i]);
+            const double t = atof(argv[++i]);
             if(t<0){
                 log_warn("time cannot be negative");
                 log_info("ignoring time limit");
@@ -219,13 +219,13 @@ void tsp_handlefatal(instance *inst){
     exit(0);
 }
 
-// TODO: if points is not allocated, it returns abort
 void tsp_free_instance(instance *inst){
     if(inst->options_t.graph_input){
         free(inst->options_t.inputfile);
     }
-    
-    free(inst->points);
+    if(inst->points_allocated){
+        free(inst->points);
+    }
 
     if(inst->costs_computed){
         for(int i = 0; i < inst->nnodes; i++){
@@ -233,7 +233,6 @@ void tsp_free_instance(instance *inst){
         }
         free(inst->costs);
     }
-    
 }
 
 void tsp_read_input(instance* inst){
@@ -258,6 +257,7 @@ void tsp_read_input(instance* inst){
 			token1 = strtok(NULL, " :");
 			inst->nnodes = atoi(token1);	 
 			inst->points = (point *) calloc(inst->nnodes, sizeof(point));
+            inst->points_allocated = true;
 			continue;
 		}
 

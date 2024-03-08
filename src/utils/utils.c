@@ -18,3 +18,20 @@ void utils_print_error(char* message){
   printf("Error: %s\n", message);
   exit(1);
 }
+
+struct utils_clock utils_startclock(void){
+  struct utils_clock c;
+  c.starting_time = clock();
+  c.started = true;
+
+  return c;
+}
+
+double utils_timeelapsed(struct utils_clock c){
+  if(!c.started){
+    log_debug("clock not started");
+    exit(0);
+  }
+
+  return (double) (clock() - c.starting_time) / CLOCKS_PER_SEC;
+}

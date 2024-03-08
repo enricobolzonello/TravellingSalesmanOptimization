@@ -12,5 +12,8 @@ ERROR_CODE h_greedy(instance* inst, int starting_node){
     int curr = starting_node;
     visited[curr] = 1;
 
-    clock_t begin = clock();
+    utils_startclock();
+    
+
+    return OK;
 }

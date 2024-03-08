@@ -20,6 +20,8 @@
 #include <stdlib.h>
 #include <errno.h>
 
+#include "errors.h"
+
 
 #define COLOR_BOLD  "\033[1m"
 #define COLOR_OFF   "\033[m"
@@ -34,11 +36,16 @@ typedef struct {
     double y;
 } point;
 
+struct utils_clock{
+    bool started;
+    clock_t starting_time;
+};
+
 
 bool utils_file_exists (const char *filename);
 bool utils_invalid_input(int i, int argc, bool* help);
 void utils_print_error(char* message);
-void utils_startclock();
-int utils_timeelapsed();
+struct utils_clock utils_startclock(void);
+double utils_timeelapsed(struct utils_clock c);
 
 #endif
