@@ -6,7 +6,6 @@
 #include <time.h>
 #include <stdlib.h>
 
-// TODO: add verbosity
 // https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto
 typedef enum{
     OK = 0,
@@ -32,12 +31,28 @@ typedef enum{
     LOG_TRACE, LOG_DEBUG, LOG_INFO, LOG_WARN, LOG_ERROR, LOG_FATAL
 } LOGGING_TYPE;
 
+// https://symfony.com/doc/current/console/verbosity.html
+// -q nothing, only output
+// (none) normal, only warn, errors and fatal
+// -v + info
+// -vv + debug, trace
+typedef enum{
+  QUIET = 0,
+  NORMAL = 1,
+  VERBOSE = 2,
+  VERY_VERBOSE = 3
+} VERBOSITY;
+
 #define log_trace(...) err_logging(LOG_TRACE, __FILE__, __LINE__, __VA_ARGS__)
 #define log_debug(...) err_logging(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
 #define log_info(...)  err_logging(LOG_INFO,  __FILE__, __LINE__, __VA_ARGS__)
 #define log_warn(...)  err_logging(LOG_WARN,  __FILE__, __LINE__, __VA_ARGS__)
 #define log_error(...) err_logging(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) err_logging(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__)
+
+static struct{
+  int verbosity;
+} L;
 
 static const char *level_strings[] = {
   "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"
@@ -48,6 +63,7 @@ static const char *level_colors[] = {
 };
 
 bool err_ok(ERROR_CODE error);
+void err_setverbosity(VERBOSITY verbosity);
 void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, ...);
 
 #endif

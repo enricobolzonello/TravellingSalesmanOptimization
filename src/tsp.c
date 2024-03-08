@@ -11,6 +11,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     inst->options_t.timelimit = -1;
     inst->options_t.seed = 0;
     inst->nnodes = -1;
+    err_setverbosity(NORMAL);
     bool help = false;
     bool algs = false;
 
@@ -118,6 +119,21 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
             inst->options_t.graph_random = true;
 
+            continue;
+        }
+
+        if(strcmp("-q", argv[i]) == 0){
+            err_setverbosity(QUIET);
+            continue;
+        }
+
+        if(strcmp("-v", argv[i]) == 0){
+            err_setverbosity(VERBOSE);
+            continue;
+        }
+
+        if(strcmp("-vv", argv[i]) == 0){
+            err_setverbosity(VERY_VERBOSE);
             continue;
         }
 
