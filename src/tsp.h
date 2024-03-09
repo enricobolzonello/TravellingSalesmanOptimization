@@ -86,4 +86,5 @@ void tsp_read_input(instance* inst);
 
 void tsp_compute_costs(instance* inst);
 
+bool tsp_validate_solution(int* solution_path, instance* inst);
 #endif

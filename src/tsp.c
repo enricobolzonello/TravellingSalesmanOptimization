@@ -12,6 +12,8 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     inst->options_t.seed = 0;
     inst->nnodes = -1;
     inst->costs_computed = false;
+    inst->best_solution_cost = __DBL_MAX__;
+    inst->solution_cost = __DBL_MAX__;
     err_setverbosity(NORMAL);
     bool help = false;
     bool algs = false;
@@ -337,4 +339,42 @@ void tsp_compute_costs(instance* inst){
     }
 
     inst->costs_computed = false;
+}
+
+bool tsp_validate_solution(int* solution_path, int nnodes) {
+    int* node_visit_counter = (int*)calloc(nnodes, sizeof(int));
+    int solution_size = sizeof(solution_path) / sizeof(solution_path[0]);
+
+    // solution should have exactly nnodes elements
+    if (solution_size - nnodes != 0){
+        free(node_visit_counter);
+        return false;
+    }
+
+    // count how many times each node is visited
+    for(int i=0; i<nnodes; i++){
+        int node = solution_path[i];
+        node_visit_counter[node] ++;
+    }
+
+    // check that each node is visited once
+    for(int i=0; i<nnodes; i++){
+        if(node_visit_counter[i] != 1){
+            free(node_visit_counter);
+            return false;
+        }
+    }
+
+    free(node_visit_counter);
+    return true;
+}
+
+void tsp_update_best_solution(instance* inst){
+    if(tsp_validate_solution(inst->solution_path, inst->nnodes)){
+        if(inst->solution_cost < inst->best_solution_cost){
+            inst->best_solution_path = inst->solution_path;
+        }
+    }
+
+    utils_print_error("You tried to update best_solution with an unvalid solution");
 }
