@@ -87,7 +87,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
             return DEADLINE_EXCEEDED;
         }
 
-        log_info("starting greedy with node %d\n", i);
+        log_debug("starting greedy with node %d\n", i);
         error = h_greedy(inst, i);
         if(error != OK){
             log_error("code %d\n", error);
@@ -101,13 +101,14 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
         }
     }
 
-    tsp_update_best_solution(&inst);
+    tsp_update_best_solution(inst);
 
     free(best_path);
 
     return OK;
 }
 
+// TODO: doesn't work
 double h_2opt(instance* inst) {
     int best_swap[2] = {-1, -1};
     double improvement = 0;
@@ -127,13 +128,13 @@ double h_2opt(instance* inst) {
     }
 
     if(improvement > 0){
-        h_swap(&best_swap, improvement,&inst);
+        h_swap(best_swap, improvement,inst);
     }
 
     return improvement;
 }
 
-void h_swap(int* swap, double improvement, instance* inst){
+void h_swap(int swap[2], double improvement, instance* inst){
     int temp = inst->solution_path[swap[0]];
     inst->solution_path[swap[0]] = inst->solution_path[swap[1]];
     inst->solution_path[swap[1]] = temp;
@@ -157,8 +158,8 @@ void h_swap(int* swap, double improvement, instance* inst){
 ERROR_CODE h_2opt_iterative(instance* inst){
     double improvement  = 0;
     do{
-        improvement = h_2opt(&inst);
-        tsp_update_best_solution(&inst);
+        improvement = h_2opt(inst);
+        tsp_update_best_solution(inst);
     }while(improvement > 0);
 
     return OK;

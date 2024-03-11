@@ -37,7 +37,7 @@ double utils_timeelapsed(struct utils_clock c){
 }
 
 void utils_print_array(int* arr){
-  int size = sizeof(arr) / sizeof(arr[0]);
+  int size = sizeof(*arr) / sizeof(arr[0]);
 
   printf("Array: ");
   for (int i = 0; i < size; i++) {

@@ -17,9 +17,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     err_setverbosity(NORMAL);
     bool help = false;
     bool algs = false;
-
-    inst->algorithm = calloc(12, sizeof(char));
-    strcpy(inst->algorithm, "GREEDY-ONCE");
+    inst->alg = ALG_GREEDY;
 
 
     for(int i=1; i<argc; i++){
@@ -83,7 +81,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             continue;
         }
 
-        // TODO: add flags for algorithm chosen
         if (strcmp("-alg", argv[i]) == 0){
             log_info("parsing algorithm argument");
 
@@ -94,22 +91,18 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
             const char* method = argv[++i];
 
-            free(inst->algorithm);
-            if (strncmp("GREEDY-ONCE", method, 11) == 0){
-                inst->algorithm = calloc(12, sizeof(char));
-                strcpy(inst->algorithm, "GREEDY-ONCE");
-                printf("GREEDY\n");
-            }else if (strncmp("GREEDY-ALLNODES", method, 15) == 0){
-                inst->algorithm = calloc(16, sizeof(char));
-                strcpy(inst->algorithm, "GREEDY-ALLNODES");
-                printf("GREEDY-ALLNODES\n");
+            if (strcmp("GREEDY", method) == 0){
+                inst->alg = ALG_GREEDY;
+                log_info("selected greedy algorithm");
+            }else if (strcmp("GREEDY_ITERATIVE", method) == 0){
+                inst->alg = ALG_GREEDY_ITER;
+                log_info("selected iterative greedy algorithm");
             }
-            else if (strncmp("2OPT-GREEDY", method, 11) == 0){
-                inst->algorithm = calloc(12, sizeof(char));
-                strcpy(inst->algorithm, "2OPT-GREEDY");
-                printf("2OPT-GREEDY\n");
+            else if (strcmp("2OPT_GREEDY", method) == 0){
+                inst->alg = ALG_2OPT_GREEDY;
+                log_info("selected 2opt-greedy algorithm");
             }else{
-                utils_print_error("INVALID ALGORITHM use -h or --all_algs for help");
+                log_warn("algorithm not recognized, using greedy as default");
             }
 
             continue;
@@ -190,9 +183,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
     if(algs){
         printf(COLOR_BOLD "Available algorithms:\n" COLOR_OFF);
-        printf("    - GREEDY-ONCE\n");
-        printf("    - GREEDY-ALLNODES\n");
-        printf("    - 2OPT-GREEDY\n");
+        printf("    - GREEDY\n");
+        printf("    - GREEDY_ITERATIVE\n");
+        printf("    - 2OPT_GREEDY\n");
     }
 
     return OK;

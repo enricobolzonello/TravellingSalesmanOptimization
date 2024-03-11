@@ -16,6 +16,12 @@
 #include "utils/errors.h"
 #include <math.h>
 
+typedef enum {
+    ALG_GREEDY = 0,
+    ALG_GREEDY_ITER = 1,
+    ALG_2OPT_GREEDY = 2
+} algorithms;
+
 typedef struct {
     double timelimit;              // time limit of the algorithm (in seconds)
     int seed;                   // seed for random generation, if not set by the user, defaults to current time
@@ -27,7 +33,7 @@ typedef struct {
 typedef struct {
     options options_t;
 
-    char* algorithm;            // algorithm chosen 
+    algorithms alg;            // algorithm chosen 
 
     int nnodes;                 // number of nodes
     
@@ -60,7 +66,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst);
 ERROR_CODE tsp_generate_randompoints(instance* inst);
 
 /**
- * @brief Outputs a plot 
+ * @brief Plots instance points 
  * 
  * @param inst, pointer to an instance
  * @param name, title of the plot
@@ -68,6 +74,14 @@ ERROR_CODE tsp_generate_randompoints(instance* inst);
  */
 ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file);
 
+/**
+ * @brief Plots instance solution
+ * 
+ * @param inst 
+ * @param name 
+ * @param to_file 
+ * @return ERROR_CODE 
+ */
 ERROR_CODE tsp_plot_solution(instance* inst, char* name, bool to_file);
 
 /**
