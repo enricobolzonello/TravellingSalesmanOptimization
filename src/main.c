@@ -21,8 +21,8 @@ int main(int argc, char* argv[]){
     {
     case ALG_GREEDY:
         h_Greedy(&inst);
-        //tsp_update_best_solution(&inst);
-        //printf("Greedy from 0: %f\n", inst.best_solution_cost);
+        tsp_update_best_solution(&inst);
+        printf("Greedy from 0: %f\n", inst.best_solution_cost);
         tsp_plot_solution(&inst, "greedy", false);
         break;
     case ALG_GREEDY_ITER:

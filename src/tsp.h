@@ -36,6 +36,8 @@ typedef struct {
     algorithms alg;            // algorithm chosen 
 
     int nnodes;                 // number of nodes
+
+    struct utils_clock c;       // clock
     
     bool points_allocated;
     point* points;              // dynamic array of points

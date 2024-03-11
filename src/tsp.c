@@ -19,6 +19,8 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     bool algs = false;
     inst->alg = ALG_GREEDY;
 
+    inst->c = utils_startclock();
+
 
     for(int i=1; i<argc; i++){
 
@@ -384,6 +386,6 @@ void tsp_update_best_solution(instance* inst){
             inst->best_solution_cost = inst->solution_cost;
         }
     }else{
-        utils_print_error("You tried to update best_solution with an unvalid solution");
+        log_debug("You tried to update best_solution with an unvalid solution");
     }   
 }
