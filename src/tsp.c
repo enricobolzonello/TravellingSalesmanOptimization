@@ -236,7 +236,7 @@ ERROR_CODE tsp_plot_solution(instance* inst, char* name,bool to_file){
 
     int v;
     for(i=0; i<inst->nnodes; i++){
-        v = inst->solution_path[i];
+        v = inst->best_solution_path[i];
         plot_edge(plot, inst->points[i], inst->points[v]);
     }
 
@@ -327,6 +327,8 @@ void tsp_read_input(instance* inst){
 }
 
 void tsp_compute_costs(instance* inst){
+    log_debug("computing costs");
+
     if(inst->nnodes <= 0) utils_print_error("computing costs of empty graph");
 
     inst->costs = (double **) calloc(inst->nnodes, sizeof(double**));
@@ -341,14 +343,17 @@ void tsp_compute_costs(instance* inst){
 
     // computation of costs of edges with euclidean distance
     for (int i = 0; i < inst->nnodes; i++) {
-        for (int j = i + 1; j < inst->nnodes; j++) {
+        for (int j = 0; j < inst->nnodes; j++) {
+            if (j == i){
+                continue;
+            }
             float distance = sqrtf(pow(inst->points[j].x - inst->points[i].x, 2) + pow(inst->points[j].y - inst->points[i].y, 2));
             inst->costs[i][j] = distance;
             inst->costs[j][i] = distance;
         }
     }
 
-    inst->costs_computed = false;
+    inst->costs_computed = true;
 }
 
 bool tsp_validate_solution(instance* inst) {

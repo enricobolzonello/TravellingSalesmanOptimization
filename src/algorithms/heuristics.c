@@ -1,6 +1,7 @@
 #include "heuristics.h"
 
-ERROR_CODE h_greedy(instance* inst, int starting_node){
+ERROR_CODE h_greedyutil(instance* inst, int starting_node){
+    int i;
     if(starting_node >= inst->nnodes || starting_node < 0){
         return UNAVAILABLE;
     }
@@ -16,52 +17,48 @@ ERROR_CODE h_greedy(instance* inst, int starting_node){
     struct utils_clock c = utils_startclock();
     
     double sol_cost = 0;
-    inst->solution_path[0] = curr;
-    int iteration = 1;
+    int min_idx;
+    double min_dist;
+    double temp;
+    bool done = false;
 
-
-    while(true){
+    while(!done){
         // check that we have not exceed time limit
         double ex_time = utils_timeelapsed(c);
-        if(ex_time > inst->options_t.timelimit){
+        if(inst->options_t.timelimit != -1.0){
+            if(ex_time > inst->options_t.timelimit){
             free(visited);
             return DEADLINE_EXCEEDED;
         }
+        }
 
         // identify minimum distance from the current node
-        int min_idx = -1;
-        double min_dist = __DBL_MAX__;
-        double temp;
-        for(int i=0; i<inst->nnodes; i++){
-            // skip iteration if it's already visited
-            if(i == curr || visited[i]){
-                continue;
-            }
+        min_idx = -1;
+        min_dist = __DBL_MAX__;
 
-            temp = inst->costs[curr][i];
-            if(temp < min_dist){
-                min_dist = temp;
-                min_idx = i;
+        for(i=0; i<inst->nnodes; i++){
+            // skip iteration if it's already visited
+            if(i != curr && visited[i] != 1){
+                // update the minimum cost and its node
+                temp = inst->costs[curr][i];
+                if(temp != -1.0f && temp < min_dist){
+                    min_dist = temp;
+                    min_idx = i;
+                }
             }
         }
+
+        // save the edge
+        inst->solution_path[curr] = min_idx;
 
         // we have visited all nodes
         if(min_idx == -1){
-            break;
-        }
-
-        
-        curr = min_idx;
-
-        // save the edge
-        inst->solution_path[iteration] = curr;
-        iteration++;
-
-        visited[curr] = 1;
-        sol_cost += min_dist;
-
-        if(iteration > inst->nnodes){
-            break;
+            inst->solution_path[curr] = starting_node;
+            done = true;
+        }else{
+            visited[min_idx] = 1;
+            curr = min_idx;
+            sol_cost += min_dist;
         }
     }
 
@@ -74,6 +71,17 @@ ERROR_CODE h_greedy(instance* inst, int starting_node){
     return OK;
 }
 
+ERROR_CODE h_Greedy(instance* inst){
+    log_info("running GREEDY");
+    ERROR_CODE error = h_greedyutil(inst, 0);
+
+    inst->best_solution_cost = inst->solution_cost;
+    inst->best_solution_path = calloc(inst->nnodes, sizeof(int));
+    memcpy(inst->best_solution_path, inst->solution_path, inst->nnodes * sizeof(int));
+
+    return error;
+}
+
 ERROR_CODE h_Greedy_iterative(instance* inst){
     int i;
     ERROR_CODE error;
@@ -82,20 +90,22 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
     double best_cost = __DBL_MAX__;
     int* best_path = (int*) calloc(inst->nnodes, sizeof(int*));
     for(i=0; i<inst->nnodes; i++){
-        double ex_time = utils_timeelapsed(c);
-        if(ex_time > inst->options_t.timelimit){
-            return DEADLINE_EXCEEDED;
+        if(inst->options_t.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(c);
+            if(ex_time > inst->options_t.timelimit){
+                return DEADLINE_EXCEEDED;
+            }
         }
 
-        log_debug("starting greedy with node %d\n", i);
-        error = h_greedy(inst, i);
+        log_debug("starting greedy with node %d", i);
+        error = h_greedyutil(inst, i);
         if(error != OK){
             log_error("code %d\n", error);
             break;
         }
 
         if(inst->solution_cost < best_cost){
-            log_info("found new best, node %d\n", i);
+            log_info("found new best, node %d", i);
             best_cost = inst->solution_cost;
             memcpy(best_path, inst->solution_path, inst->nnodes * sizeof(int));
         }
@@ -156,8 +166,17 @@ void h_swap(int swap[2], double improvement, instance* inst){
 }
 
 ERROR_CODE h_2opt_iterative(instance* inst){
+    struct utils_clock c = utils_startclock();
     double improvement  = 0;
     do{
+        if(inst->options_t.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(c);
+            if(ex_time > inst->options_t.timelimit){
+                log_debug("time limit exceeded");
+                return DEADLINE_EXCEEDED;
+            }
+        }
+
         improvement = h_2opt(inst);
         tsp_update_best_solution(inst);
     }while(improvement > 0);
