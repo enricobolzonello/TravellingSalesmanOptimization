@@ -35,3 +35,13 @@ double utils_timeelapsed(struct utils_clock c){
 
   return (double) (clock() - c.starting_time) / CLOCKS_PER_SEC;
 }
+
+void utils_print_array(int* arr){
+  int size = sizeof(arr) / sizeof(arr[0]);
+
+  printf("Array: ");
+  for (int i = 0; i < size; i++) {
+      printf("%d ", arr[i]);
+  }
+  printf("\n");
+}

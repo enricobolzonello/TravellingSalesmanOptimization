@@ -27,6 +27,8 @@ typedef struct {
 typedef struct {
     options options_t;
 
+    char* algorithm;            // algorithm chosen 
+
     int nnodes;                 // number of nodes
     
     bool points_allocated;
@@ -86,5 +88,7 @@ void tsp_read_input(instance* inst);
 
 void tsp_compute_costs(instance* inst);
 
-bool tsp_validate_solution(int* solution_path, instance* inst);
+bool tsp_validate_solution(instance* inst);
+
+void tsp_update_best_solution(instance* inst);
 #endif

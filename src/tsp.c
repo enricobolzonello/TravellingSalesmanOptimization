@@ -18,6 +18,10 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     bool help = false;
     bool algs = false;
 
+    inst->algorithm = calloc(12, sizeof(char));
+    strcpy(inst->algorithm, "GREEDY-ONCE");
+
+
     for(int i=1; i<argc; i++){
 
         if (strcmp("-f", argv[i]) == 0 || strcmp("-file", argv[i]) == 0){
@@ -90,10 +94,22 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
             const char* method = argv[++i];
 
-            if (strncmp("GREEDY", method, 6) == 0){
+            free(inst->algorithm);
+            if (strncmp("GREEDY-ONCE", method, 11) == 0){
+                inst->algorithm = calloc(12, sizeof(char));
+                strcpy(inst->algorithm, "GREEDY-ONCE");
                 printf("GREEDY\n");
-            }else if (strncmp("2OPT-GREEDY", method, 6) == 0){
+            }else if (strncmp("GREEDY-ALLNODES", method, 15) == 0){
+                inst->algorithm = calloc(16, sizeof(char));
+                strcpy(inst->algorithm, "GREEDY-ALLNODES");
+                printf("GREEDY-ALLNODES\n");
+            }
+            else if (strncmp("2OPT-GREEDY", method, 11) == 0){
+                inst->algorithm = calloc(12, sizeof(char));
+                strcpy(inst->algorithm, "2OPT-GREEDY");
                 printf("2OPT-GREEDY\n");
+            }else{
+                utils_print_error("INVALID ALGORITHM use -h or --all_algs for help");
             }
 
             continue;
@@ -174,7 +190,8 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
     if(algs){
         printf(COLOR_BOLD "Available algorithms:\n" COLOR_OFF);
-        printf("    - GREEDY\n");
+        printf("    - GREEDY-ONCE\n");
+        printf("    - GREEDY-ALLNODES\n");
         printf("    - 2OPT-GREEDY\n");
     }
 
@@ -341,24 +358,17 @@ void tsp_compute_costs(instance* inst){
     inst->costs_computed = false;
 }
 
-bool tsp_validate_solution(int* solution_path, int nnodes) {
-    int* node_visit_counter = (int*)calloc(nnodes, sizeof(int));
-    int solution_size = sizeof(solution_path) / sizeof(solution_path[0]);
-
-    // solution should have exactly nnodes elements
-    if (solution_size - nnodes != 0){
-        free(node_visit_counter);
-        return false;
-    }
+bool tsp_validate_solution(instance* inst) {
+    int* node_visit_counter = (int*)calloc(inst->nnodes, sizeof(int));
 
     // count how many times each node is visited
-    for(int i=0; i<nnodes; i++){
-        int node = solution_path[i];
+    for(int i=0; i<inst->nnodes; i++){
+        int node = inst->solution_path[i];
         node_visit_counter[node] ++;
     }
 
     // check that each node is visited once
-    for(int i=0; i<nnodes; i++){
+    for(int i=0; i<inst->nnodes; i++){
         if(node_visit_counter[i] != 1){
             free(node_visit_counter);
             return false;
@@ -370,11 +380,12 @@ bool tsp_validate_solution(int* solution_path, int nnodes) {
 }
 
 void tsp_update_best_solution(instance* inst){
-    if(tsp_validate_solution(inst->solution_path, inst->nnodes)){
+    if(tsp_validate_solution(inst)){
         if(inst->solution_cost < inst->best_solution_cost){
             inst->best_solution_path = inst->solution_path;
+            inst->best_solution_cost = inst->solution_cost;
         }
-    }
-
-    utils_print_error("You tried to update best_solution with an unvalid solution");
+    }else{
+        utils_print_error("You tried to update best_solution with an unvalid solution");
+    }   
 }

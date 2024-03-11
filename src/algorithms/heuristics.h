@@ -5,6 +5,8 @@
 
 ERROR_CODE h_greedy(instance* inst, int starting_node);
 ERROR_CODE h_Greedy_iterative(instance* inst);
-void h_2opt();
+double h_2opt(instance* inst);
+void h_swap(int* swap, double improvement, instance* inst);
+ERROR_CODE h_2opt_iterative(instance* inst);
 
 #endif

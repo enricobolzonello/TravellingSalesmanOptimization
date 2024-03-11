@@ -16,6 +16,10 @@ ERROR_CODE h_greedy(instance* inst, int starting_node){
     struct utils_clock c = utils_startclock();
     
     double sol_cost = 0;
+    inst->solution_path[0] = curr;
+    int iteration = 1;
+
+
     while(true){
         // check that we have not exceed time limit
         double ex_time = utils_timeelapsed(c);
@@ -41,20 +45,27 @@ ERROR_CODE h_greedy(instance* inst, int starting_node){
             }
         }
 
-        // save the edge
-        inst->solution_path[curr] = min_idx;
-
         // we have visited all nodes
         if(min_idx == -1){
-            inst->solution_path[curr] = starting_node;
             break;
         }
 
+        
         curr = min_idx;
-        visited[min_idx] = 1;
+
+        // save the edge
+        inst->solution_path[iteration] = curr;
+        iteration++;
+
+        visited[curr] = 1;
         sol_cost += min_dist;
+
+        if(iteration > inst->nnodes){
+            break;
+        }
     }
 
+    // add last edge
     sol_cost += inst->costs[curr][starting_node];
     inst->solution_cost = sol_cost;
 
@@ -90,10 +101,66 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
         }
     }
 
-    inst->best_solution_cost = best_cost;
-    memcpy(inst->best_solution_path, best_path, inst->nnodes * sizeof(int));
+    tsp_update_best_solution(&inst);
 
     free(best_path);
 
     return OK;
 }
+
+double h_2opt(instance* inst) {
+    int best_swap[2] = {-1, -1};
+    double improvement = 0;
+
+    // swap between i+1 and j
+    for(int i=0; i<inst->nnodes - 1; i++){
+        for(int j=i; j<inst->nnodes - 1; j++){
+            double current_cost = inst->costs[i][i+1] + inst->costs[j][j+1];
+            double swapped_cost = inst->costs[i][j] + inst->costs[i+1][j+1];
+
+            if(current_cost - swapped_cost > improvement){
+                best_swap[0] = i+1;
+                best_swap[1] = j;
+                improvement = current_cost - swapped_cost;
+            }
+        }
+    }
+
+    if(improvement > 0){
+        h_swap(&best_swap, improvement,&inst);
+    }
+
+    return improvement;
+}
+
+void h_swap(int* swap, double improvement, instance* inst){
+    int temp = inst->solution_path[swap[0]];
+    inst->solution_path[swap[0]] = inst->solution_path[swap[1]];
+    inst->solution_path[swap[1]] = temp;
+
+    // invert path in the middle
+    int start = swap[0] + 1;
+    int end = swap[1] - 1;
+    while (start < end) {
+        int temp = inst->solution_path[start];
+        inst->solution_path[start] = inst->solution_path[end];
+        inst->solution_path[end] = temp;
+
+        start++;
+        end--;
+    }
+
+    // update cost
+    inst->solution_cost -= improvement;
+}
+
+ERROR_CODE h_2opt_iterative(instance* inst){
+    double improvement  = 0;
+    do{
+        improvement = h_2opt(&inst);
+        tsp_update_best_solution(&inst);
+    }while(improvement > 0);
+
+    return OK;
+}
+
