@@ -8,7 +8,6 @@ void tsp_init(instance* inst){
     inst->nnodes = -1;
     inst->costs_computed = false;
     inst->best_solution_cost = __DBL_MAX__;
-    inst->solution_cost = __DBL_MAX__;
     err_setverbosity(NORMAL);
     inst->alg = ALG_GREEDY;
     inst->c = utils_startclock();
@@ -231,7 +230,6 @@ ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file){
 }
 
 ERROR_CODE tsp_plot_solution(instance* inst, char* name,bool to_file){
-    int i;
     PLOT plot = plot_open(name);
     if(to_file){
         plot_tofile(plot, name);
@@ -239,9 +237,8 @@ ERROR_CODE tsp_plot_solution(instance* inst, char* name,bool to_file){
 
     plot_args(plot, "plot '-' using 1:2 w lines");
 
-    int v;
-    for(i=0; i<inst->nnodes; i++){
-        v = inst->best_solution_path[i];
+    for(int i=0; i<inst->nnodes; i++){
+        int v = inst->best_solution_path[i];
         plot_edge(plot, inst->points[i], inst->points[v]);
     }
 
@@ -282,9 +279,7 @@ void tsp_read_input(instance* inst){
     inst->nnodes = -1;
 
     char line[300];
-    char* parameter;
-    char* token1;
-	char* token2;
+	char *token2, *token1, *parameter;
 
     int node_section = 0;
 
@@ -343,7 +338,7 @@ void tsp_read_input(instance* inst){
     tsp_compute_costs(inst);
 }
 
-void tsp_compute_costs(instance* inst){
+ERROR_CODE tsp_compute_costs(instance* inst){
     log_debug("computing costs");
 
     if(inst->nnodes <= 0) log_fatal("computing costs of empty graph");
@@ -361,6 +356,15 @@ void tsp_compute_costs(instance* inst){
     // computation of costs of edges with euclidean distance
     for (int i = 0; i < inst->nnodes; i++) {
         for (int j = 0; j < inst->nnodes; j++) {
+
+            // check that we have not exceed time limit
+            double ex_time = utils_timeelapsed(inst->c);
+            if(inst->options_t.timelimit != -1.0){
+                if(ex_time > inst->options_t.timelimit){
+                    return DEADLINE_EXCEEDED;
+                }
+            }
+
             if (j == i){
                 continue;
             }
@@ -371,14 +375,16 @@ void tsp_compute_costs(instance* inst){
     }
 
     inst->costs_computed = true;
+
+    return OK;
 }
 
-bool tsp_validate_solution(instance* inst) {
+bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     int* node_visit_counter = (int*)calloc(inst->nnodes, sizeof(int));
 
     // count how many times each node is visited
     for(int i=0; i<inst->nnodes; i++){
-        int node = inst->solution_path[i];
+        int node = current_solution_path[i];
         node_visit_counter[node] ++;
     }
 
@@ -394,11 +400,11 @@ bool tsp_validate_solution(instance* inst) {
     return true;
 }
 
-void tsp_update_best_solution(instance* inst){
-    if(tsp_validate_solution(inst)){
-        if(inst->solution_cost < inst->best_solution_cost){
-            inst->best_solution_path = inst->solution_path;
-            inst->best_solution_cost = inst->solution_cost;
+void tsp_update_best_solution(instance* inst, double current_solution_cost, int* current_solution_path){
+    if(tsp_validate_solution(inst, current_solution_path)){
+        if(current_solution_cost < inst->best_solution_cost){
+            memcpy(inst->best_solution_path, current_solution_path, inst->nnodes * sizeof(int)); // here's the problem
+            inst->best_solution_cost = current_solution_cost;
         }
     }else{
         log_debug("You tried to update best_solution with an unvalid solution");

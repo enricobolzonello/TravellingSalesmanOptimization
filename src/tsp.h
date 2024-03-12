@@ -46,9 +46,6 @@ typedef struct {
     double** costs;
     bool costs_computed;
 
-    // TODO: dont save not optimal costs
-    double solution_cost;
-    int* solution_path;
     double best_solution_cost;
     int* best_solution_path;
 } instance;
@@ -121,7 +118,7 @@ void tsp_read_input(instance* inst);
  * 
  * @param inst 
  */
-void tsp_compute_costs(instance* inst);
+ERROR_CODE tsp_compute_costs(instance* inst);
 
 /**
  * @brief Validates a tsp solution
@@ -130,13 +127,13 @@ void tsp_compute_costs(instance* inst);
  * @return true if the solution is valid
  * @return false if the solution is not valid
  */
-bool tsp_validate_solution(instance* inst);
+bool tsp_validate_solution(instance* inst, int* current_solution_path);
 
 /**
  * @brief Updates the best solution iff it is valid and it is better than the current best solution
  * 
  * @param inst 
  */
-void tsp_update_best_solution(instance* inst);
+void tsp_update_best_solution(instance* inst, double current_solution_cost, int* current_solution_path);
 
 #endif

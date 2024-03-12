@@ -10,7 +10,7 @@
  * @param starting_node 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_greedyutil(instance* inst, int starting_node);
+ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, double* solution_cost);
 
 /**
  * @brief Runs greedy algorithm and updates the best solution
@@ -44,6 +44,6 @@ ERROR_CODE h_2opt(instance* inst);
  * @param end node where the path to be reversed ends
  * @param prev adjacency list of the paths before the reversing
  */
-void h_reverse_path(instance* inst, int start, int end, int* prev);
+void h_reverse_path(instance *inst, int start_node, int end_node, int *prev, int* solution_path);
 
 #endif
