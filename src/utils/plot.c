@@ -2,6 +2,7 @@
 
 PLOT plot_open(char* title){
     PLOT plot = popen("gnuplot -persistent", "w");
+    fprintf(plot, "set term qt font \"Arial\"\n");
     fprintf(plot, "set title '%s'\n", title);
     return plot;
 }

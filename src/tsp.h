@@ -52,6 +52,13 @@ typedef struct {
 } instance;
 
 /**
+ * @brief Initialize tsp instance with default parameters
+ * 
+ * @param inst 
+ */
+void tsp_init(instance* inst);
+
+/**
  * @brief Parser for the command-line arguments
  * 
  * @param argc, number of arguments on command-line
@@ -93,6 +100,11 @@ ERROR_CODE tsp_plot_solution(instance* inst, char* name, bool to_file);
  */
 void tsp_free_instance(instance *inst);
 
+/**
+ * @brief Util to handle fatal errors, frees all allocated resources
+ * 
+ * @param inst 
+ */
 void tsp_handlefatal(instance *inst);
 
 /**
@@ -102,9 +114,27 @@ void tsp_handlefatal(instance *inst);
  */
 void tsp_read_input(instance* inst);
 
+/**
+ * @brief Precomputes costs and keeps them in matrix costs of the instance
+ * 
+ * @param inst 
+ */
 void tsp_compute_costs(instance* inst);
 
+/**
+ * @brief Validates a tsp solution
+ * 
+ * @param inst 
+ * @return true if the solution is valid
+ * @return false if the solution is not valid
+ */
 bool tsp_validate_solution(instance* inst);
 
+/**
+ * @brief Updates the best solution iff it is valid and it is better than the current best solution
+ * 
+ * @param inst 
+ */
 void tsp_update_best_solution(instance* inst);
+
 #endif

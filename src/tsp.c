@@ -1,11 +1,6 @@
 #include "tsp.h"
 
-ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
-    if(argc < 2){
-        printf("Type %s --help to see the full list of commands\n", argv[0]);
-        exit(1);
-    }
-
+void tsp_init(instance* inst){
     inst->options_t.graph_random = false;
     inst->options_t.graph_input = false;
     inst->options_t.timelimit = -1;
@@ -15,12 +10,20 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     inst->best_solution_cost = __DBL_MAX__;
     inst->solution_cost = __DBL_MAX__;
     err_setverbosity(NORMAL);
+    inst->alg = ALG_GREEDY;
+    inst->c = utils_startclock();
+}
+
+ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
+    if(argc < 2){
+        printf("Type %s --help to see the full list of commands\n", argv[0]);
+        exit(1);
+    }
+
+    tsp_init(inst);
+
     bool help = false;
     bool algs = false;
-    inst->alg = ALG_GREEDY;
-
-    inst->c = utils_startclock();
-
 
     for(int i=1; i<argc; i++){
 
@@ -248,7 +251,7 @@ ERROR_CODE tsp_plot_solution(instance* inst, char* name,bool to_file){
 }
 
 void tsp_handlefatal(instance *inst){
-    log_info("shutting down application");
+    log_info("fatal error detected, shutting down application");
     tsp_free_instance(inst);
     exit(0);
 }
@@ -271,7 +274,10 @@ void tsp_free_instance(instance *inst){
 
 void tsp_read_input(instance* inst){
     FILE *input_file = fopen(inst->options_t.inputfile, "r");
-	if ( input_file == NULL ) utils_print_error(" input file not found!");
+	if ( input_file == NULL ){
+        log_fatal(" input file not found!");
+        tsp_handlefatal(inst);
+    }
 
     inst->nnodes = -1;
 
@@ -287,7 +293,10 @@ void tsp_read_input(instance* inst){
 	    parameter = strtok(line, " :");
 
         if ( strncmp(parameter, "DIMENSION", 9) == 0 ) {
-			if ( inst->nnodes >= 0 ) utils_print_error("two DIMENSION parameters in the file");
+			if ( inst->nnodes >= 0 ) {
+                log_fatal("two DIMENSION parameters in the file");
+                tsp_handlefatal(inst);
+            }
 			token1 = strtok(NULL, " :");
 			inst->nnodes = atoi(token1);	 
 			inst->points = (point *) calloc(inst->nnodes, sizeof(point));
@@ -297,7 +306,10 @@ void tsp_read_input(instance* inst){
 
         if ( strncmp(parameter, "NODE_COORD_SECTION", 18) == 0 ) 
 		{
-			if ( inst->nnodes <= 0 ) utils_print_error("DIMENSION not found");
+			if ( inst->nnodes <= 0 ){
+                log_fatal("DIMENSION not found");
+                tsp_handlefatal(inst);
+            } 
 			node_section = 1;   
 			continue;
 		}
@@ -305,7 +317,10 @@ void tsp_read_input(instance* inst){
         if ( strncmp(parameter, "TYPE", 4) == 0 ) 
 		{
 			token1 = strtok(NULL, " :");  
-			if ( strncmp(token1, "TSP",3) != 0 ) utils_print_error(" format error:  only TSP file type accepted");
+			if ( strncmp(token1, "TSP",3) != 0 ){
+                log_fatal(" format error:  only TSP file type accepted");
+                tsp_handlefatal(inst);
+            } 
 			continue;
 		}
 
@@ -331,7 +346,7 @@ void tsp_read_input(instance* inst){
 void tsp_compute_costs(instance* inst){
     log_debug("computing costs");
 
-    if(inst->nnodes <= 0) utils_print_error("computing costs of empty graph");
+    if(inst->nnodes <= 0) log_fatal("computing costs of empty graph");
 
     inst->costs = (double **) calloc(inst->nnodes, sizeof(double**));
 

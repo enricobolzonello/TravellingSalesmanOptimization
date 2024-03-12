@@ -22,7 +22,8 @@ int main(int argc, char* argv[]){
     case ALG_GREEDY:
         e = h_Greedy(&inst);
         if(!err_ok(e)){
-            utils_print_error("greedy did not finish correctly");
+            log_fatal("greedy did not finish correctly");
+            tsp_handlefatal(&inst);
         }        
         printf("Greedy from 0: %f\n", inst.best_solution_cost);
         tsp_plot_solution(&inst, "greedy", false);
@@ -31,7 +32,8 @@ int main(int argc, char* argv[]){
         log_info("running GREEDY-ITER");
         e = h_Greedy_iterative(&inst);
         if(!err_ok(e)){
-            utils_print_error("greedy iterative did not finish correctly");
+            log_fatal("greedy iterative did not finish correctly");
+            tsp_handlefatal(&inst);
         }  
         printf("Greedy from all nodes: %f\n", inst.best_solution_cost);
         tsp_plot_solution(&inst, "greedy iterative", false);
@@ -40,12 +42,14 @@ int main(int argc, char* argv[]){
         log_info("running 2OPT-GREEDY");
         e = h_Greedy(&inst);
         if(!err_ok(e)){
-            utils_print_error("greedy did not finish correctly");
+            log_fatal("greedy did not finish correctly");
+            tsp_handlefatal(&inst);
         }  
         log_info("finished greedy, starting 2opt");
         e = h_2opt(&inst);
         if(!err_ok(e)){
-            utils_print_error("2opt did not finish correctly");
+            log_fatal("2opt did not finish correctly");
+            tsp_handlefatal(&inst);
         }  
         printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution_cost);
         tsp_plot_solution(&inst, "2-opt greedy", false);

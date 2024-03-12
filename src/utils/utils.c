@@ -14,11 +14,6 @@ bool utils_invalid_input(int i, int argc, bool* help){
     return false;
 }
 
-void utils_print_error(char* message){
-  printf("Error: %s\n", message);
-  exit(1);
-}
-
 struct utils_clock utils_startclock(void){
   struct utils_clock c;
   c.starting_time = clock();
