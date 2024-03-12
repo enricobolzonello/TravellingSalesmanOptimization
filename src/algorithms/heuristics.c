@@ -39,7 +39,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node){
             if(i != curr && visited[i] != 1){
                 // update the minimum cost and its node
                 temp = inst->costs[curr][i];
-                if(temp != -1.0f && temp < min_dist){
+                if(temp != NOT_CONNECTED && temp < min_dist){
                     min_dist = temp;
                     min_idx = i;
                 }
@@ -49,11 +49,13 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node){
         // save the edge
         inst->solution_path[curr] = min_idx;
 
-        // we have visited all nodes
         if(min_idx == -1){
+            // we have visited all nodes
+            // close the path
             inst->solution_path[curr] = starting_node;
             done = true;
         }else{
+            // mark the node as visited and update the cost of the solution
             visited[min_idx] = 1;
             curr = min_idx;
             sol_cost += min_dist;
@@ -110,49 +112,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
     return OK;
 }
 
-double h_2opt(instance* inst) {
-    int best_i, best_j, best_succ_i, best_succ_j;
-    double best_delta = 0;
-
-    // copy the current path to then perform the reversing
-    int* prev = calloc(inst->nnodes, sizeof(int));
-    memcpy(prev, inst->solution_path, inst->nnodes * sizeof(int));
-    
-    for(int i=0; i<inst->nnodes - 1; i++){
-        for(int j=i+1; j<inst->nnodes; j++){
-
-            int succ_i = inst->solution_path[i];    // successor of a
-            int succ_j = inst->solution_path[j];    // successor of b
-
-            if(succ_i != succ_j && i != succ_j && j != succ_i){
-                double current_cost = inst->costs[i][succ_i] + inst->costs[j][succ_j];
-                double swapped_cost = inst->costs[i][j] + inst->costs[succ_i][succ_j];
-                double delta = swapped_cost - current_cost;
-                if(delta < best_delta){
-                    best_succ_i = succ_i;
-                    best_succ_j = succ_j;
-
-                    best_i = i;
-                    best_j = j;
-                    best_delta = delta;
-                }
-            }
-        }
-    }
-
-    if(best_delta < 0){
-        inst->solution_path[best_i] = best_j;
-        inst->solution_path[best_succ_i] = best_succ_j;
-        //h_swap(best_swap, improvement,inst);
-        h_reverse_path(inst, best_j, best_succ_i, prev);
-
-        inst->solution_cost += best_delta;
-    }
-
-    return best_delta;
-}
-
-ERROR_CODE h_2opt_iterative(instance* inst){
+ERROR_CODE h_2opt(instance* inst){
     // because 2opt works on the best solution, but it may not be feasible
     memcpy(inst->solution_path, inst->best_solution_path, inst->nnodes * sizeof(int));
     inst->solution_cost = inst->best_solution_cost;
@@ -173,13 +133,16 @@ ERROR_CODE h_2opt_iterative(instance* inst){
             }
         }
 
+        // update the best cost
+        best_cost=inst->solution_cost;
+        log_debug("New best cost: %f", best_cost);
+
         for (int a = 0; a < inst->nnodes - 1; a++) {
             for (int b = a+1; b < inst->nnodes; b++) {
                 int succ_a = inst->solution_path[a]; //successor of a
                 int succ_b = inst->solution_path[b]; //successor of b
 
                 // Skip non valid configurations
-                // a1 == b1 never occurs because the edges are repsresented as directed. a->a1 then a1->b so it cannot be a->a1 b->a1
                 if (succ_a == succ_b || a == succ_b || b == succ_a){
                     continue;
                 }
@@ -191,25 +154,16 @@ ERROR_CODE h_2opt_iterative(instance* inst){
                 double delta = swapped_cost - current_cost;
                 if (delta < 0) {
                     //Swap the 2 edges
-                    succ_a = inst->solution_path[a];
-                    succ_b = inst->solution_path[b];
                     inst->solution_path[a] = b;
                     inst->solution_path[succ_a] = succ_b;
                     
-                    //Reverse the path from minb to a1
+                    //Reverse the path from the b to the successor of a
                     h_reverse_path(inst, b, succ_a, prev);
                     
                     //update tour cost
                     inst->solution_cost += delta;
                 }
             }
-        }
-
-        // If couldn't find a crossing, stop the algorithm
-        if (inst->solution_cost < best_cost) {
-            //Update best cost seen till now
-            best_cost=inst->solution_cost;
-            log_debug("%f\n", best_cost);
         }
         
     }while(inst->solution_cost < best_cost);

@@ -31,6 +31,8 @@
 
 #define TSP_RAND() ( ((double)rand() / RAND_MAX) * (MAX_COORDINATE - MIN_COORDINATE) + MIN_COORDINATE )
 
+#define NOT_CONNECTED -1.0f
+
 typedef struct {
     double x;
     double y;
