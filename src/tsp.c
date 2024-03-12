@@ -11,6 +11,7 @@ void tsp_init(instance* inst){
     err_setverbosity(NORMAL);
     inst->alg = ALG_GREEDY;
     inst->c = utils_startclock();
+    inst->starting_node = 0;
 }
 
 ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){

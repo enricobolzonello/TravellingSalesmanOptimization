@@ -39,6 +39,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         }  
         printf("Greedy from all nodes: %f\n", inst.best_solution_cost);
+        printf("Best starting node: %d\n", inst.starting_node);
         tsp_plot_solution(&inst, "greedy iterative", false);
         break;
     case ALG_2OPT_GREEDY:

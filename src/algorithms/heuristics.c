@@ -69,7 +69,7 @@ ERROR_CODE h_Greedy(instance* inst){
     double solution_cost = __DBL_MAX__;
 
     log_info("running GREEDY");
-    ERROR_CODE error = h_greedyutil(inst, 0, solution_path, &solution_cost);
+    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, solution_path, &solution_cost);
 
     tsp_update_best_solution(inst, solution_cost, solution_path);
 
@@ -98,6 +98,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
 
         if(solution_cost < inst->best_solution_cost){
             log_info("found new best, node %d", i);
+            inst->starting_node = i;
             tsp_update_best_solution(inst, solution_cost, solution_path);
         }
     }
