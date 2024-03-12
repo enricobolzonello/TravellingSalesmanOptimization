@@ -1,6 +1,10 @@
 #include "tsp.h"
 #include "algorithms/heuristics.h"
 
+// TODO: better handling of errors
+
+// TODO: check clock in each function
+
 int main(int argc, char* argv[]){
     log_info("program started!");
     instance inst;
@@ -26,7 +30,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         }        
         printf("Greedy from 0: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "greedy", false);
+        tsp_plot_solution(&inst, "greedy", true);
         break;
     case ALG_GREEDY_ITER:
         log_info("running GREEDY-ITER");
@@ -36,7 +40,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         }  
         printf("Greedy from all nodes: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "greedy iterative", false);
+        tsp_plot_solution(&inst, "greedy iterative", true);
         break;
     case ALG_2OPT_GREEDY:
         log_info("running 2OPT-GREEDY");
@@ -45,6 +49,7 @@ int main(int argc, char* argv[]){
             log_fatal("greedy did not finish correctly");
             tsp_handlefatal(&inst);
         }  
+        // TODO: apply 2opt on each solution, not just the best of greedy iterative
         log_info("finished greedy, starting 2opt");
         e = h_2opt(&inst);
         if(!err_ok(e)){
@@ -52,7 +57,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         }  
         printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "2-opt greedy", false);
+        tsp_plot_solution(&inst, "2-opt greedy", true);
         break;
     default:
         log_error("cannot run any algorithm");

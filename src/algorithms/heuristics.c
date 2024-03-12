@@ -1,12 +1,15 @@
 #include "heuristics.h"
 
+// TODO: variabili temporanee dentro al ciclo, non ha senso definirle fuori dal for se non mi serve il valore precedente
+// nelle implementazioni moderne si risparmia tempo dato che vengono salvate in registri
+
 ERROR_CODE h_greedyutil(instance* inst, int starting_node){
     int i;
     if(starting_node >= inst->nnodes || starting_node < 0){
         return UNAVAILABLE;
     }
 
-    // probably we will move it to somewhere else
+    // TODO: initialize somewhere else, since greedy iterative gives memory leak
     inst->solution_path = calloc(inst->nnodes, sizeof(int));
 
     int* visited = (int*)calloc(inst->nnodes, sizeof(int));
@@ -84,7 +87,6 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
     int i;
     ERROR_CODE error;
 
-    double best_cost = __DBL_MAX__;
     int* best_path = (int*) calloc(inst->nnodes, sizeof(int*));
     for(i=0; i<inst->nnodes; i++){
         if(inst->options_t.timelimit != -1.0){
@@ -101,7 +103,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
             break;
         }
 
-        if(inst->solution_cost < best_cost){
+        if(inst->solution_cost < inst->best_solution_cost){
             log_info("found new best, node %d", i);
             tsp_update_best_solution(inst);
         }
@@ -112,6 +114,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
     return OK;
 }
 
+// TODO: change to pick the best swap
 ERROR_CODE h_2opt(instance* inst){
     // because 2opt works on the best solution, but it may not be feasible
     memcpy(inst->solution_path, inst->best_solution_path, inst->nnodes * sizeof(int));

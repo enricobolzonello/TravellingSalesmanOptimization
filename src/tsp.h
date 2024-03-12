@@ -30,6 +30,7 @@ typedef struct {
     char* inputfile;            // input file path
 } options;
 
+// TODO: add starting node in the instance
 typedef struct {
     options options_t;
 
@@ -45,6 +46,7 @@ typedef struct {
     double** costs;
     bool costs_computed;
 
+    // TODO: dont save not optimal costs
     double solution_cost;
     int* solution_path;
     double best_solution_cost;
