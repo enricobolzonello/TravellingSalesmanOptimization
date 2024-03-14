@@ -5,6 +5,7 @@ void tsp_init(instance* inst){
     inst->options_t.graph_input = false;
     inst->options_t.timelimit = -1;
     inst->options_t.seed = 0;
+    inst->options_t.tofile = false;
     inst->nnodes = -1;
     inst->costs_computed = false;
     inst->best_solution_cost = __DBL_MAX__;
@@ -140,6 +141,18 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             continue;
         }
 
+        if(strcmp("--to_file", argv[i]) == 0){
+            log_info("plots will be saved to directory /plots");
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            inst->options_t.tofile = true;
+            continue;
+        }
+
         if(strcmp("-q", argv[i]) == 0){
             err_setverbosity(QUIET);
             continue;
@@ -181,9 +194,12 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    -alg <option>           selects the algorithm to solve TSP, run --all_algs to see the options\n");
         printf("    -n <value>              number of nodes\n");
         printf("    --all_algs              prints all possible algorithms\n");
-        printf("    -q                      quiet verbosity level, prints only output");
-        printf("    -v                      verbose verbosity level, prints info, warnings, errors or fatal errors");
-        printf("    -vv                      verbose verbosity level, prints also debug and trace");
+        printf("    --to_file               if present, plots will be saved in directory /plots\n");
+        printf("    -q                      quiet verbosity level, prints only output\n");
+        printf("    -v                      verbose verbosity level, prints info, warnings, errors or fatal errors\n");
+        printf("    -vv                     verbose verbosity level, prints also debug and trace\n");
+
+        return ABORTED;
     }
 
     if(algs){
@@ -191,6 +207,8 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - GREEDY\n");
         printf("    - GREEDY_ITERATIVE\n");
         printf("    - 2OPT_GREEDY\n");
+        
+        return ABORTED;
     }
 
     return OK;
@@ -211,11 +229,11 @@ ERROR_CODE tsp_generate_randompoints(instance* inst){
     return OK;
 }
 
-ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file){
+ERROR_CODE tsp_plot_points(instance* inst, char* name){
     int i;
     PLOT plot = plot_open(name);
 
-    if(to_file){
+    if(inst->options_t.tofile){
         plot_tofile(plot, name);
     }
 
@@ -230,9 +248,9 @@ ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file){
     return OK;
 }
 
-ERROR_CODE tsp_plot_solution(instance* inst, char* name,bool to_file){
+ERROR_CODE tsp_plot_solution(instance* inst, char* name){
     PLOT plot = plot_open(name);
-    if(to_file){
+    if(inst->options_t.tofile){
         plot_tofile(plot, name);
     }
 

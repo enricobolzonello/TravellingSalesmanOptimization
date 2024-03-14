@@ -28,6 +28,7 @@ typedef struct {
     bool graph_random;          // flag to indicate wheter the graph is randomly generated
     bool graph_input;           // flag to indicate wheter the graph is from the input file
     char* inputfile;            // input file path
+    bool tofile;                // if true, plots will be saved in directory /plots
 } options;
 
 typedef struct {
@@ -81,7 +82,7 @@ ERROR_CODE tsp_generate_randompoints(instance* inst);
  * @param name, title of the plot
  * @param to_file, if you want to save a jpg file
  */
-ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file);
+ERROR_CODE tsp_plot_points(instance* inst, char* name);
 
 /**
  * @brief Plots instance solution
@@ -91,7 +92,7 @@ ERROR_CODE tsp_plot_points(instance* inst, char* name, bool to_file);
  * @param to_file 
  * @return ERROR_CODE 
  */
-ERROR_CODE tsp_plot_solution(instance* inst, char* name, bool to_file);
+ERROR_CODE tsp_plot_solution(instance* inst, char* name);
 
 /**
  * @brief Frees all dynamically allocated resources

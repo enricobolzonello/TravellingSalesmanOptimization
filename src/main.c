@@ -29,7 +29,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         }        
         printf("Greedy from 0: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "greedy", false);
+        tsp_plot_solution(&inst, "greedy");
         break;
     case ALG_GREEDY_ITER:
         log_info("running GREEDY-ITER");
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
         }  
         printf("Greedy from all nodes: %f\n", inst.best_solution_cost);
         printf("Best starting node: %d\n", inst.starting_node);
-        tsp_plot_solution(&inst, "greedy iterative", false);
+        tsp_plot_solution(&inst, "greedy iterative");
         break;
     case ALG_2OPT_GREEDY:
         log_info("running 2OPT-GREEDY");
@@ -50,7 +50,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         } 
         printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "2-opt greedy", false);
+        tsp_plot_solution(&inst, "2-opt greedy");
         break;
     default:
         log_error("cannot run any algorithm");
