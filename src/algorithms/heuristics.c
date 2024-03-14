@@ -108,18 +108,13 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
     return OK;
 }
 
-// TODO: change to pick the best swap
 ERROR_CODE h_2opt(instance* inst){
     // because 2opt works on the best solution, but it may not be feasible
     int* solution_path = calloc(inst->nnodes, sizeof(int));
     memcpy(solution_path, inst->best_solution_path, inst->nnodes * sizeof(int));
-    int solution_cost = inst->best_solution_cost;
 
-    double best_cost = solution_cost;               // save the current cost
-    int *prev = calloc(inst->nnodes, sizeof(int));      // save the path of the solution without 2opt
-    for (int i = 0; i < inst->nnodes; i++) {
-        prev[solution_path[i]] = i;
-    }
+    double current_best_cost = inst->best_solution_cost;
+    double delta = 0;
 
     do {
         // see if it exceeds the time limit
@@ -131,44 +126,18 @@ ERROR_CODE h_2opt(instance* inst){
             }
         }
 
-        // update the best cost
-        best_cost = solution_cost;
-        log_debug("New best cost: %f", best_cost);
-
-        for (int a = 0; a < inst->nnodes - 1; a++) {
-            for (int b = a+1; b < inst->nnodes; b++) {
-                int succ_a = solution_path[a]; //successor of a
-                int succ_b = solution_path[b]; //successor of b
-
-                // Skip non valid configurations
-                if (succ_a == succ_b || a == succ_b || b == succ_a){
-                    continue;
-                }
-
-
-                // Compute the delta. If < 0 it means there is a crossing
-                double current_cost = inst->costs[a][succ_a] + inst->costs[b][succ_b];
-                double swapped_cost = inst->costs[a][b] + inst->costs[succ_a][succ_b];
-                double delta = swapped_cost - current_cost;
-                if (delta < 0) {
-                    //Swap the 2 edges
-                    solution_path[a] = b;
-                    solution_path[succ_a] = succ_b;
-                    
-                    //Reverse the path from the b to the successor of a
-                    h_reverse_path(inst, b, succ_a, prev, solution_path);
-                    
-                    //update tour cost
-                    solution_cost += delta;
-                }
-            }
+        delta = h_2opt_once(inst, solution_path);
+        if (delta < 0 ){
+            current_best_cost += delta;
+            log_info("2-opt improved solution: new cost: %f", current_best_cost);
         }
+
         
-    }while(solution_cost < best_cost);
+        
+    }while(delta < 0);
     
-    tsp_update_best_solution(inst, solution_cost, solution_path);
+    tsp_update_best_solution(inst, current_best_cost, solution_path);
     
-    free(prev);
     return OK;
 }
 
@@ -186,4 +155,111 @@ void h_reverse_path(instance *inst, int start_node, int end_node, int *prev, int
     for (int k = 0; k < inst->nnodes; k++) {
         prev[solution_path[k]] = k;
     }
+}
+
+double h_2opt_once(instance* inst, int* solution_path){
+    double best_delta = 0;
+    int best_swap[2] = {-1, -1};
+
+    int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
+    for (int i = 0; i < inst->nnodes; i++) {
+        prev[solution_path[i]] = i;
+    }
+
+    // scan nodes to find best swap
+    for (int a = 0; a < inst->nnodes - 1; a++) {
+        for (int b = a+1; b < inst->nnodes; b++) {
+            int succ_a = solution_path[a]; //successor of a
+            int succ_b = solution_path[b]; //successor of b
+            
+            // Skip non valid configurations
+            if (succ_a == succ_b || a == succ_b || b == succ_a){
+                continue;
+            }
+
+            // Compute the delta. If < 0 it means there is a crossing
+            double current_cost = inst->costs[a][succ_a] + inst->costs[b][succ_b];
+            double swapped_cost = inst->costs[a][b] + inst->costs[succ_a][succ_b];
+            double delta = swapped_cost - current_cost;
+            if (delta < best_delta) {
+                best_delta = delta;
+                best_swap[0] = a;
+                best_swap[1] = b;
+            }
+        }
+    }
+
+
+    // execute best swap
+
+    if(best_delta < 0){
+        int a = best_swap[0];
+        int b = best_swap[1];
+        log_debug("best swap is %d, %d: executing swap...", a, b);
+        int succ_a = solution_path[a]; //successor of a
+        int succ_b = solution_path[b]; //successor of b
+
+        //Swap the 2 edges
+        solution_path[a] = b;
+        solution_path[succ_a] = succ_b;
+                    
+        //Reverse the path from the b to the successor of a
+        h_reverse_path(inst, b, succ_a, prev, solution_path);
+    }
+
+    free(prev);
+
+    return best_delta;
+
+}
+
+ERROR_CODE h_greedy_2opt(instance* inst){
+    int* solution_path = calloc(inst->nnodes, sizeof(int));
+    double solution_cost = __DBL_MAX__;
+
+    for(int i=0; i<inst->nnodes; i++){
+        if(inst->options_t.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(inst->c);
+            if(ex_time > inst->options_t.timelimit){
+                return DEADLINE_EXCEEDED;
+            }
+        }
+
+        log_debug("starting greedy with node %d", i);
+        ERROR_CODE error = h_greedyutil(inst, i, solution_path, &solution_cost);
+        if(error != OK){
+            log_error("code %d\n", error);
+            break;
+        }
+        log_debug("greedy solution: cost: %f", solution_cost);
+
+        double delta = 0;
+        do {
+            // see if it exceeds the time limit
+            if(inst->options_t.timelimit != -1.0){
+                double ex_time = utils_timeelapsed(inst->c);
+                if(ex_time > inst->options_t.timelimit){
+                    log_debug("time limit exceeded");
+                    return DEADLINE_EXCEEDED;
+                }
+            }
+
+            delta = h_2opt_once(inst, solution_path);
+            if (delta < 0 ){
+                solution_cost += delta;
+                log_debug("2-opt improved greedy solution: new cost: %f", solution_cost);
+            }
+
+        }while(delta < 0);
+
+        if(solution_cost < inst->best_solution_cost){
+            log_info("found new best solution: starting node %d, cost %f", i, solution_cost);
+            inst->starting_node = i;
+            tsp_update_best_solution(inst, solution_cost, solution_path);
+        }
+    }
+
+    free(solution_path);
+
+    return OK;
 }

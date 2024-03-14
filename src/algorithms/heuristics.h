@@ -46,4 +46,16 @@ ERROR_CODE h_2opt(instance* inst);
  */
 void h_reverse_path(instance *inst, int start_node, int end_node, int *prev, int* solution_path);
 
+double h_2opt_once(instance* inst, int* solution_path);
+
+/**
+ * @brief Runs greedy iteratively on all nodes and perform 2-opt on each solution until no improvement
+ * 
+ * @param inst 
+ * @return ERROR_CODE 
+ */
+ERROR_CODE h_greedy_2opt(instance* inst);
+
+
+
 #endif
