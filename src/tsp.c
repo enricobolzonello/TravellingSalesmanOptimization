@@ -107,6 +107,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             else if (strcmp("2OPT_GREEDY", method) == 0){
                 inst->alg = ALG_2OPT_GREEDY;
                 log_info("selected 2opt-greedy algorithm");
+            }else if (strcmp("TS", method) == 0){
+                inst->alg = ALG_TABU_SEARCH;
+                log_info("selected tabu search algorithm");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }

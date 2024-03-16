@@ -5,7 +5,7 @@ PLOT plot_open(char* title){
     if(plot == NULL){
         log_fatal("cannot open pipe");
     }
-    fprintf(plot, "set term qt font \"Arial\"\n");
+    fprintf(plot, "set term x11 font \"Arial\"\n");
     fprintf(plot, "set title '%s'\n", title);
     return plot;
 }

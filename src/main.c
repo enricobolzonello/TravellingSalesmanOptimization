@@ -1,5 +1,5 @@
 #include "tsp.h"
-#include "algorithms/heuristics.h"
+#include "algorithms/tabusearch.h"
 
 // TODO: better handling of errors
 
@@ -51,6 +51,16 @@ int main(int argc, char* argv[]){
         } 
         printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution_cost);
         tsp_plot_solution(&inst, "2-opt greedy");
+        break;
+    case ALG_TABU_SEARCH:
+        log_info("running Tabu Search");
+        e = tabu_search_2opt(&inst);
+        if(!err_ok(e)){
+            log_fatal("tabu search did not finish correctly");
+            tsp_handlefatal(&inst);
+        } 
+        printf("Tabu search: %f\n", inst.best_solution_cost);
+        tsp_plot_solution(&inst, "tabu search");
         break;
     default:
         log_error("cannot run any algorithm");
