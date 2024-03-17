@@ -1,5 +1,6 @@
 #include "tsp.h"
 #include "algorithms/tabusearch.h"
+#include "algorithms/heuristics.h"
 
 // TODO: better handling of errors
 
@@ -29,7 +30,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         }        
         printf("Greedy from 0: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "greedy");
+        tsp_plot_solution(&inst);
         break;
     case ALG_GREEDY_ITER:
         log_info("running GREEDY-ITER");
@@ -39,8 +40,8 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         }  
         printf("Greedy from all nodes: %f\n", inst.best_solution_cost);
-        printf("Best starting node: %d\n", inst.starting_node);
-        tsp_plot_solution(&inst, "greedy iterative");
+        log_info("Best starting node: %d", inst.starting_node);
+        tsp_plot_solution(&inst);
         break;
     case ALG_2OPT_GREEDY:
         log_info("running 2OPT-GREEDY");
@@ -50,7 +51,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         } 
         printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "2-opt greedy");
+        tsp_plot_solution(&inst);
         break;
     case ALG_TABU_SEARCH:
         log_info("running Tabu Search");
@@ -60,7 +61,7 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         } 
         printf("Tabu search: %f\n", inst.best_solution_cost);
-        tsp_plot_solution(&inst, "tabu search");
+        tsp_plot_solution(&inst);
         break;
     default:
         log_error("cannot run any algorithm");

@@ -2,7 +2,6 @@
 #define TABU_H_
 
 #include "../tsp.h"
-#include "heuristics.h"
 
 
 #define ITERATIONS 100

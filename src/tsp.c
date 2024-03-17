@@ -107,7 +107,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             else if (strcmp("2OPT_GREEDY", method) == 0){
                 inst->alg = ALG_2OPT_GREEDY;
                 log_info("selected 2opt-greedy algorithm");
-            }else if (strcmp("TS", method) == 0){
+            }else if (strcmp("TABU_SEARCH", method) == 0){
                 inst->alg = ALG_TABU_SEARCH;
                 log_info("selected tabu search algorithm");
             }else{
@@ -140,6 +140,11 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             inst->nnodes = n;
 
             inst->options_t.graph_random = true;
+
+            char buffer[40];
+            utils_plotname(buffer, 40);
+            inst->options_t.inputfile = (char*) calloc(strlen(buffer), sizeof(char));
+            strcpy(inst->options_t.inputfile, buffer);
 
             continue;
         }
@@ -210,6 +215,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - GREEDY\n");
         printf("    - GREEDY_ITERATIVE\n");
         printf("    - 2OPT_GREEDY\n");
+        printf("    - TABU_SEARCH");
         
         return ABORTED;
     }
@@ -251,10 +257,14 @@ ERROR_CODE tsp_plot_points(instance* inst, char* name){
     return OK;
 }
 
-ERROR_CODE tsp_plot_solution(instance* inst, char* name){
-    PLOT plot = plot_open(name);
+ERROR_CODE tsp_plot_solution(instance* inst){
+    char* plotfile;
+    plotfile = basename(inst->options_t.inputfile);
+    utils_strip_ext(plotfile);
+
+    PLOT plot = plot_open(plotfile);
     if(inst->options_t.tofile){
-        plot_tofile(plot, name);
+        plot_tofile(plot, plotfile);
     }
 
     plot_args(plot, "plot '-' using 1:2 w lines");

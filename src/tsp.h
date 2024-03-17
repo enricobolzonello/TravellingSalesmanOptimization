@@ -14,6 +14,7 @@
 #include "utils/utils.h"
 #include "utils/plot.h"
 #include "utils/errors.h"
+#include<libgen.h>
 #include <math.h>
 
 typedef enum {
@@ -89,11 +90,9 @@ ERROR_CODE tsp_plot_points(instance* inst, char* name);
  * @brief Plots instance solution
  * 
  * @param inst 
- * @param name 
- * @param to_file 
  * @return ERROR_CODE 
  */
-ERROR_CODE tsp_plot_solution(instance* inst, char* name);
+ERROR_CODE tsp_plot_solution(instance* inst);
 
 /**
  * @brief Frees all dynamically allocated resources

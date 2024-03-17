@@ -40,3 +40,30 @@ void utils_print_array(int* arr){
   }
   printf("\n");
 }
+
+void utils_plotname(char* buffer, int buffersize){
+  char plotname[40];
+  struct tm *timenow;
+
+  time_t now = time(NULL);
+  timenow = gmtime(&now);
+
+  strftime(plotname, sizeof(plotname), "PLOT_%Y-%m-%d_%H:%M:%S", timenow);
+
+  strncpy(buffer, plotname, buffersize-1);
+  buffer[buffersize-1] = '\0';
+
+}
+
+void utils_strip_ext(char *fname)
+{
+    char *end = fname + strlen(fname);
+
+    while (end > fname && *end != '.') {
+        --end;
+    }
+
+    if (end > fname) {
+        *end = '\0';
+    }
+}
