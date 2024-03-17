@@ -49,3 +49,5 @@
 
 #make
 Makefile
+
+.env
