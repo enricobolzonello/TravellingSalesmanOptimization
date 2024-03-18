@@ -55,7 +55,7 @@ int main(int argc, char* argv[]){
         break;
     case ALG_TABU_SEARCH:
         log_info("running Tabu Search");
-        e = tabu_search_2opt(&inst);
+        e = tabu_search_2opt(&inst, POL_LINEAR);
         if(!err_ok(e)){
             log_fatal("tabu search did not finish correctly");
             tsp_handlefatal(&inst);

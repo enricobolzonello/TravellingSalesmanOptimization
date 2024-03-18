@@ -1,113 +1,146 @@
 #include "tabusearch.h"
 
-ERROR_CODE tabu_fixed_policy(tenure_policy* t, int value){
-    if(t->dependent_policy || t->fixed_policy || t->random_policy){
+
+//================================================================================
+// POLICIES
+//================================================================================
+
+ERROR_CODE tabu_fixed_policy(tabu_search* t, int value){
+    if(t->policy != POL_FIXED){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
-
-    t->fixed_policy = true;
 
     t->tenure = value;
 
     return OK;
 }
 
-ERROR_CODE tabu_dependent_policy(tenure_policy* t, int nnodes){
-    if(t->fixed_policy || t->random_policy){
+ERROR_CODE tabu_dependent_policy(tabu_search* t){
+    if(t->policy != POL_SIZE){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
 
-    t->dependent_policy = true;
-    t->tenure = (int)ceil((MAX_FRACTION + MIN_FRACTION) * nnodes);
+    t->tenure = (int)ceil((t->max_tenure + t->min_tenure)/2);
 
     return OK;
 }
 
-ERROR_CODE tabu_random_policy(tenure_policy* t, int nnodes){
-    //if(t->dependent_policy || t->fixed_policy){
-    //    log_warn("policy has already been set");
-    //    return ALREADY_EXISTS;
-    //}
-
-    t->random_policy = true;
-
-    int max_tenure = MAX_FRACTION * nnodes;
-    int min_tenure = MIN_FRACTION * nnodes;
-
-    printf("rand: %f   ", rand()/ RAND_MAX);
-
-    t->tenure = (int)(rand() / RAND_MAX) * (max_tenure - min_tenure) + min_tenure;
-
-    return OK;
-}
-
-ERROR_CODE tabu_linear_policy(tenure_policy* t, int current_iteration, int nnodes){
-    t->changing_policy = true;
-    
-    int max_tenure = MAX_FRACTION * nnodes;
-    int min_tenure = MIN_FRACTION * nnodes;
-
-    if(max_tenure == t->tenure || min_tenure == t->tenure){
-        t->increment = !t->increment;
+ERROR_CODE tabu_random_policy(tabu_search* t){
+    if(t->policy != POL_RANDOM){
+        log_warn("policy has already been set");
+        return ALREADY_EXISTS;
     }
 
-    if(t->increment){
-        t->tenure++;
+    t->tenure = (int)(rand() / RAND_MAX) * (t->max_tenure - t->min_tenure) + t->min_tenure;
+
+    return OK;
+}
+
+ERROR_CODE tabu_linear_policy(tabu_search* ts){
+    if(ts->policy != POL_LINEAR){
+        log_warn("policy has already been set");
+        return ALREADY_EXISTS;
+    }
+
+    // if we reached the maximum or minimum, we need to go the opposite direction
+    if(ts->max_tenure == ts->tenure || ts->min_tenure == ts->tenure){
+        ts->increment = !ts->increment;
+    }
+
+    // increment or decrement 
+    if(ts->increment){
+        ts->tenure++;
     }else{
-        t->tenure--;
+        ts->tenure--;
     }
 
     return OK;
 }
 
-ERROR_CODE tabu_search_2opt(instance* inst){
-    // init
-    tabu_search ts;
-    if(init_tabu_search(&ts, inst->nnodes) != OK){ log_fatal("Error in init tabu search"); }
-    int* solution_path = calloc(inst->nnodes, sizeof(int));
-    double solution_cost = __DBL_MAX__;
+//================================================================================
+// TABU SEARCH
+//================================================================================
 
-    log_debug("tenure: %d, number iterations %d", ts.tenure_policy.tenure, ts.number_iterations);
+ERROR_CODE tabu_init(tabu_search* ts, int nnodes, POLICIES policy){
 
-    // get a solution
-    if(h_greedyutil(inst, inst->starting_node, solution_path, &solution_cost) != OK){ log_fatal("Error in greedy solution computation"); }
-    log_debug("greedy sol cost: %f", solution_cost);
+    ts->policy = policy;
 
-    // tabu search with 2opt moves
-    for(int k=0; k < ts.number_iterations; k++){
-
-        ERROR_CODE e = tabu_best_move(inst, solution_path, &solution_cost, &ts, k);
-        if(e != OK){ log_fatal("Error in tabu best move"); }
-
-        tsp_update_best_solution(inst, solution_cost, solution_path);
-    }
-
-    return OK;
-
-}
-
-ERROR_CODE init_tabu_search(tabu_search* ts, int nnodes){
-    ts->tabu_list = calloc(nnodes, sizeof(int));
+    ts->tabu_list = (int*) calloc(nnodes, sizeof(int*));
     for(int i=0; i< nnodes; i++){
         ts->tabu_list[i] = -1;
     }
 
-    ts->number_iterations = nnodes*nnodes;
-    ts->tenure_policy.tenure = 0;
+    ts->increment = true;
 
-    if(tabu_fixed_policy(&ts->tenure_policy, 10) != OK){ return UNKNOWN; }
+    ts->tenure = MIN_FRACTION * nnodes + 1;
+
+    // initialize min and max tenure
+    ts->max_tenure = MAX_FRACTION * nnodes;
+    ts->min_tenure = MIN_FRACTION * nnodes;
 
     return OK;
     
+}
+
+ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
+    // inititialize
+    tabu_search ts;
+    if(tabu_init(&ts, inst->nnodes, policy) != OK){
+        log_fatal("Error in init tabu search"); 
+        tsp_handlefatal(inst);
+    }
+
+    int* solution_path = (int*) calloc(inst->nnodes, sizeof(int*));
+    double solution_cost = __DBL_MAX__;
+
+    // get a solution with an heuristic algorithm
+    if(h_greedyutil(inst, inst->starting_node, solution_path, &solution_cost) != OK){
+        log_fatal("Error in greedy solution computation");
+        tsp_handlefatal(inst);
+        free(solution_path);
+    }
+
+    log_debug("greedy sol cost: %f", solution_cost);
+
+    // tabu search with 2opt moves
+    for(int k=0; k < inst->nnodes * inst->nnodes; k++){
+
+        // check if exceeds time
+        double ex_time = utils_timeelapsed(inst->c);
+        if(inst->options_t.timelimit != -1.0){
+            if(ex_time > inst->options_t.timelimit){
+               free(solution_path);
+                return DEADLINE_EXCEEDED;
+            }
+        }
+
+        // update tenure
+        tabu_linear_policy(&ts);
+
+        // 2opt move
+        ERROR_CODE e = tabu_best_move(inst, solution_path, &solution_cost, &ts, k);
+
+        if(e != OK){
+            log_fatal("Error in tabu best move"); 
+            tsp_handlefatal(inst);
+            free(solution_path);
+        }
+
+        tsp_update_best_solution(inst, solution_cost, solution_path);
+    }
+
+    free(solution_path);
+    return OK;
+
 }
 
 ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_cost, tabu_search* ts, int current_iteration){
     double best_delta = __DBL_MAX__;
     int best_swap[2] = {-1, -1};
 
-    int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
+    int *prev = (int*)calloc(inst->nnodes, sizeof(int*));          // save the path of the solution without 2opt
     for (int i = 0; i < inst->nnodes; i++) {
         prev[solution_path[i]] = i;
     }
@@ -140,7 +173,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     if(best_delta < __DBL_MAX__){    
         int a = best_swap[0];
         int b = best_swap[1];
-        log_debug("iteration %d: best swap is %d, %d with delta=%f", current_iteration, a, b, best_delta);
+        //log_debug("iteration %d: best swap is %d, %d with delta=%f", current_iteration, a, b, best_delta);
         int succ_a = solution_path[a]; //successor of a
         int succ_b = solution_path[b]; //successor of b
 
@@ -155,6 +188,8 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
         // update tabu list
         ts->tabu_list[a] = current_iteration;
         ts->tabu_list[b] = current_iteration;
+        ts->tabu_list[succ_a] = current_iteration;
+        ts->tabu_list[succ_b] = current_iteration;
     }
 
     free(prev);
@@ -162,6 +197,10 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     return OK;
 }
 
+//================================================================================
+// UTILS
+//================================================================================
+
 bool is_in_tabu_list(tabu_search* ts, int node, int current_iteration){
-    return current_iteration - ts->tabu_list[node] <= ts->tenure_policy.tenure || ts->tabu_list[node] != -1;
+    return current_iteration - ts->tabu_list[node] <= ts->tenure || ts->tabu_list[node] != -1;
 }

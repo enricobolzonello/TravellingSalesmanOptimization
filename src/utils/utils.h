@@ -49,6 +49,6 @@ bool utils_invalid_input(int i, int argc, bool* help);
 struct utils_clock utils_startclock(void);
 double utils_timeelapsed(struct utils_clock c);
 void utils_plotname(char* buffer, int buffersize);
-void utils_strip_ext(char *fname);
+void utils_format_title(char *fname);
 
 #endif

@@ -238,12 +238,15 @@ ERROR_CODE tsp_generate_randompoints(instance* inst){
     return OK;
 }
 
-ERROR_CODE tsp_plot_points(instance* inst, char* name){
+ERROR_CODE tsp_plot_points(instance* inst){
     int i;
-    PLOT plot = plot_open(name);
+    char* plotfile;
+    plotfile = basename(inst->options_t.inputfile);
+    utils_format_title(plotfile);
+    PLOT plot = plot_open(plotfile);
 
     if(inst->options_t.tofile){
-        plot_tofile(plot, name);
+        plot_tofile(plot, plotfile);
     }
 
     fprintf(plot, "plot '-' with points pointtype 7\n");
@@ -260,7 +263,7 @@ ERROR_CODE tsp_plot_points(instance* inst, char* name){
 ERROR_CODE tsp_plot_solution(instance* inst){
     char* plotfile;
     plotfile = basename(inst->options_t.inputfile);
-    utils_strip_ext(plotfile);
+    utils_format_title(plotfile);
 
     PLOT plot = plot_open(plotfile);
     if(inst->options_t.tofile){

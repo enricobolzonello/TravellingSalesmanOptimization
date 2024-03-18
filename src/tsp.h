@@ -81,10 +81,9 @@ ERROR_CODE tsp_generate_randompoints(instance* inst);
  * @brief Plots instance points 
  * 
  * @param inst, pointer to an instance
- * @param name, title of the plot
- * @param to_file, if you want to save a jpg file
+ * @return ERROR_CODE
  */
-ERROR_CODE tsp_plot_points(instance* inst, char* name);
+ERROR_CODE tsp_plot_points(instance* inst);
 
 /**
  * @brief Plots instance solution

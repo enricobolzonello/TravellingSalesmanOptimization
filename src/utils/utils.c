@@ -55,8 +55,28 @@ void utils_plotname(char* buffer, int buffersize){
 
 }
 
-void utils_strip_ext(char *fname)
+void utils_format_title(char *fname)
 {
+    // escape the underscore character (because it's LaTeX)
+    size_t length = strlen(fname);
+    size_t new_length = length; // Length of the modified string
+    for (size_t i = 0; i < length; i++) {
+        if (fname[i] == '_') {
+            new_length++; // Increase length to accommodate the additional backslash
+        }
+    }
+
+    // Move characters to their new positions, inserting backslashes before underscores
+    for (size_t i = length - 1, j = new_length - 1; i < new_length && i < j; i--, j--) {
+        if (fname[i] == '_') {
+            fname[j--] = '_'; // Move underscore to its new position
+            fname[j] = '\\'; // Insert backslash before underscore
+        } else {
+            fname[j] = fname[i]; // Move other characters as they are
+        }
+    }
+
+    // strip the extension
     char *end = fname + strlen(fname);
 
     while (end > fname && *end != '.') {
