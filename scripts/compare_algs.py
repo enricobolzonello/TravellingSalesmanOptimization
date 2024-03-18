@@ -25,7 +25,7 @@ config(address=os.getenv("ACCOUNT_USERNAME"),
        port=587,  # currently it should be non-SSL port
        default_to=os.getenv("ACCOUNT_USERNAME"))
 
-#@monitor(task=f'Travelling Salesman Problem')
+@monitor(task=f'Travelling Salesman Problem')
 def runTSP(df, paths):
     for tsp in paths:
         for m in METHODS[type]:
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         sys.exit()
 
     paths = []
-    for root, _, files in os.walk("data"):
+    for root, _, files in os.walk("data/temp"):
         # Append file paths to the list
         for file in files:
             paths.append(os.path.join(root, file))
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     
     # if the file does not exist, create it
     if not os.path.exists('results/'+csv_filename):
-        df=pd.DataFrame(index=paths,columns=methods[type])
+        df=pd.DataFrame(index=paths,columns=METHODS[type])
         df.to_csv('results/'+csv_filename,index=True)
     else:
         df=pd.read_csv('results/'+csv_filename,index_col=0)
