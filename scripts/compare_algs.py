@@ -81,11 +81,12 @@ def runTSP(paths, csv_filename, logger, start_time):
         if i%30 == 0:
             logger.info(f"Done {i} documents")
     
-    logger.warn(f"Program finished in {(time.time() - start_time):.4f} seconds")
+    logger.warning(f"Program finished in {(time.time() - start_time):.4f} seconds")
 
 # python compare_algs.py {method}
 # methods: heuristic
 if __name__ == '__main__':
+
     if len(sys.argv) < 2:
         print("Usage: python script.py <method>")
         sys.exit()

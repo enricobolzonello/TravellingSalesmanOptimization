@@ -13,6 +13,7 @@ void tsp_init(instance* inst){
     inst->alg = ALG_GREEDY;
     inst->c = utils_startclock();
     inst->starting_node = 0;
+    inst->points_allocated = false;
 }
 
 ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
@@ -139,12 +140,12 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
             inst->nnodes = n;
 
-            inst->options_t.graph_random = true;
-
             char buffer[40];
             utils_plotname(buffer, 40);
             inst->options_t.inputfile = (char*) calloc(strlen(buffer), sizeof(char));
             strcpy(inst->options_t.inputfile, buffer);
+
+            inst->options_t.graph_random = true;
 
             continue;
         }
@@ -304,6 +305,7 @@ void tsp_free_instance(instance *inst){
     }
 }
 
+// TODO: add check for EUC_2D distance type
 void tsp_read_input(instance* inst){
     FILE *input_file = fopen(inst->options_t.inputfile, "r");
 	if ( input_file == NULL ){
@@ -440,6 +442,7 @@ void tsp_update_best_solution(instance* inst, double current_solution_cost, int*
         if(current_solution_cost < inst->best_solution_cost){
             memcpy(inst->best_solution_path, current_solution_path, inst->nnodes * sizeof(int)); // here's the problem
             inst->best_solution_cost = current_solution_cost;
+            log_debug("new best solution: %f", current_solution_cost);
         }
     }else{
         log_debug("You tried to update best_solution with an unvalid solution");

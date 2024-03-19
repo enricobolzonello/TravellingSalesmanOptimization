@@ -67,7 +67,7 @@ ERROR_CODE tabu_init(tabu_search* ts, int nnodes, POLICIES policy){
 
     ts->policy = policy;
 
-    ts->tabu_list = (int*) calloc(nnodes, sizeof(int*));
+    ts->tabu_list = (int*) calloc(nnodes, sizeof(int));
     for(int i=0; i< nnodes; i++){
         ts->tabu_list[i] = -1;
     }
@@ -92,17 +92,20 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
         tsp_handlefatal(inst);
     }
 
-    int* solution_path = (int*) calloc(inst->nnodes, sizeof(int*));
+    int* solution_path = (int*) calloc(inst->nnodes, sizeof(int));
     double solution_cost = __DBL_MAX__;
 
     // get a solution with an heuristic algorithm
-    if(h_greedyutil(inst, inst->starting_node, solution_path, &solution_cost) != OK){
+
+    if(h_greedy_2opt(inst) != OK){
         log_fatal("Error in greedy solution computation");
         tsp_handlefatal(inst);
         free(solution_path);
     }
 
-    log_debug("greedy sol cost: %f", solution_cost);
+    solution_cost = inst->best_solution_cost;
+    memcpy(solution_path, inst->best_solution_path, inst->nnodes * sizeof(int));
+    log_debug("2opt greedy sol cost: %f", solution_cost);
 
     // tabu search with 2opt moves
     for(int k=0; k < inst->nnodes * inst->nnodes; k++){
@@ -140,7 +143,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     double best_delta = __DBL_MAX__;
     int best_swap[2] = {-1, -1};
 
-    int *prev = (int*)calloc(inst->nnodes, sizeof(int*));          // save the path of the solution without 2opt
+    int *prev = (int*)calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
     for (int i = 0; i < inst->nnodes; i++) {
         prev[solution_path[i]] = i;
     }
@@ -157,7 +160,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
             if (succ_a == succ_b || a == succ_b || b == succ_a){
                 continue;
             }
-            // Compute the delta. If < 0 it means there is a crossing
+            // Compute the delta
             double current_cost = inst->costs[a][succ_a] + inst->costs[b][succ_b];
             double swapped_cost = inst->costs[a][b] + inst->costs[succ_a][succ_b];
             double delta = swapped_cost - current_cost;
@@ -173,7 +176,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     if(best_delta < __DBL_MAX__){    
         int a = best_swap[0];
         int b = best_swap[1];
-        //log_debug("iteration %d: best swap is %d, %d with delta=%f", current_iteration, a, b, best_delta);
+        log_debug("iteration %d: best swap is %d, %d with delta=%f", current_iteration, a, b, best_delta);
         int succ_a = solution_path[a]; //successor of a
         int succ_b = solution_path[b]; //successor of b
 
@@ -193,6 +196,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     }
 
     free(prev);
+    //free(ts->tabu_list);
 
     return OK;
 }
