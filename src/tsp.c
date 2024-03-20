@@ -298,9 +298,6 @@ void tsp_free_instance(instance *inst){
     }
 
     if(inst->costs_computed){
-        for(int i = 0; i < inst->nnodes; i++){
-            free(inst->costs[i]);
-        }
         free(inst->costs);
     }
 }
@@ -380,13 +377,12 @@ ERROR_CODE tsp_compute_costs(instance* inst){
 
     if(inst->nnodes <= 0) log_fatal("computing costs of empty graph");
 
-    inst->costs = (double **) calloc(inst->nnodes, sizeof(double**));
+    inst->costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
 
     for (int i = 0; i < inst->nnodes; i++) {
-        inst->costs[i] = calloc(inst->nnodes, sizeof(double));
         // Initialize each element of the matrix to -1 -> infinite cost
         for (int j = 0; j < inst->nnodes; j++) {
-            inst->costs[i][j] = -1.0f;
+            inst->costs[i* inst->nnodes + j] = -1.0f;
         }
     }
 
@@ -405,15 +401,22 @@ ERROR_CODE tsp_compute_costs(instance* inst){
             if (j == i){
                 continue;
             }
-            float distance = sqrtf(pow(inst->points[j].x - inst->points[i].x, 2) + pow(inst->points[j].y - inst->points[i].y, 2));
-            inst->costs[i][j] = distance;
-            inst->costs[j][i] = distance;
+            double distance = sqrtf(pow(inst->points[j].x - inst->points[i].x, 2) + pow(inst->points[j].y - inst->points[i].y, 2));
+            inst->costs[i* inst->nnodes + j] = distance;
+            inst->costs[j* inst->nnodes + i] = distance;
         }
     }
 
     inst->costs_computed = true;
 
+
+
     return OK;
+}
+
+
+double tsp_get_cost(instance* inst, int i, int j){
+    return inst->costs[i * inst->nnodes + j];
 }
 
 bool tsp_validate_solution(instance* inst, int* current_solution_path) {
@@ -422,6 +425,9 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     // count how many times each node is visited
     for(int i=0; i<inst->nnodes; i++){
         int node = current_solution_path[i];
+        if(node < 0 || node > inst->nnodes - 1){
+            return false;
+        }
         node_visit_counter[node] ++;
     }
 

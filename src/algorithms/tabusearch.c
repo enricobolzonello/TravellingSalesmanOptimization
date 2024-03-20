@@ -161,8 +161,8 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
                 continue;
             }
             // Compute the delta
-            double current_cost = inst->costs[a][succ_a] + inst->costs[b][succ_b];
-            double swapped_cost = inst->costs[a][b] + inst->costs[succ_a][succ_b];
+            double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
+            double swapped_cost = tsp_get_cost(inst, a, b) + tsp_get_cost(inst, succ_a, succ_b);
             double delta = swapped_cost - current_cost;
             if (delta < best_delta) {
                 best_delta = delta;

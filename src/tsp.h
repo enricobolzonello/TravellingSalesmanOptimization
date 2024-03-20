@@ -46,7 +46,7 @@ typedef struct {
     point* points;              // dynamic array of points
 
     bool costs_computed;        
-    double** costs;             // matrix of costs between pairs of points
+    double* costs;             // matrix of costs between pairs of points
 
     double best_solution_cost;
     int* best_solution_path;
@@ -136,5 +136,7 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path);
  * @param inst 
  */
 void tsp_update_best_solution(instance* inst, double current_solution_cost, int* current_solution_path);
+
+double tsp_get_cost(instance* inst, int i, int j);
 
 #endif

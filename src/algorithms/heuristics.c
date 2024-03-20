@@ -31,7 +31,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
             // skip iteration if it's already visited
             if(i != curr && visited[i] != 1){
                 // update the minimum cost and its node
-                double temp = inst->costs[curr][i];
+                double temp = tsp_get_cost(inst, curr, i);
                 if(temp != NOT_CONNECTED && temp < min_dist){
                     min_dist = temp;
                     min_idx = i;
@@ -56,7 +56,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
     }
 
     // add last edge
-    sol_cost += inst->costs[curr][starting_node];
+    sol_cost += tsp_get_cost(inst, curr, starting_node);
     *(solution_cost) = sol_cost;
 
     free(visited);
@@ -178,8 +178,8 @@ double h_2opt_once(instance* inst, int* solution_path){
             }
 
             // Compute the delta. If < 0 it means there is a crossing
-            double current_cost = inst->costs[a][succ_a] + inst->costs[b][succ_b];
-            double swapped_cost = inst->costs[a][b] + inst->costs[succ_a][succ_b];
+            double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
+            double swapped_cost = tsp_get_cost(inst, a, b) + tsp_get_cost(inst, succ_a, succ_b);
             double delta = swapped_cost - current_cost;
             if (delta < best_delta) {
                 best_delta = delta;
