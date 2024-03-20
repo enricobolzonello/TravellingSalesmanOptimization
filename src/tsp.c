@@ -302,7 +302,6 @@ void tsp_free_instance(instance *inst){
     }
 }
 
-// TODO: add check for EUC_2D distance type
 void tsp_read_input(instance* inst){
     FILE *input_file = fopen(inst->options_t.inputfile, "r");
 	if ( input_file == NULL ){
@@ -352,6 +351,13 @@ void tsp_read_input(instance* inst){
             } 
 			continue;
 		}
+
+        if ( strncmp(parameter, "EDGE_WEIGHT_TYPE", 16) == 0 ) 
+		{
+			token1 = strtok(NULL, " :");
+			if ( strncmp(token1, "EUC_2D", 6) != 0 ) log_fatal(" format error:  only EDGE_WEIGHT_TYPE == EUC_2D managed");
+			continue;
+		}  
 
         if ( strncmp(parameter, "EOF", 3) == 0 ) {
 			break;
