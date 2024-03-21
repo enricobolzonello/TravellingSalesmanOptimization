@@ -65,21 +65,20 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
 }
 
 ERROR_CODE h_Greedy(instance* inst){
-    int* solution_path = calloc(inst->nnodes, sizeof(int));
-    double solution_cost = __DBL_MAX__;
+
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     log_info("running GREEDY");
-    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, solution_path, &solution_cost);
+    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, solution.path, &solution.cost);
 
-    tsp_update_best_solution(inst, solution_cost, solution_path);
+    tsp_update_best_solution(inst, &solution);
 
-    free(solution_path);
+    free(solution.path);
     return error;
 }
 
 ERROR_CODE h_Greedy_iterative(instance* inst){
-    int* solution_path = calloc(inst->nnodes, sizeof(int));
-    double solution_cost = __DBL_MAX__;
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     for(int i=0; i<inst->nnodes; i++){
         if(inst->options_t.timelimit != -1.0){
@@ -90,30 +89,30 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
         }
 
         log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, solution_path, &solution_cost);
+        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
         if(error != OK){
             log_error("code %d\n", error);
             break;
         }
 
-        if(solution_cost < inst->best_solution_cost){
+        if(solution.cost < inst->best_solution.cost){
             log_info("found new best, node %d", i);
             inst->starting_node = i;
-            tsp_update_best_solution(inst, solution_cost, solution_path);
+           tsp_update_best_solution(inst, &solution);
         }
     }
 
-    free(solution_path);
+    free(solution.path);
 
     return OK;
 }
 
 ERROR_CODE h_2opt(instance* inst){
     // because 2opt works on the best solution, but it may not be feasible
-    int* solution_path = calloc(inst->nnodes, sizeof(int));
-    memcpy(solution_path, inst->best_solution_path, inst->nnodes * sizeof(int));
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
 
-    double current_best_cost = inst->best_solution_cost;
+    solution.cost = inst->best_solution.cost;
     double delta = 0;
 
     do {
@@ -126,17 +125,17 @@ ERROR_CODE h_2opt(instance* inst){
             }
         }
 
-        delta = h_2opt_once(inst, solution_path);
+        delta = h_2opt_once(inst, solution.path);
         if (delta < 0 ){
-            current_best_cost += delta;
-            log_info("2-opt improved solution: new cost: %f", current_best_cost);
+            solution.cost += delta;
+            log_info("2-opt improved solution: new cost: %f", solution.cost);
         }
 
         
         
     }while(delta < 0);
     
-    tsp_update_best_solution(inst, current_best_cost, solution_path);
+    tsp_update_best_solution(inst, &solution);
     
     return OK;
 }
@@ -214,8 +213,7 @@ double h_2opt_once(instance* inst, int* solution_path){
 }
 
 ERROR_CODE h_greedy_2opt(instance* inst){
-    int* solution_path = calloc(inst->nnodes, sizeof(int));
-    double solution_cost = __DBL_MAX__;
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     for(int i=0; i<inst->nnodes; i++){
         if(inst->options_t.timelimit != -1.0){
@@ -226,12 +224,12 @@ ERROR_CODE h_greedy_2opt(instance* inst){
         }
 
         log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, solution_path, &solution_cost);
+        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
         if(error != OK){
             log_error("code %d\n", error);
             break;
         }
-        log_debug("greedy solution: cost: %f", solution_cost);
+        log_debug("greedy solution: cost: %f", solution.cost);
 
         double delta = 0;
         do {
@@ -244,22 +242,22 @@ ERROR_CODE h_greedy_2opt(instance* inst){
                 }
             }
 
-            delta = h_2opt_once(inst, solution_path);
+            delta = h_2opt_once(inst, solution.path);
             if (delta < 0 ){
-                solution_cost += delta;
-                log_debug("2-opt improved greedy solution: new cost: %f", solution_cost);
+                solution.cost += delta;
+                log_debug("2-opt improved greedy solution: new cost: %f", solution.cost);
             }
 
         }while(delta < 0);
 
-        if(solution_cost < inst->best_solution_cost){
-            log_info("found new best solution: starting node %d, cost %f", i, solution_cost);
+        if(solution.cost < inst->best_solution.cost){
+            log_info("found new best solution: starting node %d, cost %f", i, solution.cost);
             inst->starting_node = i;
-            tsp_update_best_solution(inst, solution_cost, solution_path);
+            tsp_update_best_solution(inst, &solution);
         }
     }
 
-    free(solution_path);
+    free(solution.path);
 
     return OK;
 }

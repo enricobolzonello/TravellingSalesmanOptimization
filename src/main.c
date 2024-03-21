@@ -20,7 +20,7 @@ int main(int argc, char* argv[]){
         tsp_generate_randompoints(&inst);
     }
 
-    inst.best_solution_path = (int*) calloc(inst.nnodes, sizeof(int));
+    inst.best_solution.path = (int*) calloc(inst.nnodes, sizeof(int));
 
     switch (inst.alg)
     {
@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
             log_fatal("greedy did not finish correctly");
             tsp_handlefatal(&inst);
         }        
-        printf("Greedy from 0: %f\n", inst.best_solution_cost);
+        printf("Greedy from 0: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
     case ALG_GREEDY_ITER:
@@ -40,7 +40,7 @@ int main(int argc, char* argv[]){
             log_fatal("greedy iterative did not finish correctly");
             tsp_handlefatal(&inst);
         }  
-        printf("Greedy from all nodes: %f\n", inst.best_solution_cost);
+        printf("Greedy from all nodes: %f\n", inst.best_solution.cost);
         log_info("Best starting node: %d", inst.starting_node);
         tsp_plot_solution(&inst);
         break;
@@ -51,7 +51,7 @@ int main(int argc, char* argv[]){
             log_fatal("greedy did not finish correctly");
             tsp_handlefatal(&inst);
         } 
-        printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution_cost);
+        printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
     case ALG_TABU_SEARCH:
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]){
             log_fatal("tabu search did not finish correctly");
             tsp_handlefatal(&inst);
         } 
-        printf("Tabu search: %f\n", inst.best_solution_cost);
+        printf("Tabu search: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
     default:
