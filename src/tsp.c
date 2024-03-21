@@ -8,7 +8,7 @@ void tsp_init(instance* inst){
     inst->options_t.tofile = false;
     inst->nnodes = -1;
     inst->costs_computed = false;
-    inst->best_solution_cost = __DBL_MAX__;
+    inst->best_solution.cost = __DBL_MAX__;
     err_setverbosity(NORMAL);
     inst->alg = ALG_GREEDY;
     inst->c = utils_startclock();
@@ -274,7 +274,7 @@ ERROR_CODE tsp_plot_solution(instance* inst){
     plot_args(plot, "plot '-' using 1:2 w lines");
 
     for(int i=0; i<inst->nnodes; i++){
-        int v = inst->best_solution_path[i];
+        int v = inst->best_solution.path[i];
         plot_edge(plot, inst->points[i], inst->points[v]);
     }
 
@@ -426,7 +426,6 @@ ERROR_CODE tsp_compute_costs(instance* inst){
     return OK;
 }
 
-
 double tsp_get_cost(instance* inst, int i, int j){
     return inst->costs[i * inst->nnodes + j];
 }
@@ -455,14 +454,22 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     return true;
 }
 
-void tsp_update_best_solution(instance* inst, double current_solution_cost, int* current_solution_path){
-    if(tsp_validate_solution(inst, current_solution_path)){
-        if(current_solution_cost < inst->best_solution_cost){
-            memcpy(inst->best_solution_path, current_solution_path, inst->nnodes * sizeof(int)); // here's the problem
-            inst->best_solution_cost = current_solution_cost;
-            log_debug("new best solution: %f", current_solution_cost);
+void tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
+    if(tsp_validate_solution(inst, current_solution->path)){
+        if(current_solution->cost < inst->best_solution.cost){
+            memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int)); // here's the problem
+            inst->best_solution.cost = current_solution->cost;
+            log_debug("new best solution: %f", current_solution->cost);
         }
     }else{
         log_debug("You tried to update best_solution with an unvalid solution");
     }   
 }
+
+tsp_solution tsp_init_solution(int nnodes){
+    tsp_solution solution;
+    solution.path = calloc(nnodes, sizeof(int));
+    solution.cost = __DBL_MAX__;
+    return solution;
+}
+

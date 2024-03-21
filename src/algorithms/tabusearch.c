@@ -95,21 +95,19 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
     // file to hold solution value in each iteration
     FILE* f = fopen("results/TabuResults.dat", "w+,ccs=UTF-8");
 
-    int* solution_path = (int*) calloc(inst->nnodes, sizeof(int));
-    double solution_cost = __DBL_MAX__;
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     // get a solution with an heuristic algorithm
 
     if(h_greedy_2opt(inst) != OK){
         log_fatal("Error in greedy solution computation");
         tsp_handlefatal(inst);
-        free(solution_path);
+        free(solution.path);
     }
 
-    // start the tabu search from the optimal solution
-    solution_cost = inst->best_solution_cost;
-    memcpy(solution_path, inst->best_solution_path, inst->nnodes * sizeof(int));
-    log_info("2opt greedy sol cost: %f", solution_cost);
+    solution.cost = inst->best_solution.cost;
+    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
+    log_debug("2opt greedy sol cost: %f", solution.cost);
 
     // tabu search with 2opt moves
     for(int k=0; k < inst->nnodes * inst->nnodes; k++){
@@ -118,7 +116,7 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
         double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
-               free(solution_path);
+               free(solution.path);
                 return DEADLINE_EXCEEDED;
             }
         }
@@ -127,22 +125,21 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
         tabu_linear_policy(&ts);
 
         // 2opt move
-        ERROR_CODE e = tabu_best_move(inst, solution_path, &solution_cost, &ts, k);
+        ERROR_CODE e = tabu_best_move(inst, solution.path, &solution.cost, &ts, k);
 
         if(e != OK){
             log_fatal("Error in tabu best move"); 
             tsp_handlefatal(inst);
-            free(solution_path);
+            free(solution.path);
         }
 
-        tsp_update_best_solution(inst, solution_cost, solution_path);
+        tsp_update_best_solution(inst, &solution);
 
         // save current iteration and current solution cost to file for the plot
-        fprintf(f, "%d,%f\n", k, solution_cost);
+        fprintf(f, "%d,%f\n", k, solution.cost);
     }
 
     fclose(f);
-
 
     // plot the solution progression during iterations
     PLOT plot = plot_open("TabuIterationsPlot");
@@ -155,9 +152,8 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
     plot_free(plot);
 
     // free resources
-    free(solution_path);
+    free(solution.path);
     tabu_free(&ts);
-
     return OK;
 
 }
@@ -202,6 +198,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     if(best_delta < __DBL_MAX__){    
         int a = best_swap[0];
         int b = best_swap[1];
+        log_debug("iteration %d: best swap is %d, %d with delta=%f", current_iteration, a, b, best_delta);
         int succ_a = solution_path[a]; //successor of a
         int succ_b = solution_path[b]; //successor of b
 
