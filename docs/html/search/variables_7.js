@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['verbosity_0',['verbosity',['../errors_8h.html#a1bdcfae3209cbd96db35a2ae356fa15e',1,'errors.h']]]
+  ['options_5ft_0',['options_t',['../structinstance.html#a9c94738c75cee4ec5f3e0321d2a89f75',1,'instance']]]
 ];

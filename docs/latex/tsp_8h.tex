@@ -5,9 +5,9 @@
 TSP-\/specific utilities.  
 
 
-{\ttfamily \#include "{}utils/utils.\+h"{}}\newline
 {\ttfamily \#include "{}utils/plot.\+h"{}}\newline
-{\ttfamily \#include "{}utils/errors.\+h"{}}\newline
+{\ttfamily \#include $<$libgen.\+h$>$}\newline
+{\ttfamily \#include $<$math.\+h$>$}\newline
 \doxysubsubsection*{Data Structures}
 \begin{DoxyCompactItemize}
 \item 
@@ -15,21 +15,42 @@ struct \mbox{\hyperlink{structoptions}{options}}
 \item 
 struct \mbox{\hyperlink{structinstance}{instance}}
 \end{DoxyCompactItemize}
+\doxysubsubsection*{Enumerations}
+\begin{DoxyCompactItemize}
+\item 
+enum \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51}{algorithms}} \{ \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51af672c8af2d5e26f2005eb63cd114ad9a}{ALG\+\_\+\+GREEDY}} = 0
+, \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a2c18e0833804977a58c603e13131fe12}{ALG\+\_\+\+GREEDY\+\_\+\+ITER}} = 1
+, \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a56a5764024ffac9c5b9473f7d1dca3ab}{ALG\+\_\+2\+OPT\+\_\+\+GREEDY}} = 2
+, \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a011c8afbacbb5a2eb6bfb936a03dca4b}{ALG\+\_\+\+TABU\+\_\+\+SEARCH}} = 3
+ \}
+\end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
 \item 
+void \mbox{\hyperlink{tsp_8h_a6cae7b6c74a45b4f08bb7cc60ccccfdf}{tsp\+\_\+init}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Initialize tsp instance with default parameters. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_a55af3ce92a45803be2817044822704e8}{tsp\+\_\+parse\+\_\+commandline}} (int argc, char \texorpdfstring{$\ast$}{*}\texorpdfstring{$\ast$}{*}argv, \mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
 \begin{DoxyCompactList}\small\item\em Parser for the command-\/line arguments. \end{DoxyCompactList}\item 
 \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_ae1fade0fe4c9455f61e8752b73c7a3c0}{tsp\+\_\+generate\+\_\+randompoints}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
 \begin{DoxyCompactList}\small\item\em Generate random points with given seed and number of nodes. \end{DoxyCompactList}\item 
-\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_a355ba11dffd22d52577ada31b5c10ed4}{tsp\+\_\+plot\+\_\+points}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, char \texorpdfstring{$\ast$}{*}name, bool to\+\_\+file)
-\begin{DoxyCompactList}\small\item\em Outputs a plot. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_aa8696dcfbd9a3391f3832e7afb5f0eb7}{tsp\+\_\+plot\+\_\+points}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Plots instance points. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_a764921d97b1506f4150af53f7c880172}{tsp\+\_\+plot\+\_\+solution}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Plots instance solution. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{tsp_8h_aa134f6647aa23efa07d133f5bc320793}{tsp\+\_\+free\+\_\+instance}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
 \begin{DoxyCompactList}\small\item\em Frees all dynamically allocated resources. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{tsp_8h_a16065dcb7d3c60d95ab42278153cd042}{tsp\+\_\+handlefatal}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
-\item 
+\begin{DoxyCompactList}\small\item\em Util to handle fatal errors, frees all allocated resources. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{tsp_8h_aa402a99be7db4e96baa14adec528cbd6}{tsp\+\_\+read\+\_\+input}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
-\begin{DoxyCompactList}\small\item\em Reads a TSPLIB formatted input file. \end{DoxyCompactList}\end{DoxyCompactItemize}
+\begin{DoxyCompactList}\small\item\em Reads a TSPLIB formatted input file. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tsp_8h_af33ca7acd1993463ab9ec2004a7edf6d}{tsp\+\_\+compute\+\_\+costs}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Precomputes costs and keeps them in matrix costs of the instance. \end{DoxyCompactList}\item 
+bool \mbox{\hyperlink{tsp_8h_ae3d99f4dc55eae7c6680da7596e18e03}{tsp\+\_\+validate\+\_\+solution}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, int \texorpdfstring{$\ast$}{*}current\+\_\+solution\+\_\+path)
+\begin{DoxyCompactList}\small\item\em Validates a tsp solution. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{tsp_8h_a7931cd36f3f1938e7c4d11f118137df4}{tsp\+\_\+update\+\_\+best\+\_\+solution}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, double current\+\_\+solution\+\_\+cost, int \texorpdfstring{$\ast$}{*}current\+\_\+solution\+\_\+path)
+\begin{DoxyCompactList}\small\item\em Updates the best solution iff it is valid and it is better than the current best solution. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{tsp_8h_a1c4ee037527b2d56aa70923a09100177}{tsp\+\_\+get\+\_\+cost}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, int i, int j)
+\end{DoxyCompactItemize}
 
 
 \doxysubsection{Detailed Description}
@@ -49,7 +70,49 @@ Copyright (c) 2024
 \end{DoxyCopyright}
 
 
+\doxysubsection{Enumeration Type Documentation}
+\Hypertarget{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51}\label{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51} 
+\index{tsp.h@{tsp.h}!algorithms@{algorithms}}
+\index{algorithms@{algorithms}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{algorithms}{algorithms}}
+{\footnotesize\ttfamily enum \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51}{algorithms}}}
+
+\begin{DoxyEnumFields}{Enumerator}
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ALG\_GREEDY@{ALG\_GREEDY}!tsp.h@{tsp.h}}\index{tsp.h@{tsp.h}!ALG\_GREEDY@{ALG\_GREEDY}}}\Hypertarget{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51af672c8af2d5e26f2005eb63cd114ad9a}\label{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51af672c8af2d5e26f2005eb63cd114ad9a} 
+ALG\+\_\+\+GREEDY&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ALG\_GREEDY\_ITER@{ALG\_GREEDY\_ITER}!tsp.h@{tsp.h}}\index{tsp.h@{tsp.h}!ALG\_GREEDY\_ITER@{ALG\_GREEDY\_ITER}}}\Hypertarget{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a2c18e0833804977a58c603e13131fe12}\label{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a2c18e0833804977a58c603e13131fe12} 
+ALG\+\_\+\+GREEDY\+\_\+\+ITER&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ALG\_2OPT\_GREEDY@{ALG\_2OPT\_GREEDY}!tsp.h@{tsp.h}}\index{tsp.h@{tsp.h}!ALG\_2OPT\_GREEDY@{ALG\_2OPT\_GREEDY}}}\Hypertarget{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a56a5764024ffac9c5b9473f7d1dca3ab}\label{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a56a5764024ffac9c5b9473f7d1dca3ab} 
+ALG\+\_\+2\+OPT\+\_\+\+GREEDY&\\
+\hline
+
+\raisebox{\heightof{T}}[0pt][0pt]{\index{ALG\_TABU\_SEARCH@{ALG\_TABU\_SEARCH}!tsp.h@{tsp.h}}\index{tsp.h@{tsp.h}!ALG\_TABU\_SEARCH@{ALG\_TABU\_SEARCH}}}\Hypertarget{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a011c8afbacbb5a2eb6bfb936a03dca4b}\label{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a011c8afbacbb5a2eb6bfb936a03dca4b} 
+ALG\+\_\+\+TABU\+\_\+\+SEARCH&\\
+\hline
+
+\end{DoxyEnumFields}
+
+
 \doxysubsection{Function Documentation}
+\Hypertarget{tsp_8h_af33ca7acd1993463ab9ec2004a7edf6d}\label{tsp_8h_af33ca7acd1993463ab9ec2004a7edf6d} 
+\index{tsp.h@{tsp.h}!tsp\_compute\_costs@{tsp\_compute\_costs}}
+\index{tsp\_compute\_costs@{tsp\_compute\_costs}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{tsp\_compute\_costs()}{tsp\_compute\_costs()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tsp\+\_\+compute\+\_\+costs (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+
+
+Precomputes costs and keeps them in matrix costs of the instance. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
 \Hypertarget{tsp_8h_aa134f6647aa23efa07d133f5bc320793}\label{tsp_8h_aa134f6647aa23efa07d133f5bc320793} 
 \index{tsp.h@{tsp.h}!tsp\_free\_instance@{tsp\_free\_instance}}
 \index{tsp\_free\_instance@{tsp\_free\_instance}!tsp.h@{tsp.h}}
@@ -80,12 +143,42 @@ Generate random points with given seed and number of nodes.
 {\em inst,pointer} & to an instance \\
 \hline
 \end{DoxyParams}
+\Hypertarget{tsp_8h_a1c4ee037527b2d56aa70923a09100177}\label{tsp_8h_a1c4ee037527b2d56aa70923a09100177} 
+\index{tsp.h@{tsp.h}!tsp\_get\_cost@{tsp\_get\_cost}}
+\index{tsp\_get\_cost@{tsp\_get\_cost}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{tsp\_get\_cost()}{tsp\_get\_cost()}}
+{\footnotesize\ttfamily double tsp\+\_\+get\+\_\+cost (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{int}]{i,  }\item[{int}]{j }\end{DoxyParamCaption})}
+
 \Hypertarget{tsp_8h_a16065dcb7d3c60d95ab42278153cd042}\label{tsp_8h_a16065dcb7d3c60d95ab42278153cd042} 
 \index{tsp.h@{tsp.h}!tsp\_handlefatal@{tsp\_handlefatal}}
 \index{tsp\_handlefatal@{tsp\_handlefatal}!tsp.h@{tsp.h}}
 \doxysubsubsection{\texorpdfstring{tsp\_handlefatal()}{tsp\_handlefatal()}}
 {\footnotesize\ttfamily void tsp\+\_\+handlefatal (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
 
+
+
+Util to handle fatal errors, frees all allocated resources. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{tsp_8h_a6cae7b6c74a45b4f08bb7cc60ccccfdf}\label{tsp_8h_a6cae7b6c74a45b4f08bb7cc60ccccfdf} 
+\index{tsp.h@{tsp.h}!tsp\_init@{tsp\_init}}
+\index{tsp\_init@{tsp\_init}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{tsp\_init()}{tsp\_init()}}
+{\footnotesize\ttfamily void tsp\+\_\+init (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+
+
+Initialize tsp instance with default parameters. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
 \Hypertarget{tsp_8h_a55af3ce92a45803be2817044822704e8}\label{tsp_8h_a55af3ce92a45803be2817044822704e8} 
 \index{tsp.h@{tsp.h}!tsp\_parse\_commandline@{tsp\_parse\_commandline}}
 \index{tsp\_parse\_commandline@{tsp\_parse\_commandline}!tsp.h@{tsp.h}}
@@ -105,25 +198,42 @@ Parser for the command-\/line arguments.
 {\em inst,pointer} & to an instance \\
 \hline
 \end{DoxyParams}
-\Hypertarget{tsp_8h_a355ba11dffd22d52577ada31b5c10ed4}\label{tsp_8h_a355ba11dffd22d52577ada31b5c10ed4} 
+\Hypertarget{tsp_8h_aa8696dcfbd9a3391f3832e7afb5f0eb7}\label{tsp_8h_aa8696dcfbd9a3391f3832e7afb5f0eb7} 
 \index{tsp.h@{tsp.h}!tsp\_plot\_points@{tsp\_plot\_points}}
 \index{tsp\_plot\_points@{tsp\_plot\_points}!tsp.h@{tsp.h}}
 \doxysubsubsection{\texorpdfstring{tsp\_plot\_points()}{tsp\_plot\_points()}}
-{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tsp\+\_\+plot\+\_\+points (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{char \texorpdfstring{$\ast$}{*}}]{name,  }\item[{bool}]{to\+\_\+file }\end{DoxyParamCaption})}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tsp\+\_\+plot\+\_\+points (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
 
 
 
-Outputs a plot. 
+Plots instance points. 
 
 
 \begin{DoxyParams}{Parameters}
 {\em inst,pointer} & to an instance \\
 \hline
-{\em name,title} & of the plot \\
-\hline
-{\em to\+\_\+file,if} & you want to save a jpg file \\
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ERROR\+\_\+\+CODE 
+\end{DoxyReturn}
+\Hypertarget{tsp_8h_a764921d97b1506f4150af53f7c880172}\label{tsp_8h_a764921d97b1506f4150af53f7c880172} 
+\index{tsp.h@{tsp.h}!tsp\_plot\_solution@{tsp\_plot\_solution}}
+\index{tsp\_plot\_solution@{tsp\_plot\_solution}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{tsp\_plot\_solution()}{tsp\_plot\_solution()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tsp\+\_\+plot\+\_\+solution (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+
+
+Plots instance solution. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
 \hline
 \end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ERROR\+\_\+\+CODE 
+\end{DoxyReturn}
 \Hypertarget{tsp_8h_aa402a99be7db4e96baa14adec528cbd6}\label{tsp_8h_aa402a99be7db4e96baa14adec528cbd6} 
 \index{tsp.h@{tsp.h}!tsp\_read\_input@{tsp\_read\_input}}
 \index{tsp\_read\_input@{tsp\_read\_input}!tsp.h@{tsp.h}}
@@ -139,3 +249,38 @@ Reads a TSPLIB formatted input file.
 {\em inst,pointer} & to an instance \\
 \hline
 \end{DoxyParams}
+\Hypertarget{tsp_8h_a7931cd36f3f1938e7c4d11f118137df4}\label{tsp_8h_a7931cd36f3f1938e7c4d11f118137df4} 
+\index{tsp.h@{tsp.h}!tsp\_update\_best\_solution@{tsp\_update\_best\_solution}}
+\index{tsp\_update\_best\_solution@{tsp\_update\_best\_solution}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{tsp\_update\_best\_solution()}{tsp\_update\_best\_solution()}}
+{\footnotesize\ttfamily void tsp\+\_\+update\+\_\+best\+\_\+solution (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{double}]{current\+\_\+solution\+\_\+cost,  }\item[{int \texorpdfstring{$\ast$}{*}}]{current\+\_\+solution\+\_\+path }\end{DoxyParamCaption})}
+
+
+
+Updates the best solution iff it is valid and it is better than the current best solution. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
+\Hypertarget{tsp_8h_ae3d99f4dc55eae7c6680da7596e18e03}\label{tsp_8h_ae3d99f4dc55eae7c6680da7596e18e03} 
+\index{tsp.h@{tsp.h}!tsp\_validate\_solution@{tsp\_validate\_solution}}
+\index{tsp\_validate\_solution@{tsp\_validate\_solution}!tsp.h@{tsp.h}}
+\doxysubsubsection{\texorpdfstring{tsp\_validate\_solution()}{tsp\_validate\_solution()}}
+{\footnotesize\ttfamily bool tsp\+\_\+validate\+\_\+solution (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{int \texorpdfstring{$\ast$}{*}}]{current\+\_\+solution\+\_\+path }\end{DoxyParamCaption})}
+
+
+
+Validates a tsp solution. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+true if the solution is valid 
+
+false if the solution is not valid 
+\end{DoxyReturn}

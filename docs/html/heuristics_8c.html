@@ -76,11 +76,251 @@ $(function() {
 </div>
 </div><!-- top -->
 <div class="header">
+  <div class="summary">
+<a href="#func-members">Functions</a>  </div>
   <div class="headertitle"><div class="title">heuristics.c File Reference</div></div>
 </div><!--header-->
 <div class="contents">
 <div class="textblock"><code>#include &quot;<a class="el" href="heuristics_8h_source.html">heuristics.h</a>&quot;</code><br />
-</div></div><!-- contents -->
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Functions</h2></td></tr>
+<tr class="memitem:a04fad58204cf9fa01410470b23996806" id="r_a04fad58204cf9fa01410470b23996806"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a04fad58204cf9fa01410470b23996806">h_greedyutil</a> (<a class="el" href="structinstance.html">instance</a> *inst, int starting_node, int *solution_path, double *solution_cost)</td></tr>
+<tr class="memdesc:a04fad58204cf9fa01410470b23996806"><td class="mdescLeft">&#160;</td><td class="mdescRight">Solves with nearest neighbor heuristic starting from a fixed point.  <br /></td></tr>
+<tr class="separator:a04fad58204cf9fa01410470b23996806"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6f2887c96c7cea0279715b28ace85b8f" id="r_a6f2887c96c7cea0279715b28ace85b8f"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6f2887c96c7cea0279715b28ace85b8f">h_Greedy</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
+<tr class="memdesc:a6f2887c96c7cea0279715b28ace85b8f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs greedy algorithm and updates the best solution.  <br /></td></tr>
+<tr class="separator:a6f2887c96c7cea0279715b28ace85b8f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab4bc39cfdc258b82694302e0f508aed4" id="r_ab4bc39cfdc258b82694302e0f508aed4"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab4bc39cfdc258b82694302e0f508aed4">h_Greedy_iterative</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
+<tr class="memdesc:ab4bc39cfdc258b82694302e0f508aed4"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs greedy iteratively on all nodes and picks the best solution.  <br /></td></tr>
+<tr class="separator:ab4bc39cfdc258b82694302e0f508aed4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afe1018ef0cdd58f9487a69dfedd43dc3" id="r_afe1018ef0cdd58f9487a69dfedd43dc3"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afe1018ef0cdd58f9487a69dfedd43dc3">h_2opt</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
+<tr class="memdesc:afe1018ef0cdd58f9487a69dfedd43dc3"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs the 2opt algorithm.  <br /></td></tr>
+<tr class="separator:afe1018ef0cdd58f9487a69dfedd43dc3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a931a4455846acf019e2c8f0451fff544" id="r_a931a4455846acf019e2c8f0451fff544"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a931a4455846acf019e2c8f0451fff544">h_reverse_path</a> (<a class="el" href="structinstance.html">instance</a> *inst, int start_node, int end_node, int *prev, int *solution_path)</td></tr>
+<tr class="memdesc:a931a4455846acf019e2c8f0451fff544"><td class="mdescLeft">&#160;</td><td class="mdescRight">Util for reversing a path that goes from start to end.  <br /></td></tr>
+<tr class="separator:a931a4455846acf019e2c8f0451fff544"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ab1c3ea68bc862144b90cdd5d7c56887d" id="r_ab1c3ea68bc862144b90cdd5d7c56887d"><td class="memItemLeft" align="right" valign="top">double&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ab1c3ea68bc862144b90cdd5d7c56887d">h_2opt_once</a> (<a class="el" href="structinstance.html">instance</a> *inst, int *solution_path)</td></tr>
+<tr class="separator:ab1c3ea68bc862144b90cdd5d7c56887d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a932f55388e6fe6d4b77e78a284adcd35" id="r_a932f55388e6fe6d4b77e78a284adcd35"><td class="memItemLeft" align="right" valign="top"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a932f55388e6fe6d4b77e78a284adcd35">h_greedy_2opt</a> (<a class="el" href="structinstance.html">instance</a> *inst)</td></tr>
+<tr class="memdesc:a932f55388e6fe6d4b77e78a284adcd35"><td class="mdescLeft">&#160;</td><td class="mdescRight">Runs greedy iteratively on all nodes and perform 2-opt on each solution until no improvement.  <br /></td></tr>
+<tr class="separator:a932f55388e6fe6d4b77e78a284adcd35"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Function Documentation</h2>
+<a id="afe1018ef0cdd58f9487a69dfedd43dc3" name="afe1018ef0cdd58f9487a69dfedd43dc3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afe1018ef0cdd58f9487a69dfedd43dc3">&#9670;&#160;</a></span>h_2opt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> h_2opt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Runs the 2opt algorithm. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inst</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>ERROR_CODE </dd></dl>
+
+</div>
+</div>
+<a id="ab1c3ea68bc862144b90cdd5d7c56887d" name="ab1c3ea68bc862144b90cdd5d7c56887d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab1c3ea68bc862144b90cdd5d7c56887d">&#9670;&#160;</a></span>h_2opt_once()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">double h_2opt_once </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>solution_path</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a6f2887c96c7cea0279715b28ace85b8f" name="a6f2887c96c7cea0279715b28ace85b8f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6f2887c96c7cea0279715b28ace85b8f">&#9670;&#160;</a></span>h_Greedy()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> h_Greedy </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Runs greedy algorithm and updates the best solution. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inst</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>ERROR_CODE </dd></dl>
+
+</div>
+</div>
+<a id="a932f55388e6fe6d4b77e78a284adcd35" name="a932f55388e6fe6d4b77e78a284adcd35"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a932f55388e6fe6d4b77e78a284adcd35">&#9670;&#160;</a></span>h_greedy_2opt()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> h_greedy_2opt </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Runs greedy iteratively on all nodes and perform 2-opt on each solution until no improvement. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inst</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>ERROR_CODE </dd></dl>
+
+</div>
+</div>
+<a id="ab4bc39cfdc258b82694302e0f508aed4" name="ab4bc39cfdc258b82694302e0f508aed4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ab4bc39cfdc258b82694302e0f508aed4">&#9670;&#160;</a></span>h_Greedy_iterative()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> h_Greedy_iterative </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Runs greedy iteratively on all nodes and picks the best solution. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inst</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>ERROR_CODE </dd></dl>
+
+</div>
+</div>
+<a id="a04fad58204cf9fa01410470b23996806" name="a04fad58204cf9fa01410470b23996806"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a04fad58204cf9fa01410470b23996806">&#9670;&#160;</a></span>h_greedyutil()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname"><a class="el" href="errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c">ERROR_CODE</a> h_greedyutil </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>starting_node</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>solution_path</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">double *</td>          <td class="paramname"><span class="paramname"><em>solution_cost</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Solves with nearest neighbor heuristic starting from a fixed point. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inst</td><td></td></tr>
+    <tr><td class="paramname">starting_node</td><td></td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>ERROR_CODE </dd></dl>
+
+</div>
+</div>
+<a id="a931a4455846acf019e2c8f0451fff544" name="a931a4455846acf019e2c8f0451fff544"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a931a4455846acf019e2c8f0451fff544">&#9670;&#160;</a></span>h_reverse_path()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void h_reverse_path </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="structinstance.html">instance</a> *</td>          <td class="paramname"><span class="paramname"><em>inst</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>start_node</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>end_node</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>prev</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int *</td>          <td class="paramname"><span class="paramname"><em>solution_path</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Util for reversing a path that goes from start to end. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">inst</td><td></td></tr>
+    <tr><td class="paramname">start</td><td>node where the path to be reversed starts </td></tr>
+    <tr><td class="paramname">end</td><td>node where the path to be reversed ends </td></tr>
+    <tr><td class="paramname">prev</td><td>adjacency list of the paths before the reversing </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+</div><!-- contents -->
 <!-- start footer part -->
 <hr class="footer"/><address class="footer"><small>
 Generated by&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.10.0

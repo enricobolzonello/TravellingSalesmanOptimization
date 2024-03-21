@@ -1,3 +1,142 @@
 \doxysection{src/algorithms/heuristics.c File Reference}
 \hypertarget{heuristics_8c}{}\label{heuristics_8c}\index{src/algorithms/heuristics.c@{src/algorithms/heuristics.c}}
 {\ttfamily \#include "{}heuristics.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{heuristics_8c_a04fad58204cf9fa01410470b23996806}{h\+\_\+greedyutil}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, int starting\+\_\+node, int \texorpdfstring{$\ast$}{*}solution\+\_\+path, double \texorpdfstring{$\ast$}{*}solution\+\_\+cost)
+\begin{DoxyCompactList}\small\item\em Solves with nearest neighbor heuristic starting from a fixed point. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{heuristics_8c_a6f2887c96c7cea0279715b28ace85b8f}{h\+\_\+\+Greedy}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Runs greedy algorithm and updates the best solution. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{heuristics_8c_ab4bc39cfdc258b82694302e0f508aed4}{h\+\_\+\+Greedy\+\_\+iterative}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Runs greedy iteratively on all nodes and picks the best solution. \end{DoxyCompactList}\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{heuristics_8c_afe1018ef0cdd58f9487a69dfedd43dc3}{h\+\_\+2opt}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Runs the 2opt algorithm. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{heuristics_8c_a931a4455846acf019e2c8f0451fff544}{h\+\_\+reverse\+\_\+path}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, int start\+\_\+node, int end\+\_\+node, int \texorpdfstring{$\ast$}{*}prev, int \texorpdfstring{$\ast$}{*}solution\+\_\+path)
+\begin{DoxyCompactList}\small\item\em Util for reversing a path that goes from start to end. \end{DoxyCompactList}\item 
+double \mbox{\hyperlink{heuristics_8c_ab1c3ea68bc862144b90cdd5d7c56887d}{h\+\_\+2opt\+\_\+once}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, int \texorpdfstring{$\ast$}{*}solution\+\_\+path)
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{heuristics_8c_a932f55388e6fe6d4b77e78a284adcd35}{h\+\_\+greedy\+\_\+2opt}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst)
+\begin{DoxyCompactList}\small\item\em Runs greedy iteratively on all nodes and perform 2-\/opt on each solution until no improvement. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{heuristics_8c_afe1018ef0cdd58f9487a69dfedd43dc3}\label{heuristics_8c_afe1018ef0cdd58f9487a69dfedd43dc3} 
+\index{heuristics.c@{heuristics.c}!h\_2opt@{h\_2opt}}
+\index{h\_2opt@{h\_2opt}!heuristics.c@{heuristics.c}}
+\doxysubsubsection{\texorpdfstring{h\_2opt()}{h\_2opt()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} h\+\_\+2opt (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+
+
+Runs the 2opt algorithm. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ERROR\+\_\+\+CODE 
+\end{DoxyReturn}
+\Hypertarget{heuristics_8c_ab1c3ea68bc862144b90cdd5d7c56887d}\label{heuristics_8c_ab1c3ea68bc862144b90cdd5d7c56887d} 
+\index{heuristics.c@{heuristics.c}!h\_2opt\_once@{h\_2opt\_once}}
+\index{h\_2opt\_once@{h\_2opt\_once}!heuristics.c@{heuristics.c}}
+\doxysubsubsection{\texorpdfstring{h\_2opt\_once()}{h\_2opt\_once()}}
+{\footnotesize\ttfamily double h\+\_\+2opt\+\_\+once (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{int \texorpdfstring{$\ast$}{*}}]{solution\+\_\+path }\end{DoxyParamCaption})}
+
+\Hypertarget{heuristics_8c_a6f2887c96c7cea0279715b28ace85b8f}\label{heuristics_8c_a6f2887c96c7cea0279715b28ace85b8f} 
+\index{heuristics.c@{heuristics.c}!h\_Greedy@{h\_Greedy}}
+\index{h\_Greedy@{h\_Greedy}!heuristics.c@{heuristics.c}}
+\doxysubsubsection{\texorpdfstring{h\_Greedy()}{h\_Greedy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} h\+\_\+\+Greedy (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+
+
+Runs greedy algorithm and updates the best solution. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ERROR\+\_\+\+CODE 
+\end{DoxyReturn}
+\Hypertarget{heuristics_8c_a932f55388e6fe6d4b77e78a284adcd35}\label{heuristics_8c_a932f55388e6fe6d4b77e78a284adcd35} 
+\index{heuristics.c@{heuristics.c}!h\_greedy\_2opt@{h\_greedy\_2opt}}
+\index{h\_greedy\_2opt@{h\_greedy\_2opt}!heuristics.c@{heuristics.c}}
+\doxysubsubsection{\texorpdfstring{h\_greedy\_2opt()}{h\_greedy\_2opt()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} h\+\_\+greedy\+\_\+2opt (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+
+
+Runs greedy iteratively on all nodes and perform 2-\/opt on each solution until no improvement. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ERROR\+\_\+\+CODE 
+\end{DoxyReturn}
+\Hypertarget{heuristics_8c_ab4bc39cfdc258b82694302e0f508aed4}\label{heuristics_8c_ab4bc39cfdc258b82694302e0f508aed4} 
+\index{heuristics.c@{heuristics.c}!h\_Greedy\_iterative@{h\_Greedy\_iterative}}
+\index{h\_Greedy\_iterative@{h\_Greedy\_iterative}!heuristics.c@{heuristics.c}}
+\doxysubsubsection{\texorpdfstring{h\_Greedy\_iterative()}{h\_Greedy\_iterative()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} h\+\_\+\+Greedy\+\_\+iterative (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst }\end{DoxyParamCaption})}
+
+
+
+Runs greedy iteratively on all nodes and picks the best solution. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ERROR\+\_\+\+CODE 
+\end{DoxyReturn}
+\Hypertarget{heuristics_8c_a04fad58204cf9fa01410470b23996806}\label{heuristics_8c_a04fad58204cf9fa01410470b23996806} 
+\index{heuristics.c@{heuristics.c}!h\_greedyutil@{h\_greedyutil}}
+\index{h\_greedyutil@{h\_greedyutil}!heuristics.c@{heuristics.c}}
+\doxysubsubsection{\texorpdfstring{h\_greedyutil()}{h\_greedyutil()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} h\+\_\+greedyutil (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{int}]{starting\+\_\+node,  }\item[{int \texorpdfstring{$\ast$}{*}}]{solution\+\_\+path,  }\item[{double \texorpdfstring{$\ast$}{*}}]{solution\+\_\+cost }\end{DoxyParamCaption})}
+
+
+
+Solves with nearest neighbor heuristic starting from a fixed point. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+{\em starting\+\_\+node} & \\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+ERROR\+\_\+\+CODE 
+\end{DoxyReturn}
+\Hypertarget{heuristics_8c_a931a4455846acf019e2c8f0451fff544}\label{heuristics_8c_a931a4455846acf019e2c8f0451fff544} 
+\index{heuristics.c@{heuristics.c}!h\_reverse\_path@{h\_reverse\_path}}
+\index{h\_reverse\_path@{h\_reverse\_path}!heuristics.c@{heuristics.c}}
+\doxysubsubsection{\texorpdfstring{h\_reverse\_path()}{h\_reverse\_path()}}
+{\footnotesize\ttfamily void h\+\_\+reverse\+\_\+path (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{int}]{start\+\_\+node,  }\item[{int}]{end\+\_\+node,  }\item[{int \texorpdfstring{$\ast$}{*}}]{prev,  }\item[{int \texorpdfstring{$\ast$}{*}}]{solution\+\_\+path }\end{DoxyParamCaption})}
+
+
+
+Util for reversing a path that goes from start to end. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em inst} & \\
+\hline
+{\em start} & node where the path to be reversed starts \\
+\hline
+{\em end} & node where the path to be reversed ends \\
+\hline
+{\em prev} & adjacency list of the paths before the reversing \\
+\hline
+\end{DoxyParams}

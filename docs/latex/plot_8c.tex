@@ -8,10 +8,14 @@
 \begin{DoxyCompactList}\small\item\em Opens a new gnuplot. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{plot_8c_a9137910278243c7b2b37eff3a21bff1f}{plot\+\_\+point}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot, \mbox{\hyperlink{structpoint}{point}} \texorpdfstring{$\ast$}{*}p)
 \begin{DoxyCompactList}\small\item\em Plots a single point. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{plot_8c_acd58a47d0cc58bda3fd0b347af005196}{plot\+\_\+edge}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot, \mbox{\hyperlink{structpoint}{point}} u, \mbox{\hyperlink{structpoint}{point}} v)
+\begin{DoxyCompactList}\small\item\em Plots an edge between two points. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{plot_8c_a36c160a703e277292b9bebfceb585c03}{plot\+\_\+tofile}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot, char \texorpdfstring{$\ast$}{*}filename)
 \begin{DoxyCompactList}\small\item\em Saves the plot to a jpg file in the directory /plots. \end{DoxyCompactList}\item 
 void \mbox{\hyperlink{plot_8c_ada820101c948b0bad1dbf84c311fff6d}{plot\+\_\+args}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot, char \texorpdfstring{$\ast$}{*}args)
 \begin{DoxyCompactList}\small\item\em Add additional arguments to the plot, like style options. \end{DoxyCompactList}\item 
+void \mbox{\hyperlink{plot_8c_a9044429870bf14979bef0b0fd6791b7c}{plot\+\_\+stats}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot)
+\item 
 void \mbox{\hyperlink{plot_8c_a3f17b0b373dfaf3ed278bcf51c123233}{plot\+\_\+free}} (\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}} plot)
 \begin{DoxyCompactList}\small\item\em Free resources. \end{DoxyCompactList}\end{DoxyCompactItemize}
 
@@ -32,6 +36,25 @@ Add additional arguments to the plot, like style options.
 {\em plot} & plot instance \\
 \hline
 {\em args} & string with gnuplot commands \\
+\hline
+\end{DoxyParams}
+\Hypertarget{plot_8c_acd58a47d0cc58bda3fd0b347af005196}\label{plot_8c_acd58a47d0cc58bda3fd0b347af005196} 
+\index{plot.c@{plot.c}!plot\_edge@{plot\_edge}}
+\index{plot\_edge@{plot\_edge}!plot.c@{plot.c}}
+\doxysubsubsection{\texorpdfstring{plot\_edge()}{plot\_edge()}}
+{\footnotesize\ttfamily void plot\+\_\+edge (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}}}]{plot,  }\item[{\mbox{\hyperlink{structpoint}{point}}}]{u,  }\item[{\mbox{\hyperlink{structpoint}{point}}}]{v }\end{DoxyParamCaption})}
+
+
+
+Plots an edge between two points. 
+
+
+\begin{DoxyParams}{Parameters}
+{\em plot} & \\
+\hline
+{\em u} & \\
+\hline
+{\em v} & \\
 \hline
 \end{DoxyParams}
 \Hypertarget{plot_8c_a3f17b0b373dfaf3ed278bcf51c123233}\label{plot_8c_a3f17b0b373dfaf3ed278bcf51c123233} 
@@ -84,6 +107,12 @@ Plots a single point.
 {\em p} & \\
 \hline
 \end{DoxyParams}
+\Hypertarget{plot_8c_a9044429870bf14979bef0b0fd6791b7c}\label{plot_8c_a9044429870bf14979bef0b0fd6791b7c} 
+\index{plot.c@{plot.c}!plot\_stats@{plot\_stats}}
+\index{plot\_stats@{plot\_stats}!plot.c@{plot.c}}
+\doxysubsubsection{\texorpdfstring{plot\_stats()}{plot\_stats()}}
+{\footnotesize\ttfamily void plot\+\_\+stats (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{plot_8h_a0941fca9401810b0a51bf95db00bbc5a}{PLOT}}}]{plot }\end{DoxyParamCaption})}
+
 \Hypertarget{plot_8c_a36c160a703e277292b9bebfceb585c03}\label{plot_8c_a36c160a703e277292b9bebfceb585c03} 
 \index{plot.c@{plot.c}!plot\_tofile@{plot\_tofile}}
 \index{plot\_tofile@{plot\_tofile}!plot.c@{plot.c}}

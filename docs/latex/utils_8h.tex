@@ -5,17 +5,16 @@
 General utilities for TSP.  
 
 
-{\ttfamily \#include $<$time.\+h$>$}\newline
 {\ttfamily \#include $<$string.\+h$>$}\newline
 {\ttfamily \#include $<$sys/stat.\+h$>$}\newline
-{\ttfamily \#include $<$stdbool.\+h$>$}\newline
-{\ttfamily \#include $<$stdio.\+h$>$}\newline
-{\ttfamily \#include $<$stdlib.\+h$>$}\newline
 {\ttfamily \#include $<$errno.\+h$>$}\newline
+{\ttfamily \#include "{}errors.\+h"{}}\newline
 \doxysubsubsection*{Data Structures}
 \begin{DoxyCompactItemize}
 \item 
 struct \mbox{\hyperlink{structpoint}{point}}
+\item 
+struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}}
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Macros}
 \begin{DoxyCompactItemize}
@@ -29,6 +28,8 @@ struct \mbox{\hyperlink{structpoint}{point}}
 \#define \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}}~-\/10000
 \item 
 \#define \mbox{\hyperlink{utils_8h_a15213e34350a5468606b1b12ecab0849}{TSP\+\_\+\+RAND}}()~( ((double)rand() / RAND\+\_\+\+MAX) \texorpdfstring{$\ast$}{*} (\mbox{\hyperlink{utils_8h_af85e90654ab929ca38457939a307b134}{MAX\+\_\+\+COORDINATE}} -\/ \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}}) + \mbox{\hyperlink{utils_8h_a547597a89a5e85d709dd9a3038819fda}{MIN\+\_\+\+COORDINATE}} )
+\item 
+\#define \mbox{\hyperlink{utils_8h_a0e9795e3bb758850785e6ebc676ab01b}{NOT\+\_\+\+CONNECTED}}~-\/1.\+0f
 \end{DoxyCompactItemize}
 \doxysubsubsection*{Functions}
 \begin{DoxyCompactItemize}
@@ -37,7 +38,13 @@ bool \mbox{\hyperlink{utils_8h_a14c176eae900a91d3566b87d1eb6f060}{utils\+\_\+fil
 \item 
 bool \mbox{\hyperlink{utils_8h_ae943d7925c35564206c9dc3681783cd8}{utils\+\_\+invalid\+\_\+input}} (int i, int argc, bool \texorpdfstring{$\ast$}{*}help)
 \item 
-void \mbox{\hyperlink{utils_8h_ab53d28d3561831ee01727163e38b65a1}{utils\+\_\+print\+\_\+error}} (char \texorpdfstring{$\ast$}{*}message)
+struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}} \mbox{\hyperlink{utils_8h_aa7c152c6f86ad5afd690ed9f26f42304}{utils\+\_\+startclock}} (void)
+\item 
+double \mbox{\hyperlink{utils_8h_a8160afe71c0c5854a781b14cafaccd9f}{utils\+\_\+timeelapsed}} (struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}} c)
+\item 
+void \mbox{\hyperlink{utils_8h_add9fea8159d37f977ecb07184aa657ee}{utils\+\_\+plotname}} (char \texorpdfstring{$\ast$}{*}buffer, int buffersize)
+\item 
+void \mbox{\hyperlink{utils_8h_acbb31f6c4007f0f0bb58b0ee4b72f17a}{utils\+\_\+format\+\_\+title}} (char \texorpdfstring{$\ast$}{*}fname, int alg)
 \end{DoxyCompactItemize}
 
 
@@ -83,6 +90,12 @@ Copyright (c) 2024
 \doxysubsubsection{\texorpdfstring{MIN\_COORDINATE}{MIN\_COORDINATE}}
 {\footnotesize\ttfamily \#define MIN\+\_\+\+COORDINATE~-\/10000}
 
+\Hypertarget{utils_8h_a0e9795e3bb758850785e6ebc676ab01b}\label{utils_8h_a0e9795e3bb758850785e6ebc676ab01b} 
+\index{utils.h@{utils.h}!NOT\_CONNECTED@{NOT\_CONNECTED}}
+\index{NOT\_CONNECTED@{NOT\_CONNECTED}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{NOT\_CONNECTED}{NOT\_CONNECTED}}
+{\footnotesize\ttfamily \#define NOT\+\_\+\+CONNECTED~-\/1.\+0f}
+
 \Hypertarget{utils_8h_a15213e34350a5468606b1b12ecab0849}\label{utils_8h_a15213e34350a5468606b1b12ecab0849} 
 \index{utils.h@{utils.h}!TSP\_RAND@{TSP\_RAND}}
 \index{TSP\_RAND@{TSP\_RAND}!utils.h@{utils.h}}
@@ -98,15 +111,33 @@ Copyright (c) 2024
 \doxysubsubsection{\texorpdfstring{utils\_file\_exists()}{utils\_file\_exists()}}
 {\footnotesize\ttfamily bool utils\+\_\+file\+\_\+exists (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{filename }\end{DoxyParamCaption})}
 
+\Hypertarget{utils_8h_acbb31f6c4007f0f0bb58b0ee4b72f17a}\label{utils_8h_acbb31f6c4007f0f0bb58b0ee4b72f17a} 
+\index{utils.h@{utils.h}!utils\_format\_title@{utils\_format\_title}}
+\index{utils\_format\_title@{utils\_format\_title}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{utils\_format\_title()}{utils\_format\_title()}}
+{\footnotesize\ttfamily void utils\+\_\+format\+\_\+title (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{fname,  }\item[{int}]{alg }\end{DoxyParamCaption})}
+
 \Hypertarget{utils_8h_ae943d7925c35564206c9dc3681783cd8}\label{utils_8h_ae943d7925c35564206c9dc3681783cd8} 
 \index{utils.h@{utils.h}!utils\_invalid\_input@{utils\_invalid\_input}}
 \index{utils\_invalid\_input@{utils\_invalid\_input}!utils.h@{utils.h}}
 \doxysubsubsection{\texorpdfstring{utils\_invalid\_input()}{utils\_invalid\_input()}}
 {\footnotesize\ttfamily bool utils\+\_\+invalid\+\_\+input (\begin{DoxyParamCaption}\item[{int}]{i,  }\item[{int}]{argc,  }\item[{bool \texorpdfstring{$\ast$}{*}}]{help }\end{DoxyParamCaption})}
 
-\Hypertarget{utils_8h_ab53d28d3561831ee01727163e38b65a1}\label{utils_8h_ab53d28d3561831ee01727163e38b65a1} 
-\index{utils.h@{utils.h}!utils\_print\_error@{utils\_print\_error}}
-\index{utils\_print\_error@{utils\_print\_error}!utils.h@{utils.h}}
-\doxysubsubsection{\texorpdfstring{utils\_print\_error()}{utils\_print\_error()}}
-{\footnotesize\ttfamily void utils\+\_\+print\+\_\+error (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{message }\end{DoxyParamCaption})}
+\Hypertarget{utils_8h_add9fea8159d37f977ecb07184aa657ee}\label{utils_8h_add9fea8159d37f977ecb07184aa657ee} 
+\index{utils.h@{utils.h}!utils\_plotname@{utils\_plotname}}
+\index{utils\_plotname@{utils\_plotname}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{utils\_plotname()}{utils\_plotname()}}
+{\footnotesize\ttfamily void utils\+\_\+plotname (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer,  }\item[{int}]{buffersize }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8h_aa7c152c6f86ad5afd690ed9f26f42304}\label{utils_8h_aa7c152c6f86ad5afd690ed9f26f42304} 
+\index{utils.h@{utils.h}!utils\_startclock@{utils\_startclock}}
+\index{utils\_startclock@{utils\_startclock}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{utils\_startclock()}{utils\_startclock()}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}} utils\+\_\+startclock (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8h_a8160afe71c0c5854a781b14cafaccd9f}\label{utils_8h_a8160afe71c0c5854a781b14cafaccd9f} 
+\index{utils.h@{utils.h}!utils\_timeelapsed@{utils\_timeelapsed}}
+\index{utils\_timeelapsed@{utils\_timeelapsed}!utils.h@{utils.h}}
+\doxysubsubsection{\texorpdfstring{utils\_timeelapsed()}{utils\_timeelapsed()}}
+{\footnotesize\ttfamily double utils\+\_\+timeelapsed (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}}}]{c }\end{DoxyParamCaption})}
 

@@ -5,37 +5,71 @@
 \DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ TSP\_H\_}}
 \DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ TSP\_H\_}}
 \DoxyCodeLine{00003\ }
-\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{utils_8h}{utils/utils.h}}"{}}}
-\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{plot_8h}{utils/plot.h}}"{}}}
-\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{errors_8h}{utils/errors.h}}"{}}}
+\DoxyCodeLine{00014\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{plot_8h}{utils/plot.h}}"{}}}
+\DoxyCodeLine{00015\ \textcolor{preprocessor}{\#include<libgen.h>}}
+\DoxyCodeLine{00016\ \textcolor{preprocessor}{\#include\ <math.h>}}
 \DoxyCodeLine{00017\ }
-\DoxyCodeLine{00018\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
-\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structoptions_abd8c0390b9b465cc480fbd834d11f230}{timelimit}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ time\ limit\ of\ the\ algorithm\ (in\ seconds)}}
-\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structoptions_a1447ad288a0a73454510f5777bdc3ed1}{seed}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ seed\ for\ random\ generation,\ if\ not\ set\ by\ the\ user,\ defaults\ to\ current\ time}}
-\DoxyCodeLine{00021\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structoptions_a18224f7971da99107cd58b5293333309}{graph\_random}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ flag\ to\ indicate\ wheter\ the\ graph\ is\ randomly\ generated}}
-\DoxyCodeLine{00022\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structoptions_a193a58b3841769420cedbfe11050bdff}{graph\_input}};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ flag\ to\ indicate\ wheter\ the\ graph\ is\ from\ the\ input\ file}}
-\DoxyCodeLine{00023\ \ \ \ \ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{structoptions_a4463822d6fc476a674d1107155ceb210}{inputfile}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ input\ file\ path}}
-\DoxyCodeLine{00024\ \}\ \mbox{\hyperlink{structoptions}{options}};}
-\DoxyCodeLine{00025\ }
-\DoxyCodeLine{00026\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
-\DoxyCodeLine{00027\ \ \ \ \ \mbox{\hyperlink{structoptions}{options}}\ \mbox{\hyperlink{structinstance_a9c94738c75cee4ec5f3e0321d2a89f75}{options\_t}};}
-\DoxyCodeLine{00028\ }
-\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinstance_a824ac1af8a4229ed37411081a1ffd928}{nnodes}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ number\ of\ nodes\ to\ be\ generated\ randomly}}
-\DoxyCodeLine{00030\ \ \ \ \ \mbox{\hyperlink{structpoint}{point}}*\ \mbox{\hyperlink{structinstance_acdcb482beeccb6520f0040ecf921d1af}{points}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ dynamic\ array\ of\ points}}
-\DoxyCodeLine{00031\ \}\ \mbox{\hyperlink{structinstance}{instance}};}
-\DoxyCodeLine{00032\ }
-\DoxyCodeLine{00040\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_a55af3ce92a45803be2817044822704e8}{tsp\_parse\_commandline}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}**\ argv,\ \mbox{\hyperlink{structinstance}{instance}}*\ inst);}
-\DoxyCodeLine{00041\ }
-\DoxyCodeLine{00047\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_ae1fade0fe4c9455f61e8752b73c7a3c0}{tsp\_generate\_randompoints}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00018\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\ \{}
+\DoxyCodeLine{00019\ \ \ \ \ \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51af672c8af2d5e26f2005eb63cd114ad9a}{ALG\_GREEDY}}\ =\ 0,}
+\DoxyCodeLine{00020\ \ \ \ \ \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a2c18e0833804977a58c603e13131fe12}{ALG\_GREEDY\_ITER}}\ =\ 1,}
+\DoxyCodeLine{00021\ \ \ \ \ \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a56a5764024ffac9c5b9473f7d1dca3ab}{ALG\_2OPT\_GREEDY}}\ =\ 2,}
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51a011c8afbacbb5a2eb6bfb936a03dca4b}{ALG\_TABU\_SEARCH}}\ =\ 3}
+\DoxyCodeLine{00023\ \}\ \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51}{algorithms}};}
+\DoxyCodeLine{00024\ }
+\DoxyCodeLine{00025\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{structoptions_a786667d7a00ce2561dcaac189c1e99a8}{timelimit}};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ time\ limit\ of\ the\ algorithm\ (in\ seconds)}}
+\DoxyCodeLine{00027\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structoptions_a1447ad288a0a73454510f5777bdc3ed1}{seed}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ seed\ for\ random\ generation,\ if\ not\ set\ by\ the\ user,\ defaults\ to\ current\ time}}
+\DoxyCodeLine{00028\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structoptions_a18224f7971da99107cd58b5293333309}{graph\_random}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ flag\ to\ indicate\ wheter\ the\ graph\ is\ randomly\ generated}}
+\DoxyCodeLine{00029\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structoptions_a193a58b3841769420cedbfe11050bdff}{graph\_input}};\ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ flag\ to\ indicate\ wheter\ the\ graph\ is\ from\ the\ input\ file}}
+\DoxyCodeLine{00030\ \ \ \ \ \textcolor{keywordtype}{char}*\ \mbox{\hyperlink{structoptions_a4463822d6fc476a674d1107155ceb210}{inputfile}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ input\ file\ path}}
+\DoxyCodeLine{00031\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structoptions_add7bcb768a9f7837d79eec6716f5eb24}{tofile}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ if\ true,\ plots\ will\ be\ saved\ in\ directory\ /plots}}
+\DoxyCodeLine{00032\ \}\ \mbox{\hyperlink{structoptions}{options}};}
+\DoxyCodeLine{00033\ }
+\DoxyCodeLine{00034\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00035\ \ \ \ \ \mbox{\hyperlink{structoptions}{options}}\ \mbox{\hyperlink{structinstance_a9c94738c75cee4ec5f3e0321d2a89f75}{options\_t}};}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \ \ \ \ \mbox{\hyperlink{tsp_8h_ad28a1b6c64625a10e04b25f75d2e7b51}{algorithms}}\ \mbox{\hyperlink{structinstance_aba52e405db9ac4fa5ee23808bab0dabb}{alg}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ algorithm\ chosen\ }}
+\DoxyCodeLine{00038\ }
+\DoxyCodeLine{00039\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinstance_a824ac1af8a4229ed37411081a1ffd928}{nnodes}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ number\ of\ nodes}}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \ \ \ \ \textcolor{keyword}{struct\ }\mbox{\hyperlink{structutils__clock}{utils\_clock}}\ c;\ \ \ \ \ \ \ \textcolor{comment}{//\ clock}}
+\DoxyCodeLine{00042\ \ \ \ \ }
+\DoxyCodeLine{00043\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structinstance_ad47b933ec826bf560732e3da4997c34e}{points\_allocated}};}
+\DoxyCodeLine{00044\ \ \ \ \ \mbox{\hyperlink{structpoint}{point}}*\ \mbox{\hyperlink{structinstance_acdcb482beeccb6520f0040ecf921d1af}{points}};\ \ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ dynamic\ array\ of\ points}}
+\DoxyCodeLine{00045\ }
+\DoxyCodeLine{00046\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structinstance_ae38d9196c1b9e3792169007cd63a2aba}{costs\_computed}};\ \ \ \ \ \ \ \ }
+\DoxyCodeLine{00047\ \ \ \ \ \textcolor{keywordtype}{double}*\ \mbox{\hyperlink{structinstance_a10054ae9c866728f76603c6ee89a1a27}{costs}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ matrix\ of\ costs\ between\ pairs\ of\ points}}
 \DoxyCodeLine{00048\ }
-\DoxyCodeLine{00056\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_a355ba11dffd22d52577ada31b5c10ed4}{tsp\_plot\_points}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst,\ \textcolor{keywordtype}{char}*\ name,\ \textcolor{keywordtype}{bool}\ to\_file);}
-\DoxyCodeLine{00057\ }
-\DoxyCodeLine{00063\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_aa134f6647aa23efa07d133f5bc320793}{tsp\_free\_instance}}(\mbox{\hyperlink{structinstance}{instance}}\ *inst);}
-\DoxyCodeLine{00064\ }
-\DoxyCodeLine{00065\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_a16065dcb7d3c60d95ab42278153cd042}{tsp\_handlefatal}}(\mbox{\hyperlink{structinstance}{instance}}\ *inst);}
-\DoxyCodeLine{00066\ }
-\DoxyCodeLine{00072\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_aa402a99be7db4e96baa14adec528cbd6}{tsp\_read\_input}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
-\DoxyCodeLine{00073\ }
-\DoxyCodeLine{00074\ \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{00049\ \ \ \ \ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{structinstance_a3a70a57aabf2079f9993591e221c682a}{best\_solution\_cost}};}
+\DoxyCodeLine{00050\ \ \ \ \ \textcolor{keywordtype}{int}*\ \mbox{\hyperlink{structinstance_a57f5f2b81fb95322fb9d80476ec57f76}{best\_solution\_path}};}
+\DoxyCodeLine{00051\ }
+\DoxyCodeLine{00052\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structinstance_a4de382702229679c94ed8a1e4c7cfe99}{starting\_node}};\ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ save\ the\ starting\ node\ of\ the\ best\ tour}}
+\DoxyCodeLine{00053\ \}\ \mbox{\hyperlink{structinstance}{instance}};}
+\DoxyCodeLine{00054\ }
+\DoxyCodeLine{00060\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_a6cae7b6c74a45b4f08bb7cc60ccccfdf}{tsp\_init}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00061\ }
+\DoxyCodeLine{00069\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_a55af3ce92a45803be2817044822704e8}{tsp\_parse\_commandline}}(\textcolor{keywordtype}{int}\ argc,\ \textcolor{keywordtype}{char}**\ argv,\ \mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00070\ }
+\DoxyCodeLine{00076\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_ae1fade0fe4c9455f61e8752b73c7a3c0}{tsp\_generate\_randompoints}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00077\ }
+\DoxyCodeLine{00084\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_aa8696dcfbd9a3391f3832e7afb5f0eb7}{tsp\_plot\_points}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00085\ }
+\DoxyCodeLine{00092\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_a764921d97b1506f4150af53f7c880172}{tsp\_plot\_solution}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00093\ }
+\DoxyCodeLine{00099\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_aa134f6647aa23efa07d133f5bc320793}{tsp\_free\_instance}}(\mbox{\hyperlink{structinstance}{instance}}\ *inst);}
+\DoxyCodeLine{00100\ }
+\DoxyCodeLine{00106\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_a16065dcb7d3c60d95ab42278153cd042}{tsp\_handlefatal}}(\mbox{\hyperlink{structinstance}{instance}}\ *inst);}
+\DoxyCodeLine{00107\ }
+\DoxyCodeLine{00113\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_aa402a99be7db4e96baa14adec528cbd6}{tsp\_read\_input}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00114\ }
+\DoxyCodeLine{00120\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tsp_8h_af33ca7acd1993463ab9ec2004a7edf6d}{tsp\_compute\_costs}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst);}
+\DoxyCodeLine{00121\ }
+\DoxyCodeLine{00129\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{tsp_8h_ae3d99f4dc55eae7c6680da7596e18e03}{tsp\_validate\_solution}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst,\ \textcolor{keywordtype}{int}*\ current\_solution\_path);}
+\DoxyCodeLine{00130\ }
+\DoxyCodeLine{00136\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tsp_8h_a7931cd36f3f1938e7c4d11f118137df4}{tsp\_update\_best\_solution}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst,\ \textcolor{keywordtype}{double}\ current\_solution\_cost,\ \textcolor{keywordtype}{int}*\ current\_solution\_path);}
+\DoxyCodeLine{00137\ }
+\DoxyCodeLine{00138\ \textcolor{keywordtype}{double}\ \mbox{\hyperlink{tsp_8h_a1c4ee037527b2d56aa70923a09100177}{tsp\_get\_cost}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst,\ \textcolor{keywordtype}{int}\ i,\ \textcolor{keywordtype}{int}\ j);}
+\DoxyCodeLine{00139\ }
+\DoxyCodeLine{00140\ \textcolor{preprocessor}{\#endif}}
 
 \end{DoxyCode}

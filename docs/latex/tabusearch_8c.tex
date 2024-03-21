@@ -1,0 +1,81 @@
+\doxysection{src/algorithms/tabusearch.c File Reference}
+\hypertarget{tabusearch_8c}{}\label{tabusearch_8c}\index{src/algorithms/tabusearch.c@{src/algorithms/tabusearch.c}}
+{\ttfamily \#include "{}tabusearch.\+h"{}}\newline
+\doxysubsubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tabusearch_8c_ac8b3d5a50f7c607afa7a68b3275a5a09}{tabu\+\_\+fixed\+\_\+policy}} (\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}t, int value)
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tabusearch_8c_a73cb3198e6267b0a2edc94801f0421ad}{tabu\+\_\+dependent\+\_\+policy}} (\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}t)
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tabusearch_8c_a8fa0c2967c49f6465079052a267bad06}{tabu\+\_\+random\+\_\+policy}} (\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}t)
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tabusearch_8c_ac11ade3223d539a0daa823220208a945}{tabu\+\_\+linear\+\_\+policy}} (\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}ts)
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tabusearch_8c_a1102059d4c58591993d45ee70339967a}{tabu\+\_\+init}} (\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}ts, int nnodes, \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}} policy)
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tabusearch_8c_a40803fed69d0edf01a318474251601d9}{tabu\+\_\+search\+\_\+2opt}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}} policy)
+\item 
+\mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} \mbox{\hyperlink{tabusearch_8c_a8ec9fa7c3ec8d4b93911c62c3c7a70ff}{tabu\+\_\+best\+\_\+move}} (\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}inst, int \texorpdfstring{$\ast$}{*}solution\+\_\+path, double \texorpdfstring{$\ast$}{*}solution\+\_\+cost, \mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}ts, int current\+\_\+iteration)
+\item 
+bool \mbox{\hyperlink{tabusearch_8c_ab8a0fa0ef781e753810d874f6bd5899a}{is\+\_\+in\+\_\+tabu\+\_\+list}} (\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}ts, int node, int current\+\_\+iteration)
+\item 
+void \mbox{\hyperlink{tabusearch_8c_a071602197a00d0f238c0db3bb57eddf7}{tabu\+\_\+free}} (\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}ts)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\Hypertarget{tabusearch_8c_ab8a0fa0ef781e753810d874f6bd5899a}\label{tabusearch_8c_ab8a0fa0ef781e753810d874f6bd5899a} 
+\index{tabusearch.c@{tabusearch.c}!is\_in\_tabu\_list@{is\_in\_tabu\_list}}
+\index{is\_in\_tabu\_list@{is\_in\_tabu\_list}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{is\_in\_tabu\_list()}{is\_in\_tabu\_list()}}
+{\footnotesize\ttfamily bool is\+\_\+in\+\_\+tabu\+\_\+list (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{ts,  }\item[{int}]{node,  }\item[{int}]{current\+\_\+iteration }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_a8ec9fa7c3ec8d4b93911c62c3c7a70ff}\label{tabusearch_8c_a8ec9fa7c3ec8d4b93911c62c3c7a70ff} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_best\_move@{tabu\_best\_move}}
+\index{tabu\_best\_move@{tabu\_best\_move}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_best\_move()}{tabu\_best\_move()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tabu\+\_\+best\+\_\+move (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{int \texorpdfstring{$\ast$}{*}}]{solution\+\_\+path,  }\item[{double \texorpdfstring{$\ast$}{*}}]{solution\+\_\+cost,  }\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{ts,  }\item[{int}]{current\+\_\+iteration }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_a73cb3198e6267b0a2edc94801f0421ad}\label{tabusearch_8c_a73cb3198e6267b0a2edc94801f0421ad} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_dependent\_policy@{tabu\_dependent\_policy}}
+\index{tabu\_dependent\_policy@{tabu\_dependent\_policy}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_dependent\_policy()}{tabu\_dependent\_policy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tabu\+\_\+dependent\+\_\+policy (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{t }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_ac8b3d5a50f7c607afa7a68b3275a5a09}\label{tabusearch_8c_ac8b3d5a50f7c607afa7a68b3275a5a09} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_fixed\_policy@{tabu\_fixed\_policy}}
+\index{tabu\_fixed\_policy@{tabu\_fixed\_policy}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_fixed\_policy()}{tabu\_fixed\_policy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tabu\+\_\+fixed\+\_\+policy (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{t,  }\item[{int}]{value }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_a071602197a00d0f238c0db3bb57eddf7}\label{tabusearch_8c_a071602197a00d0f238c0db3bb57eddf7} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_free@{tabu\_free}}
+\index{tabu\_free@{tabu\_free}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_free()}{tabu\_free()}}
+{\footnotesize\ttfamily void tabu\+\_\+free (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{ts }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_a1102059d4c58591993d45ee70339967a}\label{tabusearch_8c_a1102059d4c58591993d45ee70339967a} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_init@{tabu\_init}}
+\index{tabu\_init@{tabu\_init}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_init()}{tabu\_init()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tabu\+\_\+init (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{ts,  }\item[{int}]{nnodes,  }\item[{\mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}}}]{policy }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_ac11ade3223d539a0daa823220208a945}\label{tabusearch_8c_ac11ade3223d539a0daa823220208a945} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_linear\_policy@{tabu\_linear\_policy}}
+\index{tabu\_linear\_policy@{tabu\_linear\_policy}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_linear\_policy()}{tabu\_linear\_policy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tabu\+\_\+linear\+\_\+policy (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{ts }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_a8fa0c2967c49f6465079052a267bad06}\label{tabusearch_8c_a8fa0c2967c49f6465079052a267bad06} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_random\_policy@{tabu\_random\_policy}}
+\index{tabu\_random\_policy@{tabu\_random\_policy}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_random\_policy()}{tabu\_random\_policy()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tabu\+\_\+random\+\_\+policy (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structtabu__search}{tabu\+\_\+search}} \texorpdfstring{$\ast$}{*}}]{t }\end{DoxyParamCaption})}
+
+\Hypertarget{tabusearch_8c_a40803fed69d0edf01a318474251601d9}\label{tabusearch_8c_a40803fed69d0edf01a318474251601d9} 
+\index{tabusearch.c@{tabusearch.c}!tabu\_search\_2opt@{tabu\_search\_2opt}}
+\index{tabu\_search\_2opt@{tabu\_search\_2opt}!tabusearch.c@{tabusearch.c}}
+\doxysubsubsection{\texorpdfstring{tabu\_search\_2opt()}{tabu\_search\_2opt()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\+\_\+\+CODE}} tabu\+\_\+search\+\_\+2opt (\begin{DoxyParamCaption}\item[{\mbox{\hyperlink{structinstance}{instance}} \texorpdfstring{$\ast$}{*}}]{inst,  }\item[{\mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}}}]{policy }\end{DoxyParamCaption})}
+

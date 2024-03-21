@@ -8,7 +8,15 @@ bool \mbox{\hyperlink{utils_8c_a14c176eae900a91d3566b87d1eb6f060}{utils\+\_\+fil
 \item 
 bool \mbox{\hyperlink{utils_8c_ae943d7925c35564206c9dc3681783cd8}{utils\+\_\+invalid\+\_\+input}} (int i, int argc, bool \texorpdfstring{$\ast$}{*}help)
 \item 
-void \mbox{\hyperlink{utils_8c_ab53d28d3561831ee01727163e38b65a1}{utils\+\_\+print\+\_\+error}} (char \texorpdfstring{$\ast$}{*}message)
+struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}} \mbox{\hyperlink{utils_8c_aa7c152c6f86ad5afd690ed9f26f42304}{utils\+\_\+startclock}} (void)
+\item 
+double \mbox{\hyperlink{utils_8c_a8160afe71c0c5854a781b14cafaccd9f}{utils\+\_\+timeelapsed}} (struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}} c)
+\item 
+void \mbox{\hyperlink{utils_8c_a1776a7942774544bce8e84766116d5f4}{utils\+\_\+print\+\_\+array}} (int \texorpdfstring{$\ast$}{*}arr)
+\item 
+void \mbox{\hyperlink{utils_8c_add9fea8159d37f977ecb07184aa657ee}{utils\+\_\+plotname}} (char \texorpdfstring{$\ast$}{*}buffer, int buffersize)
+\item 
+void \mbox{\hyperlink{utils_8c_acbb31f6c4007f0f0bb58b0ee4b72f17a}{utils\+\_\+format\+\_\+title}} (char \texorpdfstring{$\ast$}{*}fname, int alg)
 \end{DoxyCompactItemize}
 
 
@@ -19,15 +27,39 @@ void \mbox{\hyperlink{utils_8c_ab53d28d3561831ee01727163e38b65a1}{utils\+\_\+pri
 \doxysubsubsection{\texorpdfstring{utils\_file\_exists()}{utils\_file\_exists()}}
 {\footnotesize\ttfamily bool utils\+\_\+file\+\_\+exists (\begin{DoxyParamCaption}\item[{const char \texorpdfstring{$\ast$}{*}}]{filename }\end{DoxyParamCaption})}
 
+\Hypertarget{utils_8c_acbb31f6c4007f0f0bb58b0ee4b72f17a}\label{utils_8c_acbb31f6c4007f0f0bb58b0ee4b72f17a} 
+\index{utils.c@{utils.c}!utils\_format\_title@{utils\_format\_title}}
+\index{utils\_format\_title@{utils\_format\_title}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{utils\_format\_title()}{utils\_format\_title()}}
+{\footnotesize\ttfamily void utils\+\_\+format\+\_\+title (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{fname,  }\item[{int}]{alg }\end{DoxyParamCaption})}
+
 \Hypertarget{utils_8c_ae943d7925c35564206c9dc3681783cd8}\label{utils_8c_ae943d7925c35564206c9dc3681783cd8} 
 \index{utils.c@{utils.c}!utils\_invalid\_input@{utils\_invalid\_input}}
 \index{utils\_invalid\_input@{utils\_invalid\_input}!utils.c@{utils.c}}
 \doxysubsubsection{\texorpdfstring{utils\_invalid\_input()}{utils\_invalid\_input()}}
 {\footnotesize\ttfamily bool utils\+\_\+invalid\+\_\+input (\begin{DoxyParamCaption}\item[{int}]{i,  }\item[{int}]{argc,  }\item[{bool \texorpdfstring{$\ast$}{*}}]{help }\end{DoxyParamCaption})}
 
-\Hypertarget{utils_8c_ab53d28d3561831ee01727163e38b65a1}\label{utils_8c_ab53d28d3561831ee01727163e38b65a1} 
-\index{utils.c@{utils.c}!utils\_print\_error@{utils\_print\_error}}
-\index{utils\_print\_error@{utils\_print\_error}!utils.c@{utils.c}}
-\doxysubsubsection{\texorpdfstring{utils\_print\_error()}{utils\_print\_error()}}
-{\footnotesize\ttfamily void utils\+\_\+print\+\_\+error (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{message }\end{DoxyParamCaption})}
+\Hypertarget{utils_8c_add9fea8159d37f977ecb07184aa657ee}\label{utils_8c_add9fea8159d37f977ecb07184aa657ee} 
+\index{utils.c@{utils.c}!utils\_plotname@{utils\_plotname}}
+\index{utils\_plotname@{utils\_plotname}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{utils\_plotname()}{utils\_plotname()}}
+{\footnotesize\ttfamily void utils\+\_\+plotname (\begin{DoxyParamCaption}\item[{char \texorpdfstring{$\ast$}{*}}]{buffer,  }\item[{int}]{buffersize }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8c_a1776a7942774544bce8e84766116d5f4}\label{utils_8c_a1776a7942774544bce8e84766116d5f4} 
+\index{utils.c@{utils.c}!utils\_print\_array@{utils\_print\_array}}
+\index{utils\_print\_array@{utils\_print\_array}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{utils\_print\_array()}{utils\_print\_array()}}
+{\footnotesize\ttfamily void utils\+\_\+print\+\_\+array (\begin{DoxyParamCaption}\item[{int \texorpdfstring{$\ast$}{*}}]{arr }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8c_aa7c152c6f86ad5afd690ed9f26f42304}\label{utils_8c_aa7c152c6f86ad5afd690ed9f26f42304} 
+\index{utils.c@{utils.c}!utils\_startclock@{utils\_startclock}}
+\index{utils\_startclock@{utils\_startclock}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{utils\_startclock()}{utils\_startclock()}}
+{\footnotesize\ttfamily struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}} utils\+\_\+startclock (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\Hypertarget{utils_8c_a8160afe71c0c5854a781b14cafaccd9f}\label{utils_8c_a8160afe71c0c5854a781b14cafaccd9f} 
+\index{utils.c@{utils.c}!utils\_timeelapsed@{utils\_timeelapsed}}
+\index{utils\_timeelapsed@{utils\_timeelapsed}!utils.c@{utils.c}}
+\doxysubsubsection{\texorpdfstring{utils\_timeelapsed()}{utils\_timeelapsed()}}
+{\footnotesize\ttfamily double utils\+\_\+timeelapsed (\begin{DoxyParamCaption}\item[{struct \mbox{\hyperlink{structutils__clock}{utils\+\_\+clock}}}]{c }\end{DoxyParamCaption})}
 

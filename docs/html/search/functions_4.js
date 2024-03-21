@@ -1,9 +1,10 @@
 var searchData=
 [
-  ['tsp_5ffree_5finstance_0',['tsp_free_instance',['../tsp_8c.html#aa134f6647aa23efa07d133f5bc320793',1,'tsp_free_instance(instance *inst):&#160;tsp.c'],['../tsp_8h.html#aa134f6647aa23efa07d133f5bc320793',1,'tsp_free_instance(instance *inst):&#160;tsp.c']]],
-  ['tsp_5fgenerate_5frandompoints_1',['tsp_generate_randompoints',['../tsp_8c.html#ae1fade0fe4c9455f61e8752b73c7a3c0',1,'tsp_generate_randompoints(instance *inst):&#160;tsp.c'],['../tsp_8h.html#ae1fade0fe4c9455f61e8752b73c7a3c0',1,'tsp_generate_randompoints(instance *inst):&#160;tsp.c']]],
-  ['tsp_5fhandlefatal_2',['tsp_handlefatal',['../tsp_8c.html#a16065dcb7d3c60d95ab42278153cd042',1,'tsp_handlefatal(instance *inst):&#160;tsp.c'],['../tsp_8h.html#a16065dcb7d3c60d95ab42278153cd042',1,'tsp_handlefatal(instance *inst):&#160;tsp.c']]],
-  ['tsp_5fparse_5fcommandline_3',['tsp_parse_commandline',['../tsp_8c.html#a55af3ce92a45803be2817044822704e8',1,'tsp_parse_commandline(int argc, char **argv, instance *inst):&#160;tsp.c'],['../tsp_8h.html#a55af3ce92a45803be2817044822704e8',1,'tsp_parse_commandline(int argc, char **argv, instance *inst):&#160;tsp.c']]],
-  ['tsp_5fplot_5fpoints_4',['tsp_plot_points',['../tsp_8c.html#a355ba11dffd22d52577ada31b5c10ed4',1,'tsp_plot_points(instance *inst, char *name, bool to_file):&#160;tsp.c'],['../tsp_8h.html#a355ba11dffd22d52577ada31b5c10ed4',1,'tsp_plot_points(instance *inst, char *name, bool to_file):&#160;tsp.c']]],
-  ['tsp_5fread_5finput_5',['tsp_read_input',['../tsp_8c.html#aa402a99be7db4e96baa14adec528cbd6',1,'tsp_read_input(instance *inst):&#160;tsp.c'],['../tsp_8h.html#aa402a99be7db4e96baa14adec528cbd6',1,'tsp_read_input(instance *inst):&#160;tsp.c']]]
+  ['plot_5fargs_0',['plot_args',['../plot_8c.html#ada820101c948b0bad1dbf84c311fff6d',1,'plot_args(PLOT plot, char *args):&#160;plot.c'],['../plot_8h.html#ada820101c948b0bad1dbf84c311fff6d',1,'plot_args(PLOT plot, char *args):&#160;plot.c']]],
+  ['plot_5fedge_1',['plot_edge',['../plot_8c.html#acd58a47d0cc58bda3fd0b347af005196',1,'plot_edge(PLOT plot, point u, point v):&#160;plot.c'],['../plot_8h.html#acd58a47d0cc58bda3fd0b347af005196',1,'plot_edge(PLOT plot, point u, point v):&#160;plot.c']]],
+  ['plot_5ffree_2',['plot_free',['../plot_8c.html#a3f17b0b373dfaf3ed278bcf51c123233',1,'plot_free(PLOT plot):&#160;plot.c'],['../plot_8h.html#a3f17b0b373dfaf3ed278bcf51c123233',1,'plot_free(PLOT plot):&#160;plot.c']]],
+  ['plot_5fopen_3',['plot_open',['../plot_8c.html#a4d6f631984f72125902b6bd457b85ad6',1,'plot_open(char *title):&#160;plot.c'],['../plot_8h.html#a4d6f631984f72125902b6bd457b85ad6',1,'plot_open(char *title):&#160;plot.c']]],
+  ['plot_5fpoint_4',['plot_point',['../plot_8c.html#a9137910278243c7b2b37eff3a21bff1f',1,'plot_point(PLOT plot, point *p):&#160;plot.c'],['../plot_8h.html#a9137910278243c7b2b37eff3a21bff1f',1,'plot_point(PLOT plot, point *p):&#160;plot.c']]],
+  ['plot_5fstats_5',['plot_stats',['../plot_8c.html#a9044429870bf14979bef0b0fd6791b7c',1,'plot_stats(PLOT plot):&#160;plot.c'],['../plot_8h.html#a9044429870bf14979bef0b0fd6791b7c',1,'plot_stats(PLOT plot):&#160;plot.c']]],
+  ['plot_5ftofile_6',['plot_tofile',['../plot_8c.html#a36c160a703e277292b9bebfceb585c03',1,'plot_tofile(PLOT plot, char *filename):&#160;plot.c'],['../plot_8h.html#a36c160a703e277292b9bebfceb585c03',1,'plot_tofile(PLOT plot, char *filename):&#160;plot.c']]]
 ];

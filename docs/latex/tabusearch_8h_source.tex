@@ -1,0 +1,50 @@
+\doxysection{tabusearch.\+h}
+\hypertarget{tabusearch_8h_source}{}\label{tabusearch_8h_source}\index{src/algorithms/tabusearch.h@{src/algorithms/tabusearch.h}}
+\mbox{\hyperlink{tabusearch_8h}{Go to the documentation of this file.}}
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00001\ \textcolor{preprocessor}{\#ifndef\ TABU\_H\_}}
+\DoxyCodeLine{00002\ \textcolor{preprocessor}{\#define\ TABU\_H\_}}
+\DoxyCodeLine{00003\ }
+\DoxyCodeLine{00004\ \textcolor{preprocessor}{\#include\ "{}\mbox{\hyperlink{heuristics_8h}{heuristics.h}}"{}}}
+\DoxyCodeLine{00005\ }
+\DoxyCodeLine{00006\ \textcolor{comment}{//\ https://www.sciencedirect.com/science/article/abs/pii/S0305054897000300?via\%3Dihub}}
+\DoxyCodeLine{00007\ \textcolor{preprocessor}{\#define\ MAX\_FRACTION\ 0.25}}
+\DoxyCodeLine{00008\ \textcolor{preprocessor}{\#define\ MIN\_FRACTION\ 0.125}}
+\DoxyCodeLine{00009\ }
+\DoxyCodeLine{00010\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{enum}\{}
+\DoxyCodeLine{00011\ \ \ \ \ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204ba0b76eb142eb3090d69a1143dc97807bd}{POL\_FIXED}}\ =\ 0,}
+\DoxyCodeLine{00012\ \ \ \ \ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204ba93760a0ed0c2bcb96bb090cd823d3f54}{POL\_SIZE}}\ =\ 1,}
+\DoxyCodeLine{00013\ \ \ \ \ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204ba9c87dc98e38684a3acb4f09a96f31a92}{POL\_RANDOM}}\ =\ 2,}
+\DoxyCodeLine{00014\ \ \ \ \ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204bacd2bbb26ff9e20bd9ec8fc3be7b4dc7a}{POL\_LINEAR}}\ =\ 3}
+\DoxyCodeLine{00015\ \}\ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}};}
+\DoxyCodeLine{00016\ }
+\DoxyCodeLine{00017\ \textcolor{keyword}{typedef}\ \textcolor{keyword}{struct\ }\{}
+\DoxyCodeLine{00018\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtabu__search_a6c2bbf307e19b327550851b30b3299c8}{tenure}};}
+\DoxyCodeLine{00019\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtabu__search_acddd6269db8887d327af5b1ef9683563}{max\_tenure}};}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{int}\ \mbox{\hyperlink{structtabu__search_a4e599d40a4c35069cd5cb60f08e4259e}{min\_tenure}};}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}}\ \mbox{\hyperlink{structtabu__search_ae31dcaf2b240da7a8cbc9448b14f6b76}{policy}};\ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ policy\ chosen}}
+\DoxyCodeLine{00023\ }
+\DoxyCodeLine{00024\ \ \ \ \ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{structtabu__search_a5223c7d30b0f3f2010bed286d2ff8181}{increment}};\ \ \ \ \ \ \ \ \ \ \ \ \ \textcolor{comment}{//\ flag\ for\ the\ linear\ policy}}
+\DoxyCodeLine{00025\ }
+\DoxyCodeLine{00026\ \ \ \ \ \textcolor{keywordtype}{int}*\ \mbox{\hyperlink{structtabu__search_a347b3a550394a262205ec23edb9344f3}{tabu\_list}};}
+\DoxyCodeLine{00027\ \}\ \mbox{\hyperlink{structtabu__search}{tabu\_search}};}
+\DoxyCodeLine{00028\ }
+\DoxyCodeLine{00029\ }
+\DoxyCodeLine{00030\ \textcolor{comment}{//\ https://www.scirp.org/journal/paperinformation?paperid=19930}}
+\DoxyCodeLine{00031\ }
+\DoxyCodeLine{00032\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tabusearch_8h_ac8b3d5a50f7c607afa7a68b3275a5a09}{tabu\_fixed\_policy}}(\mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ t,\ \textcolor{keywordtype}{int}\ value);}
+\DoxyCodeLine{00033\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tabusearch_8h_a73cb3198e6267b0a2edc94801f0421ad}{tabu\_dependent\_policy}}(\mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ t);}
+\DoxyCodeLine{00034\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tabusearch_8h_a8fa0c2967c49f6465079052a267bad06}{tabu\_random\_policy}}(\mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ t);}
+\DoxyCodeLine{00035\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tabusearch_8h_ac11ade3223d539a0daa823220208a945}{tabu\_linear\_policy}}(\mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ ts);}
+\DoxyCodeLine{00036\ }
+\DoxyCodeLine{00037\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tabusearch_8h_a1102059d4c58591993d45ee70339967a}{tabu\_init}}(\mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ ts,\ \textcolor{keywordtype}{int}\ nnodes,\ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}}\ policy);}
+\DoxyCodeLine{00038\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tabusearch_8h_a40803fed69d0edf01a318474251601d9}{tabu\_search\_2opt}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst,\ \mbox{\hyperlink{tabusearch_8h_a5841c9746548ff40c6ad4115a553204b}{POLICIES}}\ policy);}
+\DoxyCodeLine{00039\ \mbox{\hyperlink{errors_8h_a4db9ee29f2ff83c71567c12f6bfbf28c}{ERROR\_CODE}}\ \mbox{\hyperlink{tabusearch_8h_a8ec9fa7c3ec8d4b93911c62c3c7a70ff}{tabu\_best\_move}}(\mbox{\hyperlink{structinstance}{instance}}*\ inst,\ \textcolor{keywordtype}{int}*\ solution\_path,\ \textcolor{keywordtype}{double}*\ solution\_cost,\ \mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ ts,\ \textcolor{keywordtype}{int}\ current\_iteration);}
+\DoxyCodeLine{00040\ }
+\DoxyCodeLine{00041\ \textcolor{keywordtype}{bool}\ \mbox{\hyperlink{tabusearch_8h_abae9dc3b803515d5d0b4742a25db4185}{is\_in\_tabu\_list}}(\mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ ts,\ \textcolor{keywordtype}{int}\ b,\ \textcolor{keywordtype}{int}\ current\_iteration);}
+\DoxyCodeLine{00042\ \textcolor{keywordtype}{void}\ \mbox{\hyperlink{tabusearch_8h_a071602197a00d0f238c0db3bb57eddf7}{tabu\_free}}(\mbox{\hyperlink{structtabu__search}{tabu\_search}}*\ ts);}
+\DoxyCodeLine{00043\ }
+\DoxyCodeLine{00044\ \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

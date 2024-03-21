@@ -91,12 +91,17 @@ Functions</h2></td></tr>
 <tr class="memitem:a9137910278243c7b2b37eff3a21bff1f" id="r_a9137910278243c7b2b37eff3a21bff1f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9137910278243c7b2b37eff3a21bff1f">plot_point</a> (<a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a> plot, <a class="el" href="structpoint.html">point</a> *p)</td></tr>
 <tr class="memdesc:a9137910278243c7b2b37eff3a21bff1f"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plots a single point.  <br /></td></tr>
 <tr class="separator:a9137910278243c7b2b37eff3a21bff1f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:acd58a47d0cc58bda3fd0b347af005196" id="r_acd58a47d0cc58bda3fd0b347af005196"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#acd58a47d0cc58bda3fd0b347af005196">plot_edge</a> (<a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a> plot, <a class="el" href="structpoint.html">point</a> u, <a class="el" href="structpoint.html">point</a> v)</td></tr>
+<tr class="memdesc:acd58a47d0cc58bda3fd0b347af005196"><td class="mdescLeft">&#160;</td><td class="mdescRight">Plots an edge between two points.  <br /></td></tr>
+<tr class="separator:acd58a47d0cc58bda3fd0b347af005196"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a36c160a703e277292b9bebfceb585c03" id="r_a36c160a703e277292b9bebfceb585c03"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a36c160a703e277292b9bebfceb585c03">plot_tofile</a> (<a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a> plot, char *filename)</td></tr>
 <tr class="memdesc:a36c160a703e277292b9bebfceb585c03"><td class="mdescLeft">&#160;</td><td class="mdescRight">Saves the plot to a jpg file in the directory /plots.  <br /></td></tr>
 <tr class="separator:a36c160a703e277292b9bebfceb585c03"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:ada820101c948b0bad1dbf84c311fff6d" id="r_ada820101c948b0bad1dbf84c311fff6d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada820101c948b0bad1dbf84c311fff6d">plot_args</a> (<a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a> plot, char *args)</td></tr>
 <tr class="memdesc:ada820101c948b0bad1dbf84c311fff6d"><td class="mdescLeft">&#160;</td><td class="mdescRight">Add additional arguments to the plot, like style options.  <br /></td></tr>
 <tr class="separator:ada820101c948b0bad1dbf84c311fff6d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9044429870bf14979bef0b0fd6791b7c" id="r_a9044429870bf14979bef0b0fd6791b7c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9044429870bf14979bef0b0fd6791b7c">plot_stats</a> (<a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a> plot)</td></tr>
+<tr class="separator:a9044429870bf14979bef0b0fd6791b7c"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:a3f17b0b373dfaf3ed278bcf51c123233" id="r_a3f17b0b373dfaf3ed278bcf51c123233"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3f17b0b373dfaf3ed278bcf51c123233">plot_free</a> (<a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a> plot)</td></tr>
 <tr class="memdesc:a3f17b0b373dfaf3ed278bcf51c123233"><td class="mdescLeft">&#160;</td><td class="mdescRight">Free resources.  <br /></td></tr>
 <tr class="separator:a3f17b0b373dfaf3ed278bcf51c123233"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -126,6 +131,42 @@ Functions</h2></td></tr>
   <table class="params">
     <tr><td class="paramname">plot</td><td>plot instance </td></tr>
     <tr><td class="paramname">args</td><td>string with gnuplot commands </td></tr>
+  </table>
+  </dd>
+</dl>
+
+</div>
+</div>
+<a id="acd58a47d0cc58bda3fd0b347af005196" name="acd58a47d0cc58bda3fd0b347af005196"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#acd58a47d0cc58bda3fd0b347af005196">&#9670;&#160;</a></span>plot_edge()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void plot_edge </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a></td>          <td class="paramname"><span class="paramname"><em>plot</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structpoint.html">point</a></td>          <td class="paramname"><span class="paramname"><em>u</em>, </span></td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype"><a class="el" href="structpoint.html">point</a></td>          <td class="paramname"><span class="paramname"><em>v</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+<p>Plots an edge between two points. </p>
+<dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">plot</td><td></td></tr>
+    <tr><td class="paramname">u</td><td></td></tr>
+    <tr><td class="paramname">v</td><td></td></tr>
   </table>
   </dd>
 </dl>
@@ -210,6 +251,23 @@ Functions</h2></td></tr>
   </table>
   </dd>
 </dl>
+
+</div>
+</div>
+<a id="a9044429870bf14979bef0b0fd6791b7c" name="a9044429870bf14979bef0b0fd6791b7c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9044429870bf14979bef0b0fd6791b7c">&#9670;&#160;</a></span>plot_stats()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void plot_stats </td>
+          <td>(</td>
+          <td class="paramtype"><a class="el" href="plot_8h.html#a0941fca9401810b0a51bf95db00bbc5a">PLOT</a></td>          <td class="paramname"><span class="paramname"><em>plot</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
 
 </div>
 </div>

@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['timelimit_0',['timelimit',['../structoptions.html#abd8c0390b9b465cc480fbd834d11f230',1,'options']]]
+  ['nnodes_0',['nnodes',['../structinstance.html#a824ac1af8a4229ed37411081a1ffd928',1,'instance']]]
 ];

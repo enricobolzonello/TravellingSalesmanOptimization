@@ -1,4 +1,5 @@
 var searchData=
 [
-  ['options_5ft_0',['options_t',['../structinstance.html#a9c94738c75cee4ec5f3e0321d2a89f75',1,'instance']]]
+  ['graph_5finput_0',['graph_input',['../structoptions.html#a193a58b3841769420cedbfe11050bdff',1,'options']]],
+  ['graph_5frandom_1',['graph_random',['../structoptions.html#a18224f7971da99107cd58b5293333309',1,'options']]]
 ];

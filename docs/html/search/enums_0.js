@@ -1,4 +1,4 @@
 var searchData=
 [
-  ['error_5fcode_0',['ERROR_CODE',['../errors_8h.html#a4db9ee29f2ff83c71567c12f6bfbf28c',1,'errors.h']]]
+  ['algorithms_0',['algorithms',['../tsp_8h.html#ad28a1b6c64625a10e04b25f75d2e7b51',1,'tsp.h']]]
 ];
