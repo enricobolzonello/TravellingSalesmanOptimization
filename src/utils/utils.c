@@ -1,5 +1,9 @@
 #include "utils.h"
 
+static char* algs_string[4] = {
+    "Greedy", "Greedy\\_Iter", "2opt\\_Greedy", "Tabu\\_Search"
+};
+
 bool utils_file_exists (const char *filename) {
   struct stat  buffer;   
   return (stat (filename, &buffer) == 0);
@@ -55,7 +59,7 @@ void utils_plotname(char* buffer, int buffersize){
 
 }
 
-void utils_format_title(char *fname)
+void utils_format_title(char *fname, int alg)
 {
     // escape the underscore character (because it's LaTeX)
     size_t length = strlen(fname);
@@ -86,4 +90,20 @@ void utils_format_title(char *fname)
     if (end > fname) {
         *end = '\0';
     }
+
+    // get string of algorithm
+    const char* alg_s = NULL;
+    if (alg >= 0 && alg < sizeof(algs_string) / sizeof(char*)) {
+        alg_s = algs_string[alg];
+    }
+
+    // Copy characters from s2 to the end of s1
+    while (*alg_s) {
+        *end = *alg_s;
+        end++;
+        alg_s++;
+    }
+    
+    // Add the null terminator at the end
+    *end = '\0';
 }

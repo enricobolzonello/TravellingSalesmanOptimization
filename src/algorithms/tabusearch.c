@@ -85,12 +85,15 @@ ERROR_CODE tabu_init(tabu_search* ts, int nnodes, POLICIES policy){
 }
 
 ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
-    // inititialize
+    // initialize
     tabu_search ts;
     if(tabu_init(&ts, inst->nnodes, policy) != OK){
         log_fatal("Error in init tabu search"); 
         tsp_handlefatal(inst);
     }
+
+    // file to hold solution value in each iteration
+    FILE* f = fopen("results/TabuResults.dat", "w+,ccs=UTF-8");
 
     int* solution_path = (int*) calloc(inst->nnodes, sizeof(int));
     double solution_cost = __DBL_MAX__;
@@ -103,9 +106,10 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
         free(solution_path);
     }
 
+    // start the tabu search from the optimal solution
     solution_cost = inst->best_solution_cost;
     memcpy(solution_path, inst->best_solution_path, inst->nnodes * sizeof(int));
-    log_debug("2opt greedy sol cost: %f", solution_cost);
+    log_info("2opt greedy sol cost: %f", solution_cost);
 
     // tabu search with 2opt moves
     for(int k=0; k < inst->nnodes * inst->nnodes; k++){
@@ -132,9 +136,28 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
         }
 
         tsp_update_best_solution(inst, solution_cost, solution_path);
+
+        // save current iteration and current solution cost to file for the plot
+        fprintf(f, "%d,%f\n", k, solution_cost);
     }
 
+    fclose(f);
+
+
+    // plot the solution progression during iterations
+    PLOT plot = plot_open("TabuIterationsPlot");
+    
+    if(inst->options_t.tofile){
+        plot_tofile(plot, "TabuIterationsPlot");
+    }
+
+    plot_stats(plot);
+    plot_free(plot);
+
+    // free resources
     free(solution_path);
+    tabu_free(&ts);
+
     return OK;
 
 }
@@ -150,9 +173,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
 
     // scan nodes to find best swap
     for (int a = 0; a < inst->nnodes - 1; a++) {
-        if(is_in_tabu_list(ts, a, current_iteration)) { continue; }
         for (int b = a+1; b < inst->nnodes; b++) {
-            if(is_in_tabu_list(ts, b, current_iteration)) { continue; }
             int succ_a = solution_path[a]; //successor of a
             int succ_b = solution_path[b]; //successor of b
             
@@ -160,6 +181,11 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
             if (succ_a == succ_b || a == succ_b || b == succ_a){
                 continue;
             }
+
+            if(is_in_tabu_list(ts, a, current_iteration) || is_in_tabu_list(ts, b, current_iteration) || is_in_tabu_list(ts, succ_a, current_iteration) || is_in_tabu_list(ts, succ_b, current_iteration)){ 
+                continue; 
+            }
+
             // Compute the delta
             double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
             double swapped_cost = tsp_get_cost(inst, a, b) + tsp_get_cost(inst, succ_a, succ_b);
@@ -176,7 +202,6 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     if(best_delta < __DBL_MAX__){    
         int a = best_swap[0];
         int b = best_swap[1];
-        log_debug("iteration %d: best swap is %d, %d with delta=%f", current_iteration, a, b, best_delta);
         int succ_a = solution_path[a]; //successor of a
         int succ_b = solution_path[b]; //successor of b
 
@@ -196,7 +221,6 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
     }
 
     free(prev);
-    //free(ts->tabu_list);
 
     return OK;
 }
@@ -206,5 +230,9 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
 //================================================================================
 
 bool is_in_tabu_list(tabu_search* ts, int node, int current_iteration){
-    return current_iteration - ts->tabu_list[node] <= ts->tenure || ts->tabu_list[node] != -1;
+    return current_iteration - ts->tabu_list[node] < ts->tenure && ts->tabu_list[node] != -1;
+}
+
+void tabu_free(tabu_search* ts){
+    free(ts->tabu_list);
 }

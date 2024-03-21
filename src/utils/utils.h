@@ -12,12 +12,8 @@
  * 
  */
 
-#include <time.h>
 #include <string.h>
 #include <sys/stat.h> 
-#include <stdbool.h> 
-#include <stdio.h>
-#include <stdlib.h>
 #include <errno.h>
 
 #include "errors.h"
@@ -32,6 +28,8 @@
 #define TSP_RAND() ( ((double)rand() / RAND_MAX) * (MAX_COORDINATE - MIN_COORDINATE) + MIN_COORDINATE )
 
 #define NOT_CONNECTED -1.0f
+
+static char* algs_string[4];
 
 typedef struct {
     double x;
@@ -49,6 +47,6 @@ bool utils_invalid_input(int i, int argc, bool* help);
 struct utils_clock utils_startclock(void);
 double utils_timeelapsed(struct utils_clock c);
 void utils_plotname(char* buffer, int buffersize);
-void utils_format_title(char *fname);
+void utils_format_title(char *fname, int alg);
 
 #endif

@@ -57,6 +57,8 @@ void plot_tofile(PLOT plot, char* filename);
  */
 void plot_args(PLOT plot, char* args);
 
+void plot_stats(PLOT plot);
+
 /**
  * @brief Free resources
  * 

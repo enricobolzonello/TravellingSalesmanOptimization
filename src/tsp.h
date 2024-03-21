@@ -11,9 +11,7 @@
  * @copyright Copyright (c) 2024
  * 
  */
-#include "utils/utils.h"
 #include "utils/plot.h"
-#include "utils/errors.h"
 #include<libgen.h>
 #include <math.h>
 

@@ -101,7 +101,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             if (strcmp("GREEDY", method) == 0){
                 inst->alg = ALG_GREEDY;
                 log_info("selected greedy algorithm");
-            }else if (strcmp("GREEDY_ITERATIVE", method) == 0){
+            }else if (strcmp("GREEDY_ITER", method) == 0){
                 inst->alg = ALG_GREEDY_ITER;
                 log_info("selected iterative greedy algorithm");
             }
@@ -214,7 +214,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     if(algs){
         printf(COLOR_BOLD "Available algorithms:\n" COLOR_OFF);
         printf("    - GREEDY\n");
-        printf("    - GREEDY_ITERATIVE\n");
+        printf("    - GREEDY_ITER\n");
         printf("    - 2OPT_GREEDY\n");
         printf("    - TABU_SEARCH");
         
@@ -243,7 +243,7 @@ ERROR_CODE tsp_plot_points(instance* inst){
     int i;
     char* plotfile;
     plotfile = basename(inst->options_t.inputfile);
-    utils_format_title(plotfile);
+    utils_format_title(plotfile, inst->alg);
     PLOT plot = plot_open(plotfile);
 
     if(inst->options_t.tofile){
@@ -264,7 +264,7 @@ ERROR_CODE tsp_plot_points(instance* inst){
 ERROR_CODE tsp_plot_solution(instance* inst){
     char* plotfile;
     plotfile = basename(inst->options_t.inputfile);
-    utils_format_title(plotfile);
+    utils_format_title(plotfile, inst->alg);
 
     PLOT plot = plot_open(plotfile);
     if(inst->options_t.tofile){
