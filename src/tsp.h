@@ -32,6 +32,11 @@ typedef struct {
 } options;
 
 typedef struct {
+    double cost;
+    int* path;
+} tsp_solution;
+
+typedef struct {
     options options_t;
 
     algorithms alg;            // algorithm chosen 
@@ -46,8 +51,7 @@ typedef struct {
     bool costs_computed;        
     double* costs;             // matrix of costs between pairs of points
 
-    double best_solution_cost;
-    int* best_solution_path;
+    tsp_solution best_solution;
 
     int starting_node;          // save the starting node of the best tour
 } instance;

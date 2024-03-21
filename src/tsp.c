@@ -355,7 +355,10 @@ void tsp_read_input(instance* inst){
         if ( strncmp(parameter, "EDGE_WEIGHT_TYPE", 16) == 0 ) 
 		{
 			token1 = strtok(NULL, " :");
-			if ( strncmp(token1, "EUC_2D", 6) != 0 ) log_fatal(" format error:  only EDGE_WEIGHT_TYPE == EUC_2D managed");
+			if ( strncmp(token1, "EUC_2D", 6) != 0 ){
+                log_fatal(" format error:  only EDGE_WEIGHT_TYPE == EUC_2D managed");
+                tsp_handlefatal(inst);
+            }
 			continue;
 		}  
 
@@ -381,7 +384,10 @@ void tsp_read_input(instance* inst){
 ERROR_CODE tsp_compute_costs(instance* inst){
     log_debug("computing costs");
 
-    if(inst->nnodes <= 0) log_fatal("computing costs of empty graph");
+    if(inst->nnodes <= 0) {
+        log_fatal("computing costs of empty graph");
+        tsp_handlefatal(inst);
+    }
 
     inst->costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
 
