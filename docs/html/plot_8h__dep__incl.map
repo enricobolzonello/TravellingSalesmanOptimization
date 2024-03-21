@@ -1,0 +1,21 @@
+<map id="src/utils/plot.h" name="src/utils/plot.h">
+<area shape="rect" id="Node000001" title="Utility functions to plot tsp instances." alt="" coords="478,5,582,31"/>
+<area shape="rect" id="Node000002" href="$tsp_8h.html" title="TSP&#45;specific utilities." alt="" coords="438,79,510,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="513,45,485,80,481,77,509,41"/>
+<area shape="rect" id="Node000009" href="$plot_8c.html" title=" " alt="" coords="534,79,638,105"/>
+<area shape="poly" id="edge10_Node000001_Node000009" title=" " alt="" coords="550,41,578,77,574,80,546,45"/>
+<area shape="rect" id="Node000003" href="$heuristics_8h.html" title=" " alt="" coords="236,153,410,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="436,114,350,154,348,150,433,109"/>
+<area shape="rect" id="Node000007" href="$main_8c.html" title=" " alt="" coords="395,300,478,326"/>
+<area shape="poly" id="edge8_Node000002_Node000007" title=" " alt="" coords="472,120,441,300,436,299,467,119"/>
+<area shape="rect" id="Node000008" href="$tsp_8c.html" title=" " alt="" coords="511,153,583,178"/>
+<area shape="poly" id="edge9_Node000002_Node000008" title=" " alt="" coords="499,114,537,150,533,154,495,117"/>
+<area shape="rect" id="Node000004" href="$heuristics_8c.html" title=" " alt="" coords="5,226,180,252"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="271,186,133,228,131,223,269,181"/>
+<area shape="rect" id="Node000005" href="$tabusearch_8h.html" title=" " alt="" coords="204,226,386,252"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="315,194,302,227,297,225,310,192"/>
+<area shape="poly" id="edge7_Node000003_Node000007" title=" " alt="" coords="357,185,379,203,400,225,423,264,436,299,431,300,418,266,396,228,376,207,354,190"/>
+<area shape="rect" id="Node000006" href="$tabusearch_8c.html" title=" " alt="" coords="189,300,372,326"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="292,268,286,300,280,299,287,267"/>
+<area shape="poly" id="edge6_Node000005_Node000007" title=" " alt="" coords="334,257,414,297,411,302,331,262"/>
+</map>

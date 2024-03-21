@@ -1,0 +1,31 @@
+<map id="src/algorithms/heuristics.h" name="src/algorithms/heuristics.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="190,5,365,31"/>
+<area shape="rect" id="Node000002" href="$tsp_8h.html" title="TSP&#45;specific utilities." alt="" coords="246,79,309,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="280,31,280,63,275,63,275,31"/>
+<area shape="rect" id="Node000003" href="$plot_8h.html" title="Utility functions to plot tsp instances." alt="" coords="140,153,221,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="263,107,210,146,207,141,259,103"/>
+<area shape="rect" id="Node000014" title=" " alt="" coords="244,153,311,178"/>
+<area shape="poly" id="edge13_Node000002_Node000014" title=" " alt="" coords="280,105,280,137,275,137,275,105"/>
+<area shape="rect" id="Node000015" title=" " alt="" coords="335,153,396,178"/>
+<area shape="poly" id="edge14_Node000002_Node000015" title=" " alt="" coords="294,103,341,141,337,145,291,107"/>
+<area shape="rect" id="Node000004" href="$utils_8h.html" title="General utilities for TSP." alt="" coords="152,226,208,252"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="183,179,183,211,178,211,178,179"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="5,300,70,326"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="157,255,77,295,74,290,155,250"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="94,300,173,326"/>
+<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="175,254,152,288,147,285,170,251"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="198,300,259,326"/>
+<area shape="poly" id="edge6_Node000004_Node000007" title=" " alt="" coords="190,251,214,285,209,288,186,254"/>
+<area shape="rect" id="Node000008" href="$errors_8h.html" title="defines helpers for logging and handling errors" alt="" coords="284,300,349,326"/>
+<area shape="poly" id="edge7_Node000004_Node000008" title=" " alt="" coords="204,250,281,290,278,295,202,255"/>
+<area shape="rect" id="Node000009" title=" " alt="" coords="104,374,179,399"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="288,329,186,370,184,365,286,324"/>
+<area shape="rect" id="Node000010" title=" " alt="" coords="203,374,264,399"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="304,328,261,365,257,361,300,324"/>
+<area shape="rect" id="Node000011" title=" " alt="" coords="288,374,345,399"/>
+<area shape="poly" id="edge10_Node000008_Node000011" title=" " alt="" coords="319,326,319,358,314,358,314,326"/>
+<area shape="rect" id="Node000012" title=" " alt="" coords="369,374,432,399"/>
+<area shape="poly" id="edge11_Node000008_Node000012" title=" " alt="" coords="332,324,376,361,373,365,329,328"/>
+<area shape="rect" id="Node000013" title=" " alt="" coords="455,374,524,399"/>
+<area shape="poly" id="edge12_Node000008_Node000013" title=" " alt="" coords="347,324,447,365,445,370,345,329"/>
+</map>

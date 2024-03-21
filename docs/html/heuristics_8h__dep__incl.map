@@ -1,0 +1,12 @@
+<map id="src/algorithms/heuristics.h" name="src/algorithms/heuristics.h">
+<area shape="rect" id="Node000001" title=" " alt="" coords="208,5,382,31"/>
+<area shape="rect" id="Node000002" href="$heuristics_8c.html" title=" " alt="" coords="5,79,180,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="247,39,128,81,126,76,245,34"/>
+<area shape="rect" id="Node000003" href="$tabusearch_8h.html" title=" " alt="" coords="204,79,386,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="298,46,298,79,293,79,293,46"/>
+<area shape="rect" id="Node000005" href="$main_8c.html" title=" " alt="" coords="382,153,464,178"/>
+<area shape="poly" id="edge5_Node000001_Node000005" title=" " alt="" coords="344,36,374,53,400,77,411,96,419,117,425,152,420,153,413,118,406,98,396,81,371,57,342,40"/>
+<area shape="rect" id="Node000004" href="$tabusearch_8c.html" title=" " alt="" coords="176,153,358,178"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="287,120,274,153,269,151,282,118"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="331,110,403,150,400,154,329,115"/>
+</map>

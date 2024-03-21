@@ -1,0 +1,15 @@
+<map id="src/utils/errors.c" name="src/utils/errors.c">
+<area shape="rect" id="Node000001" title=" " alt="" coords="160,5,275,31"/>
+<area shape="rect" id="Node000002" href="$errors_8h.html" title="defines helpers for logging and handling errors" alt="" coords="185,79,250,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="220,31,220,63,215,63,215,31"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="5,153,80,178"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="189,108,87,149,85,144,187,103"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="104,153,165,178"/>
+<area shape="poly" id="edge3_Node000002_Node000004" title=" " alt="" coords="205,107,162,144,158,140,201,103"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="189,153,246,178"/>
+<area shape="poly" id="edge4_Node000002_Node000005" title=" " alt="" coords="220,105,220,137,215,137,215,105"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="270,153,333,178"/>
+<area shape="poly" id="edge5_Node000002_Node000006" title=" " alt="" coords="233,103,277,140,274,144,230,107"/>
+<area shape="rect" id="Node000007" title=" " alt="" coords="356,153,425,178"/>
+<area shape="poly" id="edge6_Node000002_Node000007" title=" " alt="" coords="248,103,348,144,346,149,246,108"/>
+</map>

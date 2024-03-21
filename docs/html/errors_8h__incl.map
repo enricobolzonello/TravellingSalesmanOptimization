@@ -1,0 +1,13 @@
+<map id="src/utils/errors.h" name="src/utils/errors.h">
+<area shape="rect" id="Node000001" title="defines helpers for logging and handling errors" alt="" coords="160,5,275,31"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,79,80,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="189,34,87,75,85,70,187,29"/>
+<area shape="rect" id="Node000003" title=" " alt="" coords="104,79,165,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="205,34,162,71,158,67,201,30"/>
+<area shape="rect" id="Node000004" title=" " alt="" coords="189,79,246,105"/>
+<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="220,31,220,63,215,63,215,31"/>
+<area shape="rect" id="Node000005" title=" " alt="" coords="270,79,333,105"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="233,30,277,67,274,71,230,34"/>
+<area shape="rect" id="Node000006" title=" " alt="" coords="356,79,425,105"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="248,29,348,70,346,75,246,34"/>
+</map>

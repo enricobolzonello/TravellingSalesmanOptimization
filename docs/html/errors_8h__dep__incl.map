@@ -1,0 +1,29 @@
+<map id="src/utils/errors.h" name="src/utils/errors.h">
+<area shape="rect" id="Node000001" title="defines helpers for logging and handling errors" alt="" coords="468,5,584,31"/>
+<area shape="rect" id="Node000002" href="$errors_8c.html" title=" " alt="" coords="402,79,517,105"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="506,44,472,80,468,77,503,40"/>
+<area shape="rect" id="Node000003" href="$utils_8h.html" title="General utilities for TSP." alt="" coords="541,79,647,105"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="550,40,584,77,580,80,546,44"/>
+<area shape="rect" id="Node000004" href="$plot_8h.html" title="Utility functions to plot tsp instances." alt="" coords="478,153,582,178"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="575,118,543,154,539,150,571,114"/>
+<area shape="rect" id="Node000013" href="$utils_8c.html" title=" " alt="" coords="606,153,712,178"/>
+<area shape="poly" id="edge14_Node000003_Node000013" title=" " alt="" coords="617,114,650,150,646,154,613,118"/>
+<area shape="rect" id="Node000005" href="$tsp_8h.html" title="TSP&#45;specific utilities." alt="" coords="438,226,510,252"/>
+<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="513,192,485,228,481,224,509,189"/>
+<area shape="rect" id="Node000012" href="$plot_8c.html" title=" " alt="" coords="534,226,638,252"/>
+<area shape="poly" id="edge13_Node000004_Node000012" title=" " alt="" coords="550,189,578,224,574,228,546,192"/>
+<area shape="rect" id="Node000006" href="$heuristics_8h.html" title=" " alt="" coords="236,300,410,326"/>
+<area shape="poly" id="edge5_Node000005_Node000006" title=" " alt="" coords="436,261,350,302,348,297,433,257"/>
+<area shape="rect" id="Node000010" href="$main_8c.html" title=" " alt="" coords="395,447,478,473"/>
+<area shape="poly" id="edge11_Node000005_Node000010" title=" " alt="" coords="472,267,441,447,436,447,467,266"/>
+<area shape="rect" id="Node000011" href="$tsp_8c.html" title=" " alt="" coords="511,300,583,326"/>
+<area shape="poly" id="edge12_Node000005_Node000011" title=" " alt="" coords="499,261,537,298,533,301,495,265"/>
+<area shape="rect" id="Node000007" href="$heuristics_8c.html" title=" " alt="" coords="5,374,180,399"/>
+<area shape="poly" id="edge6_Node000006_Node000007" title=" " alt="" coords="271,333,133,376,131,371,269,328"/>
+<area shape="rect" id="Node000008" href="$tabusearch_8h.html" title=" " alt="" coords="204,374,386,399"/>
+<area shape="poly" id="edge7_Node000006_Node000008" title=" " alt="" coords="315,341,302,374,297,372,310,339"/>
+<area shape="poly" id="edge10_Node000006_Node000010" title=" " alt="" coords="357,333,379,351,400,372,423,411,436,446,431,448,418,414,396,375,376,354,354,337"/>
+<area shape="rect" id="Node000009" href="$tabusearch_8c.html" title=" " alt="" coords="189,447,372,473"/>
+<area shape="poly" id="edge8_Node000008_Node000009" title=" " alt="" coords="292,415,286,447,280,446,287,414"/>
+<area shape="poly" id="edge9_Node000008_Node000010" title=" " alt="" coords="334,404,414,444,411,449,331,409"/>
+</map>
