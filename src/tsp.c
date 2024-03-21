@@ -487,3 +487,11 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_soluti
         return INVALID_ARGUMENT;
     }   
 }
+
+tsp_solution tsp_init_solution(int nnodes){
+    tsp_solution solution;
+    solution.path = calloc(nnodes, sizeof(int));
+    solution.cost = __DBL_MAX__;
+    return solution;
+}
+

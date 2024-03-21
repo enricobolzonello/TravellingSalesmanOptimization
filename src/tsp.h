@@ -158,4 +158,6 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* solution);
  */
 double tsp_get_cost(instance* inst, int i, int j);
 
+tsp_solution tsp_init_solution(int nnodes);
+
 #endif
