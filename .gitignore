@@ -41,13 +41,10 @@
 !/make/lib/utils/.gitkeep
 
 # Project logs files
-/make/log/*
-!/make/log/.gitkeep
+/make/plots/*
+!/make/plots/.gitkeep
 
 .DS_Store
 /.vscode
-
-#make
-Makefile
 
 .env
