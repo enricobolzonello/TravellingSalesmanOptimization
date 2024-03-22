@@ -1,11 +1,19 @@
 #include "plot.h"
 
+#if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__) || __linux__
+    static char* TERMINAL = "x11";
+#elif  __APPLE__
+    static char* TERMINAL = "qt";
+#else
+    error "not supported"
+#endif
+
 PLOT plot_open(char* title){
     PLOT plot = popen("gnuplot -persistent", "w");
     if(plot == NULL){
         log_fatal("cannot open pipe");
     }
-    fprintf(plot, "set term x11 font \"Arial\"\n");
+    fprintf(plot, "set term %s font \"Arial\"\n", TERMINAL);
     fprintf(plot, "set title '%s'\n", title);
     return plot;
 }

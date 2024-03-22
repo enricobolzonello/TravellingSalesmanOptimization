@@ -1,6 +1,7 @@
 #ifndef TABU_H_
 #define TABU_H_
 
+#include "../tsp.h"
 #include "heuristics.h"
 
 // https://www.sciencedirect.com/science/article/abs/pii/S0305054897000300?via%3Dihub
@@ -39,6 +40,5 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy);
 ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_cost, tabu_search* ts, int current_iteration);
 
 bool is_in_tabu_list(tabu_search* ts, int b, int current_iteration);
-void tabu_free(tabu_search* ts);
 
 #endif

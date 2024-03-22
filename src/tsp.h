@@ -34,7 +34,7 @@ typedef struct {
 typedef struct {
     double cost;
     int* path;
-} tsp_solution;
+}tsp_solution;
 
 typedef struct {
     options options_t;
@@ -137,8 +137,10 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path);
  * 
  * @param inst 
  */
-void tsp_update_best_solution(instance* inst, double current_solution_cost, int* current_solution_path);
+void tsp_update_best_solution(instance* inst, tsp_solution* solution);
 
 double tsp_get_cost(instance* inst, int i, int j);
+
+tsp_solution tsp_init_solution(int nnodes);
 
 #endif
