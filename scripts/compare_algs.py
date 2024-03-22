@@ -16,7 +16,7 @@ import time
 load_dotenv(find_dotenv())
 
 METHODS = {
-    "heuristic" : ["GREEDY", "GREEDY_ITERATIVE", "2OPT_GREEDY", "TABU_SEARCH"]
+    "heuristic" : ["GREEDY", "GREEDY_ITER", "2OPT_GREEDY", "TABU_SEARCH"]
 }
 
 TIME_LIMIT = "1200"
@@ -65,12 +65,15 @@ def runTSP(paths, csv_filename, logger, start_time):
                 str_exec = f"make/bin/tsp -f {tsp} -q -alg {m} -t {TIME_LIMIT} -seed 123 --to_file"
                 print("Running " + m+ " on dataset " +tsp)
                 output = subprocess.run(shlex.split(str_exec), capture_output=True, text=True).stdout
-                
+
                 cost = output.split(":")[1].strip()
                 print("Cost: " + cost)
                 row.append(cost)
             except subprocess.CalledProcessError as e:
                 logger.error(f"Error executing {m} on dataset {tsp}: {e}")
+                continue
+            except IndexError as e:
+                logger.error(f"Skipping dataset {tsp}")
                 continue
     
         with open(csv_filename, 'a', newline='') as csvfile:
@@ -108,7 +111,7 @@ if __name__ == '__main__':
     start_time = time.time()
 
     paths = []
-    for root, _, files in os.walk("data/temp"):
+    for root, _, files in os.walk("data/test"):
         # Append file paths to the list
         for file in files:
             paths.append(os.path.join(root, file))
