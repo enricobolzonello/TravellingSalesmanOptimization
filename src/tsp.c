@@ -454,15 +454,20 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     return true;
 }
 
-void tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
+ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
     if(tsp_validate_solution(inst, current_solution->path)){
         if(current_solution->cost < inst->best_solution.cost){
             memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int)); // here's the problem
             inst->best_solution.cost = current_solution->cost;
             log_debug("new best solution: %f", current_solution->cost);
+            return OK;
         }
+
+        return ABORTED;
     }else{
         log_debug("You tried to update best_solution with an unvalid solution");
+        
+        return INVALID_ARGUMENT;
     }   
 }
 
