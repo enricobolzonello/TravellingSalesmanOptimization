@@ -1,7 +1,7 @@
 #include "errors.h"
 
 bool err_ok(ERROR_CODE error){
-    if(error == OK){
+    if(error == OK || error == CANCELLED){
         return true;
     }
 

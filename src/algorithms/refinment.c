@@ -19,12 +19,13 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
             solution->cost += delta;
             log_info("2-opt improved solution: new cost: %f", solution->cost);
         }
-
-        
         
     }while(delta < 0);
     
-    tsp_update_best_solution(inst, solution);
+    ERROR_CODE error = tsp_update_best_solution(inst, solution);
+    if(!err_ok(error)){
+        log_error("code %d : ", error);
+    }
     
     return OK;
 }
