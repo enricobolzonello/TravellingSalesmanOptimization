@@ -1,5 +1,4 @@
 #include "tsp.h"
-#include "algorithms/tabusearch.h"
 #include "algorithms/heuristics.h"
 
 // TODO: better handling of errors

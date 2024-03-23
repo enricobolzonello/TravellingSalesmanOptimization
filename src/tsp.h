@@ -137,7 +137,7 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path);
  * 
  * @param inst 
  */
-void tsp_update_best_solution(instance* inst, tsp_solution* solution);
+ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* solution);
 
 double tsp_get_cost(instance* inst, int i, int j);
 
