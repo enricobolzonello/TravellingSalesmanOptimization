@@ -68,8 +68,14 @@ ERROR_CODE h_Greedy(instance* inst){
 
     log_info("running GREEDY");
     ERROR_CODE error = h_greedyutil(inst, inst->starting_node, solution.path, &solution.cost);
+    if(!err_ok(error)){
+        log_error("code %d : greedy did not finish correctly", error);
+    }
 
-    tsp_update_best_solution(inst, &solution);
+    error = tsp_update_best_solution(inst, &solution);
+    if(!err_ok(error)){
+        log_error("code %d : error in updating solution for greedy", error);
+    }
 
     free(solution.path);
     return error;
@@ -88,15 +94,18 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
 
         log_debug("starting greedy with node %d", i);
         ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
-        if(error != OK){
-            log_error("code %d\n", error);
+        if(!err_ok(error)){
+            log_error("code %d : error in iteration %d of greedy iterative", error, i);
             break;
         }
 
         if(solution.cost < inst->best_solution.cost){
             log_info("found new best, node %d", i);
             inst->starting_node = i;
-           tsp_update_best_solution(inst, &solution);
+            error = tsp_update_best_solution(inst, &solution);
+            if(!err_ok(error)){
+                log_error("code %d : error in updating best solution of greedy iterative in iteration %d", error, i);
+            }
         }
     }
 
@@ -118,16 +127,16 @@ ERROR_CODE h_greedy_2opt(instance* inst){
 
         log_debug("starting greedy with node %d", i);
         ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
-        if(error != OK){
-            log_error("greedy error: code %d\n", error);
+        if(!err_ok(error)){
+            log_error("code %d : error in iteration %i of 2opt greedy", error, i);
             break;
         }
+
         log_debug("greedy solution: cost: %f", solution.cost);
 
-
         error = ref_2opt(inst, &solution);
-        if(error == INVALID_ARGUMENT){
-            log_error("2opt error: code %d\n", error);
+        if(!err_ok(error)){
+            log_error("code %d : error in 2opt", error);
             break;
         }else if (error == OK)
         {
@@ -170,8 +179,8 @@ ERROR_CODE tabu_init(tabu_search* ts, int nnodes, POLICIES policy){
 ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
     // initialize
     tabu_search ts;
-    if(tabu_init(&ts, inst->nnodes, policy) != OK){
-        log_fatal("Error in init tabu search"); 
+    if(!err_ok(tabu_init(&ts, inst->nnodes, policy))){
+        log_fatal("code %d : Error in init tabu search"); 
         tsp_handlefatal(inst);
     }
 
@@ -182,8 +191,8 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
 
     // get a solution with an heuristic algorithm
 
-    if(h_greedy_2opt(inst) != OK){
-        log_fatal("Error in greedy solution computation");
+    if(!err_ok(h_greedy_2opt(inst))){
+        log_fatal("code %d : Error in greedy solution computation");
         tsp_handlefatal(inst);
         free(solution.path);
     }
@@ -205,18 +214,25 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
         }
 
         // update tenure
-        tabu_linear_policy(&ts);
+        ERROR_CODE e = tabu_linear_policy(&ts);
+        if(!err_ok(e)){
+            log_warn("using already set policy %d", ts.policy);
+        }
 
         // 2opt move
-        ERROR_CODE e = tabu_best_move(inst, solution.path, &solution.cost, &ts, k);
-
-        if(e != OK){
-            log_fatal("Error in tabu best move"); 
+        e = tabu_best_move(inst, solution.path, &solution.cost, &ts, k);
+        if(!err_ok(e)){
+            log_fatal("code %d : Error in tabu best move"); 
             tsp_handlefatal(inst);
             free(solution.path);
         }
 
-        tsp_update_best_solution(inst, &solution);
+        e = tsp_update_best_solution(inst, &solution);
+        if(!err_ok(e)){
+            log_fatal("code %d : Error in updating best solution", e); 
+            tsp_handlefatal(inst);
+            free(solution.path);
+        }
 
         // save current iteration and current solution cost to file for the plot
         fprintf(f, "%d,%f\n", k, solution.cost);
@@ -237,6 +253,7 @@ ERROR_CODE tabu_search_2opt(instance* inst, POLICIES policy){
     // free resources
     free(solution.path);
     tabu_free(&ts);
+
     return OK;
 
 }

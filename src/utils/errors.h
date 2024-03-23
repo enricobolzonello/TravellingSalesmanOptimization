@@ -22,8 +22,8 @@
  * 
  */
 typedef enum{
-    OK = 0,
-    CANCELLED = 1,
+    OK = 0,                      // not error
+    CANCELLED = 1,               // not error
     UNKNOWN = 2,
     INVALID_ARGUMENT = 3,
     DEADLINE_EXCEEDED = 4,
@@ -33,7 +33,7 @@ typedef enum{
     UNAUTHENTICATED = 16,
     RESOURCE_EXHAUSTED = 8,
     FAILED_PRECONDITION = 9,
-    ABORTED = 10,
+    ABORTED = 10,                 
     OUT_OF_RANGE = 11,
     UNIMPLEMENTED = 12,
     INTERNAL = 13,

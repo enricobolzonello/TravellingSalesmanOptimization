@@ -8,6 +8,7 @@ int main(int argc, char* argv[]){
     instance inst;
     ERROR_CODE e = tsp_parse_commandline(argc, argv, &inst);
     if(!err_ok(e)){
+        log_error("error in command line parsing, error code: %d", e);
         tsp_free_instance(&inst);
         exit(0);
     }
