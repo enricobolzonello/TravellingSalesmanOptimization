@@ -71,13 +71,9 @@ double ref_2opt_once(instance* inst, int* solution_path){
         log_debug("best swap is %d, %d: executing swap...", a, b);
         int succ_a = solution_path[a]; //successor of a
         int succ_b = solution_path[b]; //successor of b
-
-        //Swap the 2 edges
-        solution_path[a] = b;
-        solution_path[succ_a] = succ_b;
                     
         //Reverse the path from the b to the successor of a
-        ref_reverse_path(inst, b, succ_a, prev, solution_path);
+        ref_reverse_path(inst, a, succ_a, b, succ_b, prev, solution_path);
     }
 
     free(prev);
@@ -86,13 +82,18 @@ double ref_2opt_once(instance* inst, int* solution_path){
 
 }
 
-void ref_reverse_path(instance *inst, int start_node, int end_node, int *prev, int* solution_path) {
-    int currnode = start_node;
+void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int *prev, int* solution_path) {
+    //Swap the 2 edges
+    solution_path[a] = b;
+    solution_path[succ_a] = succ_b;
+
+    // reverse path from b to succ_a
+    int currnode = b;
     while (1) {
         int node = prev[currnode];
         solution_path[currnode] = node;
         currnode = node;
-        if (node == end_node) {
+        if (node == succ_a) {
             break;
         }
     }

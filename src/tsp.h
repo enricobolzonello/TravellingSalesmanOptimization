@@ -19,7 +19,8 @@ typedef enum {
     ALG_GREEDY = 0,
     ALG_GREEDY_ITER = 1,
     ALG_2OPT_GREEDY = 2,
-    ALG_TABU_SEARCH = 3
+    ALG_TABU_SEARCH = 3,
+    ALG_VNS = 4
 } algorithms;
 
 typedef struct {

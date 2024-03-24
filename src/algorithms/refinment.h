@@ -44,6 +44,6 @@ double ref_2opt_once(instance* inst, int* solution_path);
  * @param prev array path before the 2opt move
  * @param solution_path path that will be modified
  */
-void ref_reverse_path(instance *inst, int start_node, int end_node, int *prev, int* solution_path);
+void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int *prev, int* solution_path);
 
 #endif
