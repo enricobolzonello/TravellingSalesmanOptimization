@@ -116,13 +116,15 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }else if (strcmp("GREEDY_ITER", method) == 0){
                 inst->alg = ALG_GREEDY_ITER;
                 log_info("selected iterative greedy algorithm");
-            }
-            else if (strcmp("2OPT_GREEDY", method) == 0){
+            }else if (strcmp("2OPT_GREEDY", method) == 0){
                 inst->alg = ALG_2OPT_GREEDY;
                 log_info("selected 2opt-greedy algorithm");
             }else if (strcmp("TABU_SEARCH", method) == 0){
                 inst->alg = ALG_TABU_SEARCH;
                 log_info("selected tabu search algorithm");
+            }else if (strcmp("VNS", method) == 0){
+                inst->alg = ALG_VNS;
+                log_info("selected VNS algorithm");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }
@@ -229,6 +231,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - GREEDY_ITER\n");
         printf("    - 2OPT_GREEDY\n");
         printf("    - TABU_SEARCH");
+        printf("    - VNS");
         
         return ABORTED;
     }
