@@ -80,7 +80,7 @@ CFLAGS := -O3 $(STD) $(STACK) $(WARNS)
 DEBUG := -g3 -DDEBUG=1
 
 # Dependency libraries
-LIBS := #-I path/to/library
+LIBS := -lm #-I path/to/library
 
 # Test libraries
 TEST_LIBS := -l cmocka -L /usr/local/lib -rpath /usr/local/lib
