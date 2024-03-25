@@ -1,6 +1,12 @@
 #include "refinment.h"
 
 ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
+
+    // re-initialize cost for VNS
+    solution->cost = 0;
+    for(int i=0; i<inst->nnodes; i++){
+        solution->cost += tsp_get_cost(inst, i, solution->path[i]);
+    }
     
     double delta = 0;
 
@@ -83,13 +89,6 @@ double ref_2opt_once(instance* inst, int* solution_path){
 }
 
 void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int *prev, int* solution_path) {
-    /*printf("REV PATH\n");
-    printf("a: %d, succ_a: %d, b: %d, succ_b: %d\n", a, succ_a, b, succ_b);
-    for(int c=0;c<inst->nnodes;c++){
-        printf("%d-%d \n",c, solution_path[c]);
-    }
-    printf("\n");*/
-
     //Swap the 2 edges
     solution_path[a] = b;
     solution_path[succ_a] = succ_b;

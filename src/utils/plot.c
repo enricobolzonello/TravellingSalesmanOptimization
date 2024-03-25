@@ -37,15 +37,15 @@ void plot_args(PLOT plot, char* args){
     fprintf(plot, "%s\n", args);
 }
 
-void plot_stats(PLOT plot){
+void plot_stats(PLOT plot, char* filepath){
     fprintf(plot, "set style data line\n");
-    fprintf(plot, "set xrange [0:500]\n");
+    fprintf(plot, "set xrange [0:1000]\n");
     fprintf(plot, "set datafile separator \",\" \n");
     fprintf(plot, "f(x) = log(1+x) \n");
 
-    fprintf(plot, "stats 'results/TabuResults.dat' u 1:2 prefix \"B\" nooutput\n");
+    fprintf(plot, "stats '%s' u 1:2 prefix \"B\" nooutput\n", filepath);
 
-    fprintf(plot, "plot 'results/TabuResults.dat' using 1:2 title \"  Data\" lw 2,  B_slope * x + B_intercept with lines title \"  Linear fit\", 'results/TabuResults.dat' using (column(1)):(column(2)==B_min_y ? column(2) : 1/0) with points pt 7 lc \"red\" title \"Minimum: \" . gprintf(\"%%.2f\", B_min_y) \n");
+    fprintf(plot, "plot '%s' using 1:2 title \"  Data\" lw 2,  B_slope * x + B_intercept with lines title \"  Linear fit\", 'results/TabuResults.dat' using (column(1)):(column(2)==B_min_y ? column(2) : 1/0) with points pt 7 lc \"red\" title \"Minimum: \" . gprintf(\"%%.2f\", B_min_y) \n", filepath);
 }
 
 void plot_free(PLOT plot){

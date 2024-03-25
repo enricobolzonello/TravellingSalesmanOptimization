@@ -52,7 +52,7 @@ int main(int argc, char* argv[]){
             log_fatal("greedy did not finish correctly");
             tsp_handlefatal(&inst);
         } 
-        printf("Greedy from 0 + 2-opt: %f\n", inst.best_solution.cost);
+        printf("Greedy from %d + 2-opt: %f\n", inst.starting_node, inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
     case ALG_TABU_SEARCH:

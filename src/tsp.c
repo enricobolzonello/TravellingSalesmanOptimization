@@ -6,6 +6,7 @@ void tsp_init(instance* inst){
     inst->options_t.timelimit = -1;
     inst->options_t.seed = 0;
     inst->options_t.tofile = false;
+    inst->options_t.k = 10000;
     
     inst->nnodes = -1;
     inst->best_solution.cost = __DBL_MAX__;
@@ -173,6 +174,18 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }
 
             inst->options_t.tofile = true;
+            continue;
+        }
+
+        if(strcmp("-k", argv[i]) == 0){
+            log_info("parsing k");
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            inst->options_t.k = atoi(argv[++i]);
             continue;
         }
 
