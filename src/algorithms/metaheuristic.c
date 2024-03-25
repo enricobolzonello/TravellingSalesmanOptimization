@@ -210,11 +210,12 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
         int succ_b = solution_path[b]; //successor of b
 
         //Swap the 2 edges
-        solution_path[a] = b;
-        solution_path[succ_a] = succ_b;
+        //solution_path[a] = b;
+        //solution_path[succ_a] = succ_b;
                     
         //Reverse the path from the b to the successor of a
-        ref_reverse_path(inst, b, succ_a, prev, solution_path);
+        //ref_reverse_path(inst, b, succ_a, prev, solution_path);
+        ref_reverse_path(inst, a, b, succ_a, succ_b, prev, solution_path);
         *solution_cost += best_delta;
 
         // update tabu list
@@ -374,50 +375,53 @@ int bestMove(instance* inst, int a, int b, int c, int d, int e, int f, tsp_solut
 // https://tsp-basics.blogspot.com/2017/03/3-opt-move.html
 void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
     switch (bestCase){
-        case 1:                
-            ref_reverse_path(inst, i, succ_i, k, succ_k, prev, solution_path);
+        case 1:
+            // invert segment a             
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
             break;
         case 2:
+            // invert segment c
             ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
             break;
         case 3:
+            // invert segment b
             ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
             break;
-        // TODO: from case 4
         case 4:
+            // inverts segments b and c
             ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
-            ref_reverse_path(inst, succ_i, j, prev, solution_path);
+            int temp = j;
+            j = succ_i;
+            succ_i = j;
+            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
             break;
         case 5:
-            solution_path[succ_k] = succ_i;
-            solution_path[i] = succ_j;
-
-            ref_reverse_path(inst, succ_k, i, prev, solution_path);
-
-            solution_path[j] = k;
-            solution_path[i] = succ_j;
-
-            ref_reverse_path(inst, succ_i, j, prev, solution_path);
+            // inverts segments a and b
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
+            int temp = i;
+            i = succ_k;
+            succ_k = temp;
+            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
             break;
         case 6:
-            solution_path[k] = succ_i;
-            solution_path[i] = j;
-
-            ref_reverse_path(inst, succ_k, i, prev, solution_path);
-
-            solution_path[succ_j] = succ_k;
-            solution_path[i] = j;
-
-            ref_reverse_path(inst, succ_j, k, prev, solution_path);
+            // inverts segments a and c
+            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
+            int temp = k;
+            k = succ_j;
+            succ_j = temp;
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
             break;
-        // not done
         case 7:
-            solution_path[k] = succ_i;
-            solution_path[i] = j;
-
-            ref_reverse_path(inst, succ_k, i, prev, solution_path);
-            ref_reverse_path(inst, succ_i, j, prev, solution_path);
-            ref_reverse_path(inst, succ_j, k, prev, solution_path);
+            // inverts segments a and b and c
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
+            int temp = i;
+            i = succ_k;
+            succ_k = i;
+            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
+            int temp = j;
+            j = succ_i;
+            succ_i = j;
+            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
             break;
         
         default:
