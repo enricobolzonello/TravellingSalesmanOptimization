@@ -30,6 +30,7 @@ typedef struct {
     bool graph_input;           // flag to indicate wheter the graph is from the input file
     char* inputfile;            // input file path
     bool tofile;                // if true, plots will be saved in directory /plots
+    int k;
 } options;
 
 typedef struct {

@@ -3,8 +3,6 @@
 
 #include "heuristics.h"
 
-#define K 10
-
 // https://www.sciencedirect.com/science/article/abs/pii/S0305054897000300?via%3Dihub
 #define MAX_FRACTION 0.25
 #define MIN_FRACTION 0.125

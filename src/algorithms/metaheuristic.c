@@ -109,7 +109,7 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
     log_debug("2opt greedy sol cost: %f", solution.cost);
 
     // tabu search with 2opt moves
-    for(int k=0; k < inst->nnodes * inst->nnodes; k++){
+    for(int k=0; k < inst->options_t.k; k++){
 
         // check if exceeds time
         double ex_time = utils_timeelapsed(inst->c);
@@ -154,7 +154,7 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
         plot_tofile(plot, "TabuIterationsPlot");
     }
 
-    plot_stats(plot);
+    plot_stats(plot, "results/TabuResults.dat");
     plot_free(plot);
 
     // free resources
@@ -231,7 +231,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
 ERROR_CODE mh_VNS(instance* inst){
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
-    ERROR_CODE e = h_Greedy(inst); // start with a bad solution
+    ERROR_CODE e = h_greedy_2opt(inst); // start with a bad solution
     if(!err_ok(e)){
             log_fatal("code %d : Error in greedy", e);
             tsp_handlefatal(inst);
@@ -243,9 +243,14 @@ ERROR_CODE mh_VNS(instance* inst){
     memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
     solution.cost = inst->best_solution.cost;
 
+    tsp_solution best_vns = tsp_init_solution(inst->nnodes);
+    best_vns.cost = solution.cost;
+
+    // file to hold solution value in each iteration
+    FILE* f = fopen("results/VNSResults.dat", "w+");
     
     // call 3 opt k times
-    for(int i=0; i<K; i++){
+    for(int i=0; i<inst->options_t.k; i++){
         // check if exceeds time
         double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
@@ -263,6 +268,15 @@ ERROR_CODE mh_VNS(instance* inst){
             free(solution.path);
         }
 
+        if(solution.cost < best_vns.cost){
+            log_info("found new best: %d ", solution.cost);
+            best_vns.cost = solution.cost;
+            memcpy(best_vns.path, solution.path, inst->nnodes * sizeof(int));
+        }
+
+        // save current iteration and current solution cost to file for the plot
+        fprintf(f, "%d,%f\n", i, solution.cost);
+
         // kick
         e = vns_kick(inst, &solution);
         if(!err_ok(e)){
@@ -270,14 +284,25 @@ ERROR_CODE mh_VNS(instance* inst){
             tsp_handlefatal(inst);
             free(solution.path);
         }
+        //e = vns_kick(inst, &solution);
     }
 
-    if(solution.cost < inst->best_solution.cost){
-        e = tsp_update_best_solution(inst, &solution);
-        if(!err_ok(e)){
-            log_error("code %d : error in updating best solution of VNS");
-        }
+    fclose(f);
+
+    e = tsp_update_best_solution(inst, &best_vns);
+    if(!err_ok(e)){
+        log_error("code %d : error in updating best solution of VNS");
     }
+
+    // plot the solution progression during iterations
+    PLOT plot = plot_open("VNSIterationsPlot");
+    
+    if(inst->options_t.tofile){
+        plot_tofile(plot, "VNSIterationsPlot");
+    }
+
+    plot_stats(plot, "results/VNSResults.dat");
+    plot_free(plot);
 
     free(solution.path);
     return OK;
@@ -286,7 +311,7 @@ ERROR_CODE mh_VNS(instance* inst){
 // 3 opt kick
 ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
 
-    printf("KICK\n");
+    log_debug("KICK");
 
     int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without kick
     for (int i = 0; i < inst->nnodes; i++) {
@@ -317,8 +342,8 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
     }
 
     log_debug("random number: %d %d %d", indexes[0], indexes[1], indexes[2]);
-    int case_swap = rand() % (8);
-    log_debug("case swap: %d", case_swap);
+    //int case_swap = rand() % (8);
+    //log_debug("case swap: %d", case_swap);
 
     // trasform in tour
     int* tour = calloc(inst->nnodes, sizeof(int));
@@ -339,6 +364,7 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
         free(prev);
     }
 
+    // free resources
     free(prev);
 
     return OK;
@@ -361,6 +387,7 @@ void tabu_free(tabu_search* ts){
 // TODO: cases 4-5-6
 ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
     ERROR_CODE e = OK;
+    int temp;
     switch (bestCase){
         case 1: 
             log_debug("case 1");
@@ -386,41 +413,41 @@ ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestC
         case 4:
             // inverts segments b and c
             log_debug("case 4");
-            /*ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
+            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
             temp = j;
             j = succ_i;
             succ_i = j;
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);*/
+            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
 
-            solution->path[i] = j;
+            /*solution->path[i] = j;
             solution->path[succ_i] = k;
-            solution->path[succ_j] = succ_k;
+            solution->path[succ_j] = succ_k;*/
             break;
         case 5:
             // inverts segments a and b
             log_debug("invert segment a and b");
-            /*ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
             temp = i;
             i = succ_k;
             succ_k = temp;
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);*/
+            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
 
-            solution->path[i] = k;
+            /*solution->path[i] = k;
             solution->path[succ_j] = succ_i;
-            solution->path[j] = succ_k;
+            solution->path[j] = succ_k;*/
             break;
         case 6:
             // inverts segments a and c
             log_debug("invert segment a and c");
-            /*ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
+            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
             temp = k;
             k = succ_j;
             succ_j = temp;
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);*/
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
 
-            solution->path[i] = succ_j;
+            /*solution->path[i] = succ_j;
             solution->path[k] = j;
-            solution->path[succ_i] = succ_k;
+            solution->path[succ_i] = succ_k;*/
 
             break;
         case 7:
