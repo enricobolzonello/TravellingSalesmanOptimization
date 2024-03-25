@@ -489,4 +489,3 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_soluti
         return INVALID_ARGUMENT;
     }   
 }
-
