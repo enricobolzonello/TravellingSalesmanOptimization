@@ -29,7 +29,7 @@
 
 #define NOT_CONNECTED -1.0f
 
-static char* algs_string[4];
+static char* algs_string[5];
 
 typedef struct {
     double x;
@@ -48,5 +48,6 @@ struct utils_clock utils_startclock(void);
 double utils_timeelapsed(struct utils_clock c);
 void utils_plotname(char* buffer, int buffersize);
 void utils_format_title(char *fname, int alg);
+void swap(int* a, int* b);
 
 #endif
