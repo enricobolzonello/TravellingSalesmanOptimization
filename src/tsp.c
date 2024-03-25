@@ -453,15 +453,17 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     for(int i=0; i<inst->nnodes; i++){
         int node = current_solution_path[i];
         if(node < 0 || node > inst->nnodes - 1){
+            // node index outside range
             free(node_visit_counter);
             return false;
         }
         node_visit_counter[node] ++;
-    }
+    } 
 
     // check that each node is visited once
     for(int i=0; i<inst->nnodes; i++){
         if(node_visit_counter[i] != 1){
+            // at least one node visted zero or more than one time
             free(node_visit_counter);
             return false;
         }
@@ -486,12 +488,5 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_soluti
         
         return INVALID_ARGUMENT;
     }   
-}
-
-tsp_solution tsp_init_solution(int nnodes){
-    tsp_solution solution;
-    solution.path = calloc(nnodes, sizeof(int));
-    solution.cost = __DBL_MAX__;
-    return solution;
 }
 

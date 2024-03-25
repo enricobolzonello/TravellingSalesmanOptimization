@@ -92,7 +92,7 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
     }
 
     // file to hold solution value in each iteration
-    FILE* f = fopen("results/TabuResults.dat", "w+,ccs=UTF-8");
+    FILE* f = fopen("results/TabuResults.dat", "w+");
 
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
@@ -209,13 +209,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
         int succ_a = solution_path[a]; //successor of a
         int succ_b = solution_path[b]; //successor of b
 
-        //Swap the 2 edges
-        //solution_path[a] = b;
-        //solution_path[succ_a] = succ_b;
-                    
-        //Reverse the path from the b to the successor of a
-        //ref_reverse_path(inst, b, succ_a, prev, solution_path);
-        ref_reverse_path(inst, a, b, succ_a, succ_b, prev, solution_path);
+        ref_reverse_path(inst, a, succ_a, b, succ_b, prev, solution_path);
         *solution_cost += best_delta;
 
         // update tabu list
@@ -237,17 +231,18 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
 ERROR_CODE mh_VNS(instance* inst){
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
-    ERROR_CODE e = h_greedy_2opt(inst);
+    ERROR_CODE e = h_Greedy(inst); // start with a bad solution
     if(!err_ok(e)){
-            log_fatal("code %d : Error in tabu best move", e); 
+            log_fatal("code %d : Error in greedy", e);
             tsp_handlefatal(inst);
             free(solution.path);
         }
     
-    // copy the best solution found by greedy+2opt
+    // copy the best solution found by greedy
     memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
     solution.cost = inst->best_solution.cost;
 
+    
     // call 3 opt k times
     for(int i=0; i<K; i++){
         // check if exceeds time
@@ -276,11 +271,9 @@ ERROR_CODE mh_VNS(instance* inst){
         }
 
         if(solution.cost < inst->best_solution.cost){
-            log_info("found new best, node %d", i);
-            inst->starting_node = i;
             e = tsp_update_best_solution(inst, &solution);
             if(!err_ok(e)){
-                log_error("code %d : error in updating best solution of greedy iterative in iteration %d", e, i);
+                log_error("code %d : error in updating best solution of VNS");
             }
         }
     }
@@ -292,11 +285,37 @@ ERROR_CODE mh_VNS(instance* inst){
 // 3 opt kick
 ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
 
-    int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
+    printf("KICK\n");
+
+    int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without kick
     for (int i = 0; i < inst->nnodes; i++) {
         prev[solution->path[i]] = i;
     }
 
+    srand(time(NULL));
+    int indexes[3];
+    int i, j;
+    for (i = 0; i < 3; i++) {
+        int random_number;
+        do {
+            random_number = rand() % (inst->nnodes + 1);
+            // Check if the number is already generated
+            for (j = 0; j < i; j++) {
+                if (random_number == indexes[j]) {
+                    random_number = -1; // Mark as invalid
+                    break;
+                }
+            }
+        } while (random_number == -1); // Repeat if the number is already generated
+        indexes[i] = random_number;
+    }
+
+    int case_swap = rand() % (8);
+
+    makeMove(inst, prev, solution->path, case_swap, indexes[0], solution->path[indexes[0]], indexes[1], solution->path[indexes[1]], indexes[2], solution->path[indexes[2]]);
+
+
+    /*
     // scan nodes to find best swap
     for (int a = 0; a < inst->nnodes; a++) {
         int succ_a = solution->path[a]; //successor of a
@@ -315,6 +334,7 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
             }
         }
     }
+    */
 
     free(prev);
 
@@ -374,6 +394,7 @@ int bestMove(instance* inst, int a, int b, int c, int d, int e, int f, tsp_solut
 
 // https://tsp-basics.blogspot.com/2017/03/3-opt-move.html
 void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
+    int temp = -1;
     switch (bestCase){
         case 1:
             // invert segment a             
@@ -390,7 +411,7 @@ void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i
         case 4:
             // inverts segments b and c
             ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
-            int temp = j;
+            temp = j;
             j = succ_i;
             succ_i = j;
             ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
@@ -398,7 +419,7 @@ void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i
         case 5:
             // inverts segments a and b
             ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
-            int temp = i;
+            temp = i;
             i = succ_k;
             succ_k = temp;
             ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
@@ -406,7 +427,7 @@ void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i
         case 6:
             // inverts segments a and c
             ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
-            int temp = k;
+            temp = k;
             k = succ_j;
             succ_j = temp;
             ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
@@ -414,11 +435,11 @@ void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i
         case 7:
             // inverts segments a and b and c
             ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
-            int temp = i;
+            temp = i;
             i = succ_k;
             succ_k = i;
             ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
-            int temp = j;
+            temp = j;
             j = succ_i;
             succ_i = j;
             ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
@@ -426,5 +447,10 @@ void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i
         
         default:
             break;
+    }
+
+
+    for(int i=0;i<inst->nnodes;i++){
+        printf("%d ", solution_path[i]);
     }
 }
