@@ -84,6 +84,6 @@ void tabu_free(tabu_search* ts);
 
 int bestMove(instance* inst, int a, int b, int c, int d, int e, int f, tsp_solution* solution);
 
-void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k);
+ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k);
 
 #endif

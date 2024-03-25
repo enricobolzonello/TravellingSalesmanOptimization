@@ -1,7 +1,7 @@
 #include "utils.h"
 
-static char* algs_string[4] = {
-    "Greedy", "Greedy\\_Iter", "2opt\\_Greedy", "Tabu\\_Search"
+static char* algs_string[5] = {
+    "Greedy", "Greedy\\_Iter", "2opt\\_Greedy", "Tabu\\_Search", "VNS"
 };
 
 bool utils_file_exists (const char *filename) {
@@ -106,4 +106,10 @@ void utils_format_title(char *fname, int alg)
     
     // Add the null terminator at the end
     *end = '\0';
+}
+
+void swap(int* a, int* b){
+    int tmp = *a;
+	*a = *b;
+	*b = tmp;
 }

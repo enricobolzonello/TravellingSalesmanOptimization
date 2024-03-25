@@ -237,6 +237,7 @@ ERROR_CODE mh_VNS(instance* inst){
             tsp_handlefatal(inst);
             free(solution.path);
         }
+    log_info("Greedy done!");
     
     // copy the best solution found by greedy
     memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
@@ -254,14 +255,6 @@ ERROR_CODE mh_VNS(instance* inst){
             }
         }
 
-        // define kick
-        e = vns_kick(inst, &solution);
-        if(!err_ok(e)){
-            log_fatal("code %d : Error in kick", e); 
-            tsp_handlefatal(inst);
-            free(solution.path);
-        }
-
         // local search
         e = ref_2opt(inst, &solution);
         if(!err_ok(e)){
@@ -270,11 +263,19 @@ ERROR_CODE mh_VNS(instance* inst){
             free(solution.path);
         }
 
-        if(solution.cost < inst->best_solution.cost){
-            e = tsp_update_best_solution(inst, &solution);
-            if(!err_ok(e)){
-                log_error("code %d : error in updating best solution of VNS");
-            }
+        // kick
+        e = vns_kick(inst, &solution);
+        if(!err_ok(e)){
+            log_fatal("code %d : Error in kick", e); 
+            tsp_handlefatal(inst);
+            free(solution.path);
+        }
+    }
+
+    if(solution.cost < inst->best_solution.cost){
+        e = tsp_update_best_solution(inst, &solution);
+        if(!err_ok(e)){
+            log_error("code %d : error in updating best solution of VNS");
         }
     }
 
@@ -292,7 +293,6 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
         prev[solution->path[i]] = i;
     }
 
-    srand(time(NULL));
     int indexes[3];
     int i, j;
     for (i = 0; i < 3; i++) {
@@ -308,33 +308,36 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
             }
         } while (random_number == -1); // Repeat if the number is already generated
         indexes[i] = random_number;
-    }
 
-    int case_swap = rand() % (8);
-
-    makeMove(inst, prev, solution->path, case_swap, indexes[0], solution->path[indexes[0]], indexes[1], solution->path[indexes[1]], indexes[2], solution->path[indexes[2]]);
-
-
-    /*
-    // scan nodes to find best swap
-    for (int a = 0; a < inst->nnodes; a++) {
-        int succ_a = solution->path[a]; //successor of a
-        for (int b = 1; b < inst->nnodes - 2; b++) {
-            int succ_b = solution->path[b]; //successor of b
-            for(int c = b + 1; b < inst->nnodes; c++){
-                int succ_c = solution->path[c]; //successor of c
-
-                // Calculate the gain for each case
-                int bestCase = bestMove(inst, a, succ_a, b, succ_b, c, succ_c, solution);
-
-                if(bestCase == 3 || bestCase == 6 || bestCase == 7){
-                    makeMove(inst, prev, solution->path, bestCase, a, succ_a, b, succ_b, c, succ_c);
-                    log_info("distance after 3opt: %d", solution->cost);
-                }
+        // make them in order
+        for (int j = i; j > 0; j--) {
+                if (indexes[j] < indexes[j - 1])
+                    swap(&indexes[j], &indexes[j-1]);
             }
-        }
     }
-    */
+
+    log_debug("random number: %d %d %d", indexes[0], indexes[1], indexes[2]);
+    int case_swap = rand() % (8);
+    log_debug("case swap: %d", case_swap);
+
+    // trasform in tour
+    int* tour = calloc(inst->nnodes, sizeof(int));
+    int node = solution->path[0];
+    for(int i=0; i<inst->nnodes; ++i) {
+        tour[i] = node;
+        node = solution->path[node];
+    }
+
+    int nodeA = tour[indexes[0]];
+    int nodeB = tour[indexes[1]];
+    int nodeC = tour[indexes[2]];
+
+    ERROR_CODE e = makeMove(inst, prev, solution, 7, nodeA, solution->path[nodeA], nodeB, solution->path[nodeB], nodeC, solution->path[nodeC]);
+    if(!err_ok(e)){
+        log_fatal("code %d : Error in make move", e); 
+        tsp_handlefatal(inst);
+        free(prev);
+    }
 
     free(prev);
 
@@ -354,103 +357,87 @@ void tabu_free(tabu_search* ts){
     free(ts->tabu_list);
 }
 
-// Finds the case that results in maximum length gain
-int bestMove(instance* inst, int a, int b, int c, int d, int e, int f, tsp_solution* solution) { 
-
-	double gains[8];
-
-	gains[0] = 0;
-
-	gains[1] = tsp_get_cost(inst, a, e) + tsp_get_cost(inst, b, f) - tsp_get_cost(inst, a, b) - tsp_get_cost(inst, e, f);
-
-	gains[2] = tsp_get_cost(inst, c, e) + tsp_get_cost(inst, d, f) - tsp_get_cost(inst, c, d) - tsp_get_cost(inst, e, f);
-
-	gains[3] = tsp_get_cost(inst, a, c) + tsp_get_cost(inst, b, d) - tsp_get_cost(inst, a, b) - tsp_get_cost(inst, c, d);
-
-	int deletedEdges = tsp_get_cost(inst, a, b) + tsp_get_cost(inst, c, d) + tsp_get_cost(inst, e, f);
-
-	gains[4] = tsp_get_cost(inst, a, c) + tsp_get_cost(inst, b, e) + tsp_get_cost(inst, d, f) - deletedEdges;
-
-	gains[5] = tsp_get_cost(inst, a, e) + tsp_get_cost(inst, d, b) + tsp_get_cost(inst, c, f) - deletedEdges;
-
-	gains[6] = tsp_get_cost(inst, a, d) + tsp_get_cost(inst, e, c) + tsp_get_cost(inst, b, f) - deletedEdges;
-
-	gains[7] = tsp_get_cost(inst, a, d) + tsp_get_cost(inst, e, b) + tsp_get_cost(inst, c, f) - deletedEdges;
-
-	double maxGain = 0;
-	int bestCase = 0;
-	for (int i = 1; i < 8; i++) {
-		if (gains[i] < 0 && gains[i] < maxGain) {
-			bestCase = i;
-			maxGain = gains[i];
-		}
-	}
-
-    log_debug("max gain: %f", maxGain);
-	solution->cost += maxGain;
-
-	return bestCase;
-}
-
 // https://tsp-basics.blogspot.com/2017/03/3-opt-move.html
-void makeMove(instance *inst, int *prev, int* solution_path, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
-    int temp = -1;
+// TODO: cases 4-5-6
+ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
+    ERROR_CODE e = OK;
     switch (bestCase){
-        case 1:
-            // invert segment a             
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
+        case 1: 
+            log_debug("case 1");
+
+            // invert segment a
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
+
             break;
         case 2:
+            log_debug("case 2");
+            
             // invert segment c
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
+            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
+
             break;
         case 3:
+            log_debug("case 3");
+            
             // invert segment b
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
+            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
+
             break;
         case 4:
             // inverts segments b and c
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
+            log_debug("case 4");
+            /*ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
             temp = j;
             j = succ_i;
             succ_i = j;
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
+            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);*/
+
+            solution->path[i] = j;
+            solution->path[succ_i] = k;
+            solution->path[succ_j] = succ_k;
             break;
         case 5:
             // inverts segments a and b
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
+            log_debug("invert segment a and b");
+            /*ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
             temp = i;
             i = succ_k;
             succ_k = temp;
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
+            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);*/
+
+            solution->path[i] = k;
+            solution->path[succ_j] = succ_i;
+            solution->path[j] = succ_k;
             break;
         case 6:
             // inverts segments a and c
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
+            log_debug("invert segment a and c");
+            /*ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
             temp = k;
             k = succ_j;
             succ_j = temp;
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
+            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);*/
+
+            solution->path[i] = succ_j;
+            solution->path[k] = j;
+            solution->path[succ_i] = succ_k;
+
             break;
         case 7:
-            // inverts segments a and b and c
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution_path);
-            temp = i;
-            i = succ_k;
-            succ_k = i;
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution_path);
-            temp = j;
-            j = succ_i;
-            succ_i = j;
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution_path);
+            log_debug("case 7");
+
+            // swap edges
+            solution->path[i] = succ_j; 
+            solution->path[k] = succ_i; 
+            solution->path[j] = succ_k; 
+
+            // doesn't need reverse!
+
             break;
         
         default:
             break;
     }
 
-
-    for(int i=0;i<inst->nnodes;i++){
-        printf("%d ", solution_path[i]);
-    }
+    return e;
 }

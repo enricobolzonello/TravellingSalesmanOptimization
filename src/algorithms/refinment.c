@@ -83,12 +83,12 @@ double ref_2opt_once(instance* inst, int* solution_path){
 }
 
 void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int *prev, int* solution_path) {
-    printf("REV PATH\n");
+    /*printf("REV PATH\n");
     printf("a: %d, succ_a: %d, b: %d, succ_b: %d\n", a, succ_a, b, succ_b);
     for(int c=0;c<inst->nnodes;c++){
-        printf("%d ", solution_path[c]);
+        printf("%d-%d \n",c, solution_path[c]);
     }
-    printf("\n");
+    printf("\n");*/
 
     //Swap the 2 edges
     solution_path[a] = b;
@@ -100,7 +100,6 @@ void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int 
         int node = prev[currnode];
         solution_path[currnode] = node;
         currnode = node;
-        printf("node=%d\n", node);
         if (node == succ_a) {
             break;
         }
