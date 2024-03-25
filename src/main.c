@@ -1,6 +1,6 @@
 #include "tsp.h"
-#include "algorithms/tabusearch.h"
 #include "algorithms/heuristics.h"
+#include "algorithms/metaheuristic.h"
 
 // TODO: better handling of errors
 
@@ -9,6 +9,7 @@ int main(int argc, char* argv[]){
     instance inst;
     ERROR_CODE e = tsp_parse_commandline(argc, argv, &inst);
     if(!err_ok(e)){
+        log_error("error in command line parsing, error code: %d", e);
         tsp_free_instance(&inst);
         exit(0);
     }
@@ -56,12 +57,22 @@ int main(int argc, char* argv[]){
         break;
     case ALG_TABU_SEARCH:
         log_info("running Tabu Search");
-        e = tabu_search_2opt(&inst, POL_LINEAR);
+        e = mh_TabuSearch(&inst, POL_LINEAR);
         if(!err_ok(e)){
             log_fatal("tabu search did not finish correctly");
             tsp_handlefatal(&inst);
         } 
         printf("Tabu search: %f\n", inst.best_solution.cost);
+        tsp_plot_solution(&inst);
+        break;
+    case ALG_VNS:
+        log_info("running VNS");
+        e = mh_VNS(&inst);
+        if(!err_ok(e)){
+            log_fatal("VNS did not finish correctly");
+            tsp_handlefatal(&inst);
+        } 
+        printf("VNS: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
     default:

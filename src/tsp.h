@@ -12,14 +12,15 @@
  * 
  */
 #include "utils/plot.h"
-#include<libgen.h>
+#include <libgen.h>
 #include <math.h>
 
 typedef enum {
     ALG_GREEDY = 0,
     ALG_GREEDY_ITER = 1,
     ALG_2OPT_GREEDY = 2,
-    ALG_TABU_SEARCH = 3
+    ALG_TABU_SEARCH = 3,
+    ALG_VNS = 4
 } algorithms;
 
 typedef struct {
@@ -62,6 +63,14 @@ typedef struct {
  * @param inst 
  */
 void tsp_init(instance* inst);
+
+/**
+ * @brief Initialize solution struct
+ * 
+ * @param nnodes number of nodes of the instance
+ * @return tsp_solution 
+ */
+tsp_solution tsp_init_solution(int nnodes);
 
 /**
  * @brief Parser for the command-line arguments
@@ -137,8 +146,16 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path);
  * 
  * @param inst 
  */
-void tsp_update_best_solution(instance* inst, tsp_solution* solution);
+ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* solution);
 
+/**
+ * @brief Get cost of edge i-j, returns -1 if it does not exist
+ * 
+ * @param inst tsp instance
+ * @param i node i
+ * @param j node j
+ * @return double cost of edge i-j
+ */
 double tsp_get_cost(instance* inst, int i, int j);
 
 tsp_solution tsp_init_solution(int nnodes);

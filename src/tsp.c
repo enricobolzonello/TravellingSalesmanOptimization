@@ -6,14 +6,26 @@ void tsp_init(instance* inst){
     inst->options_t.timelimit = -1;
     inst->options_t.seed = 0;
     inst->options_t.tofile = false;
+    
     inst->nnodes = -1;
-    inst->costs_computed = false;
     inst->best_solution.cost = __DBL_MAX__;
-    err_setverbosity(NORMAL);
-    inst->alg = ALG_GREEDY;
-    inst->c = utils_startclock();
     inst->starting_node = 0;
+    inst->alg = ALG_GREEDY;
+
     inst->points_allocated = false;
+    inst->costs_computed = false;
+
+    err_setverbosity(NORMAL);
+
+    inst->c = utils_startclock();
+
+}
+
+tsp_solution tsp_init_solution(int nnodes){
+    tsp_solution solution;
+    solution.path = calloc(nnodes, sizeof(int));
+    solution.cost = __DBL_MAX__;
+    return solution;
 }
 
 ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
@@ -104,13 +116,15 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }else if (strcmp("GREEDY_ITER", method) == 0){
                 inst->alg = ALG_GREEDY_ITER;
                 log_info("selected iterative greedy algorithm");
-            }
-            else if (strcmp("2OPT_GREEDY", method) == 0){
+            }else if (strcmp("2OPT_GREEDY", method) == 0){
                 inst->alg = ALG_2OPT_GREEDY;
                 log_info("selected 2opt-greedy algorithm");
             }else if (strcmp("TABU_SEARCH", method) == 0){
                 inst->alg = ALG_TABU_SEARCH;
                 log_info("selected tabu search algorithm");
+            }else if (strcmp("VNS", method) == 0){
+                inst->alg = ALG_VNS;
+                log_info("selected VNS algorithm");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }
@@ -217,6 +231,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - GREEDY_ITER\n");
         printf("    - 2OPT_GREEDY\n");
         printf("    - TABU_SEARCH");
+        printf("    - VNS");
         
         return ABORTED;
     }
@@ -378,7 +393,10 @@ void tsp_read_input(instance* inst){
 		}
     }
 
-    tsp_compute_costs(inst);
+    ERROR_CODE error = tsp_compute_costs(inst);
+    if(!err_ok(error)){
+        log_error("code error: %d", error);
+    }
 }
 
 ERROR_CODE tsp_compute_costs(instance* inst){
@@ -421,8 +439,6 @@ ERROR_CODE tsp_compute_costs(instance* inst){
 
     inst->costs_computed = true;
 
-
-
     return OK;
 }
 
@@ -437,6 +453,7 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     for(int i=0; i<inst->nnodes; i++){
         int node = current_solution_path[i];
         if(node < 0 || node > inst->nnodes - 1){
+            free(node_visit_counter);
             return false;
         }
         node_visit_counter[node] ++;
@@ -454,15 +471,20 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     return true;
 }
 
-void tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
+ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
     if(tsp_validate_solution(inst, current_solution->path)){
         if(current_solution->cost < inst->best_solution.cost){
             memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int)); // here's the problem
             inst->best_solution.cost = current_solution->cost;
             log_debug("new best solution: %f", current_solution->cost);
+            return OK;
         }
+
+        return CANCELLED;
     }else{
         log_debug("You tried to update best_solution with an unvalid solution");
+        
+        return INVALID_ARGUMENT;
     }   
 }
 

@@ -1,5 +1,102 @@
 #include "heuristics.h"
 
+//================================================================================
+// NEAREST NEIGHBOUR HEURISTIC
+//================================================================================
+
+ERROR_CODE h_Greedy(instance* inst){
+
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
+
+    log_info("running GREEDY");
+    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, solution.path, &solution.cost);
+    if(!err_ok(error)){
+        log_error("code %d : greedy did not finish correctly", error);
+    }
+
+    error = tsp_update_best_solution(inst, &solution);
+    if(!err_ok(error)){
+        log_error("code %d : error in updating solution for greedy", error);
+    }
+
+    free(solution.path);
+    return error;
+}
+
+ERROR_CODE h_Greedy_iterative(instance* inst){
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
+
+    for(int i=0; i<inst->nnodes; i++){
+        if(inst->options_t.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(inst->c);
+            if(ex_time > inst->options_t.timelimit){
+                return DEADLINE_EXCEEDED;
+            }
+        }
+
+        log_debug("starting greedy with node %d", i);
+        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
+        if(!err_ok(error)){
+            log_error("code %d : error in iteration %d of greedy iterative", error, i);
+            break;
+        }
+
+        if(solution.cost < inst->best_solution.cost){
+            log_info("found new best, node %d", i);
+            inst->starting_node = i;
+            error = tsp_update_best_solution(inst, &solution);
+            if(!err_ok(error)){
+                log_error("code %d : error in updating best solution of greedy iterative in iteration %d", error, i);
+            }
+        }
+    }
+
+    free(solution.path);
+
+    return OK;
+}
+
+ERROR_CODE h_greedy_2opt(instance* inst){
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
+
+    for(int i=0; i<inst->nnodes; i++){
+        if(inst->options_t.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(inst->c);
+            if(ex_time > inst->options_t.timelimit){
+                return DEADLINE_EXCEEDED;
+            }
+        }
+
+        log_debug("starting greedy with node %d", i);
+        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
+        if(!err_ok(error)){
+            log_error("code %d : error in iteration %i of 2opt greedy", error, i);
+            break;
+        }
+
+        log_debug("greedy solution: cost: %f", solution.cost);
+
+        error = ref_2opt(inst, &solution);
+        if(!err_ok(error)){
+            log_error("code %d : error in 2opt", error);
+            break;
+        }else if (error == OK)
+        {
+            log_info("found new best solution: starting node %d, cost %f", i, inst->best_solution.cost);
+            inst->starting_node = i;
+        }
+        
+    }
+
+    free(solution.path);
+
+    return OK;
+}
+
+//================================================================================
+// UTILS
+//================================================================================
+
 ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, double* solution_cost){
     if(starting_node >= inst->nnodes || starting_node < 0){
         return UNAVAILABLE;
@@ -60,204 +157,6 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
     *(solution_cost) = sol_cost;
 
     free(visited);
-
-    return OK;
-}
-
-ERROR_CODE h_Greedy(instance* inst){
-
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
-
-    log_info("running GREEDY");
-    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, solution.path, &solution.cost);
-
-    tsp_update_best_solution(inst, &solution);
-
-    free(solution.path);
-    return error;
-}
-
-ERROR_CODE h_Greedy_iterative(instance* inst){
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
-
-    for(int i=0; i<inst->nnodes; i++){
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
-            if(ex_time > inst->options_t.timelimit){
-                return DEADLINE_EXCEEDED;
-            }
-        }
-
-        log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
-        if(error != OK){
-            log_error("code %d\n", error);
-            break;
-        }
-
-        if(solution.cost < inst->best_solution.cost){
-            log_info("found new best, node %d", i);
-            inst->starting_node = i;
-           tsp_update_best_solution(inst, &solution);
-        }
-    }
-
-    free(solution.path);
-
-    return OK;
-}
-
-ERROR_CODE h_2opt(instance* inst){
-    // because 2opt works on the best solution, but it may not be feasible
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
-    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
-
-    solution.cost = inst->best_solution.cost;
-    double delta = 0;
-
-    do {
-        // see if it exceeds the time limit
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
-            if(ex_time > inst->options_t.timelimit){
-                log_debug("time limit exceeded");
-                return DEADLINE_EXCEEDED;
-            }
-        }
-
-        delta = h_2opt_once(inst, solution.path);
-        if (delta < 0 ){
-            solution.cost += delta;
-            log_info("2-opt improved solution: new cost: %f", solution.cost);
-        }
-
-        
-        
-    }while(delta < 0);
-    
-    tsp_update_best_solution(inst, &solution);
-    
-    return OK;
-}
-
-void h_reverse_path(instance *inst, int start_node, int end_node, int *prev, int* solution_path) {
-    int currnode = start_node;
-    while (1) {
-        int node = prev[currnode];
-        solution_path[currnode] = node;
-        currnode = node;
-        if (node == end_node) {
-            break;
-        }
-    }
-
-    for (int k = 0; k < inst->nnodes; k++) {
-        prev[solution_path[k]] = k;
-    }
-}
-
-double h_2opt_once(instance* inst, int* solution_path){
-    double best_delta = 0;
-    int best_swap[2] = {-1, -1};
-
-    int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
-    for (int i = 0; i < inst->nnodes; i++) {
-        prev[solution_path[i]] = i;
-    }
-
-    // scan nodes to find best swap
-    for (int a = 0; a < inst->nnodes - 1; a++) {
-        for (int b = a+1; b < inst->nnodes; b++) {
-            int succ_a = solution_path[a]; //successor of a
-            int succ_b = solution_path[b]; //successor of b
-            
-            // Skip non valid configurations
-            if (succ_a == succ_b || a == succ_b || b == succ_a){
-                continue;
-            }
-
-            // Compute the delta. If < 0 it means there is a crossing
-            double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
-            double swapped_cost = tsp_get_cost(inst, a, b) + tsp_get_cost(inst, succ_a, succ_b);
-            double delta = swapped_cost - current_cost;
-            if (delta < best_delta) {
-                best_delta = delta;
-                best_swap[0] = a;
-                best_swap[1] = b;
-            }
-        }
-    }
-
-
-    // execute best swap
-
-    if(best_delta < 0){
-        int a = best_swap[0];
-        int b = best_swap[1];
-        log_debug("best swap is %d, %d: executing swap...", a, b);
-        int succ_a = solution_path[a]; //successor of a
-        int succ_b = solution_path[b]; //successor of b
-
-        //Swap the 2 edges
-        solution_path[a] = b;
-        solution_path[succ_a] = succ_b;
-                    
-        //Reverse the path from the b to the successor of a
-        h_reverse_path(inst, b, succ_a, prev, solution_path);
-    }
-
-    free(prev);
-
-    return best_delta;
-
-}
-
-ERROR_CODE h_greedy_2opt(instance* inst){
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
-
-    for(int i=0; i<inst->nnodes; i++){
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
-            if(ex_time > inst->options_t.timelimit){
-                return DEADLINE_EXCEEDED;
-            }
-        }
-
-        log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
-        if(error != OK){
-            log_error("code %d\n", error);
-            break;
-        }
-        log_debug("greedy solution: cost: %f", solution.cost);
-
-        double delta = 0;
-        do {
-            // see if it exceeds the time limit
-            if(inst->options_t.timelimit != -1.0){
-                double ex_time = utils_timeelapsed(inst->c);
-                if(ex_time > inst->options_t.timelimit){
-                    log_debug("time limit exceeded");
-                    return DEADLINE_EXCEEDED;
-                }
-            }
-
-            delta = h_2opt_once(inst, solution.path);
-            if (delta < 0 ){
-                solution.cost += delta;
-                log_debug("2-opt improved greedy solution: new cost: %f", solution.cost);
-            }
-
-        }while(delta < 0);
-
-        if(solution.cost < inst->best_solution.cost){
-            log_info("found new best solution: starting node %d, cost %f", i, solution.cost);
-            inst->starting_node = i;
-            tsp_update_best_solution(inst, &solution);
-        }
-    }
-
-    free(solution.path);
 
     return OK;
 }
