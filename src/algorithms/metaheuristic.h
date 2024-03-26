@@ -3,6 +3,9 @@
 
 #include "heuristics.h"
 
+#define UPPER 10
+#define LOWER 2
+
 // https://www.sciencedirect.com/science/article/abs/pii/S0305054897000300?via%3Dihub
 #define MAX_FRACTION 0.25
 #define MIN_FRACTION 0.125

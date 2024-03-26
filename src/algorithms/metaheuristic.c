@@ -231,7 +231,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
 ERROR_CODE mh_VNS(instance* inst){
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
-    ERROR_CODE e = h_greedy_2opt(inst); // start with a bad solution
+    ERROR_CODE e = h_Greedy_iterative(inst); // start with a bad solution
     if(!err_ok(e)){
             log_fatal("code %d : Error in greedy", e);
             tsp_handlefatal(inst);
@@ -249,6 +249,7 @@ ERROR_CODE mh_VNS(instance* inst){
     // file to hold solution value in each iteration
     FILE* f = fopen("results/VNSResults.dat", "w+");
     
+    e  = OK;
     // call 3 opt k times
     for(int i=0; i<inst->options_t.k; i++){
         // check if exceeds time
@@ -256,7 +257,9 @@ ERROR_CODE mh_VNS(instance* inst){
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
                free(solution.path);
-                return DEADLINE_EXCEEDED;
+               free(best_vns.path);
+               e = DEADLINE_EXCEEDED;
+               break;
             }
         }
 
@@ -266,6 +269,7 @@ ERROR_CODE mh_VNS(instance* inst){
             log_fatal("code %d : Error in local search", e); 
             tsp_handlefatal(inst);
             free(solution.path);
+            free(best_vns.path);
         }
 
         if(solution.cost < best_vns.cost){
@@ -278,17 +282,22 @@ ERROR_CODE mh_VNS(instance* inst){
         fprintf(f, "%d,%f\n", i, solution.cost);
 
         // kick
-        e = vns_kick(inst, &solution);
-        if(!err_ok(e)){
-            log_fatal("code %d : Error in kick", e); 
-            tsp_handlefatal(inst);
-            free(solution.path);
+        int r = rand() % (UPPER - LOWER + 1) - LOWER;
+        for(int j=0; j<r; j++){
+            e = vns_kick(inst, &solution);
+            if(!err_ok(e)){
+                log_fatal("code %d : Error in kick", e); 
+                tsp_handlefatal(inst);
+                free(solution.path);
+                free(best_vns.path);
+            }
         }
-        //e = vns_kick(inst, &solution);
+        
     }
 
     fclose(f);
 
+    log_warn("warn");
     e = tsp_update_best_solution(inst, &best_vns);
     if(!err_ok(e)){
         log_error("code %d : error in updating best solution of VNS");
@@ -305,7 +314,7 @@ ERROR_CODE mh_VNS(instance* inst){
     plot_free(plot);
 
     free(solution.path);
-    return OK;
+    return e;
 }
 
 // 3 opt kick

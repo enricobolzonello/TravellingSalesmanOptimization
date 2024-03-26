@@ -20,36 +20,31 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
             }
         }
 
-        delta = ref_2opt_once(inst, solution->path);
-        if (delta < 0 ){
-            solution->cost += delta;
-            log_info("2-opt improved solution: new cost: %f", solution->cost);
-        }
-        
-    }while(delta < 0);
+        delta = ref_2opt_once(inst, solution);
+    }while(delta < EPSILON);
     
     ERROR_CODE error = tsp_update_best_solution(inst, solution);
     if(!err_ok(error)){
-        log_error("code %d : ", error);
+        log_error("code %d : Error in 2opt solution update", error);
     }
     
     return OK;
 }
 
-double ref_2opt_once(instance* inst, int* solution_path){
+double ref_2opt_once(instance* inst, tsp_solution* solution){
     double best_delta = 0;
     int best_swap[2] = {-1, -1};
 
     int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
     for (int i = 0; i < inst->nnodes; i++) {
-        prev[solution_path[i]] = i;
+        prev[solution->path[i]] = i;
     }
 
     // scan nodes to find best swap
     for (int a = 0; a < inst->nnodes - 1; a++) {
         for (int b = a+1; b < inst->nnodes; b++) {
-            int succ_a = solution_path[a]; //successor of a
-            int succ_b = solution_path[b]; //successor of b
+            int succ_a = solution->path[a]; //successor of a
+            int succ_b = solution->path[b]; //successor of b
             
             // Skip non valid configurations
             if (succ_a == succ_b || a == succ_b || b == succ_a){
@@ -71,15 +66,19 @@ double ref_2opt_once(instance* inst, int* solution_path){
 
     // execute best swap
 
-    if(best_delta < 0){
+    if(best_delta < EPSILON){
         int a = best_swap[0];
         int b = best_swap[1];
         log_debug("best swap is %d, %d: executing swap...", a, b);
-        int succ_a = solution_path[a]; //successor of a
-        int succ_b = solution_path[b]; //successor of b
+        int succ_a = solution->path[a]; //successor of a
+        int succ_b = solution->path[b]; //successor of b
                     
         //Reverse the path from the b to the successor of a
-        ref_reverse_path(inst, a, succ_a, b, succ_b, prev, solution_path);
+        ref_reverse_path(inst, a, succ_a, b, succ_b, prev, solution->path);
+
+        // update solution cost
+        solution->cost += best_delta;
+        log_info("2-opt improved solution: new cost: %f", solution->cost);
     }
 
     free(prev);

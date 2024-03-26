@@ -55,6 +55,18 @@ LIBDIR := make/lib
 TESTDIR := test
 UTILSDIR = $(SRCDIR)/utils
 
+ifeq ($(OS),Windows_NT)
+    # define CPLEXDIR
+else
+    UNAME_S := $(shell uname -s)
+    ifeq ($(UNAME_S),Linux)
+        # define CPLEXDIR
+    endif
+    ifeq ($(UNAME_S),Darwin)
+        CPLEXDIR := /Applications/CPLEX_Studio2211/cplex
+    endif
+endif
+
 
 # Source code file extension
 SRCEXT := c
@@ -80,12 +92,38 @@ CFLAGS := -O3 $(STD) $(STACK) $(WARNS)
 DEBUG := -g3 -DDEBUG=1
 
 # Dependency libraries
-LIBS := -lm #-I path/to/library
+
+ifeq ($(OS),Windows_NT)
+    ifeq ($(PROCESSOR_ARCHITEW6432),AMD64)
+        # define libs
+    else
+        ifeq ($(PROCESSOR_ARCHITECTURE),AMD64)
+            # define libs
+        endif
+        ifeq ($(PROCESSOR_ARCHITECTURE),x86)
+            # define libs
+        endif
+    endif
+else
+    UNAME_S := $(shell uname -s)
+	UNAME_P := $(shell uname -p)
+    ifeq ($(UNAME_S),Linux)
+        LIBS := # -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
+    endif
+    ifeq ($(UNAME_S),Darwin)
+		ifeq ($(UNAME_P),x86_64)
+        	LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
+    	endif
+		ifneq ($(filter arm%,$(UNAME_P)),)
+        	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L. -lcplex -lpthread -ldl
+    	endif
+    endif
+endif
+
+INC := -I. -I$(CPLEXDIR)/include/ilcplex
 
 # Test libraries
 TEST_LIBS := -l cmocka -L /usr/local/lib -rpath /usr/local/lib
-
-
 
 # Tests binary file
 TEST_BINARY := $(BINARY)_test_runner
@@ -139,7 +177,7 @@ all: $(OBJECTS)
 
 $(LIBDIR)/%.o: $(SRCDIR)/%.$(SRCEXT)
 	@echo -en "$(BROWN)CC $(END_COLOR)";
-	$(CC) -c $< -o $@ $(DEBUG) $(CFLAGS) $(LIBS)
+	$(CC) -c $< -o $@ $(DEBUG) $(CFLAGS) $(INC)
 
 
 # Rule for run valgrind tool
