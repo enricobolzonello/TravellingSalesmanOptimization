@@ -24,13 +24,15 @@ ERROR_CODE h_Greedy(instance* inst){
 }
 
 ERROR_CODE h_Greedy_iterative(instance* inst){
+    ERROR_CODE e = OK;
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     for(int i=0; i<inst->nnodes; i++){
         if(inst->options_t.timelimit != -1.0){
             double ex_time = utils_timeelapsed(inst->c);
             if(ex_time > inst->options_t.timelimit){
-                return DEADLINE_EXCEEDED;
+                e = DEADLINE_EXCEEDED;
+                break;
             }
         }
 
@@ -38,7 +40,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
         ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
         if(!err_ok(error)){
             log_error("code %d : error in iteration %d of greedy iterative", error, i);
-            break;
+            continue;
         }
 
         if(solution.cost < inst->best_solution.cost){
@@ -47,23 +49,26 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
             error = tsp_update_best_solution(inst, &solution);
             if(!err_ok(error)){
                 log_error("code %d : error in updating best solution of greedy iterative in iteration %d", error, i);
+                continue;
             }
         }
     }
 
     free(solution.path);
 
-    return OK;
+    return e;
 }
 
 ERROR_CODE h_greedy_2opt(instance* inst){
+    ERROR_CODE e = OK;
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     for(int i=0; i<inst->nnodes; i++){
         if(inst->options_t.timelimit != -1.0){
             double ex_time = utils_timeelapsed(inst->c);
             if(ex_time > inst->options_t.timelimit){
-                return DEADLINE_EXCEEDED;
+                e = DEADLINE_EXCEEDED;
+                break;
             }
         }
 
@@ -90,7 +95,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
 
     free(solution.path);
 
-    return OK;
+    return e;
 }
 
 //================================================================================
@@ -101,6 +106,8 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
     if(starting_node >= inst->nnodes || starting_node < 0){
         return UNAVAILABLE;
     }
+
+    ERROR_CODE e = OK;
 
     int* visited = (int*)calloc(inst->nnodes, sizeof(int));
 
@@ -115,8 +122,8 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
         double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
-               free(visited);
-                return DEADLINE_EXCEEDED;
+                e = DEADLINE_EXCEEDED;
+                break;
             }
         }
 
@@ -158,5 +165,5 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
 
     free(visited);
 
-    return OK;
+    return e;
 }

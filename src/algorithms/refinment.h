@@ -13,8 +13,6 @@
  */
 #include "../tsp.h"
 
-#define EPSILON -1.0E-7
-
 /**
  * @brief 2opt refinment algorithm
  * 

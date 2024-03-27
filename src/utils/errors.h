@@ -26,7 +26,7 @@ typedef enum{
     CANCELLED = 1,               // not error
     UNKNOWN = 2,
     INVALID_ARGUMENT = 3,
-    DEADLINE_EXCEEDED = 4,
+    DEADLINE_EXCEEDED = 4,       // not error
     NOT_FOUND = 5,
     ALREADY_EXISTS = 6,
     PERMISSION_DENIED = 7,
@@ -99,6 +99,14 @@ bool err_ok(ERROR_CODE error);
  * @param verbosity 
  */
 void err_setverbosity(VERBOSITY verbosity);
+
+/**
+ * @brief 
+ * 
+ * @return true 
+ * @return false 
+ */
+bool err_dolog(void);
 
 /**
  * @brief helper function to print logs

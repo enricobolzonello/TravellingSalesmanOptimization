@@ -91,6 +91,8 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
         tsp_handlefatal(inst);
     }
 
+    ERROR_CODE e = OK;
+
     // file to hold solution value in each iteration
     FILE* f = fopen("results/TabuResults.dat", "w+");
 
@@ -115,8 +117,7 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
         double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
-               free(solution.path);
-                return DEADLINE_EXCEEDED;
+                e = DEADLINE_EXCEEDED;
             }
         }
 
@@ -161,7 +162,7 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
     free(solution.path);
     tabu_free(&ts);
 
-    return OK;
+    return e;
 
 }
 
@@ -256,8 +257,6 @@ ERROR_CODE mh_VNS(instance* inst){
         double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
-               free(solution.path);
-               free(best_vns.path);
                e = DEADLINE_EXCEEDED;
                break;
             }
@@ -297,7 +296,6 @@ ERROR_CODE mh_VNS(instance* inst){
 
     fclose(f);
 
-    log_warn("warn");
     e = tsp_update_best_solution(inst, &best_vns);
     if(!err_ok(e)){
         log_error("code %d : error in updating best solution of VNS");
@@ -313,6 +311,7 @@ ERROR_CODE mh_VNS(instance* inst){
     plot_stats(plot, "results/VNSResults.dat");
     plot_free(plot);
 
+    free(best_vns.path);
     free(solution.path);
     return e;
 }

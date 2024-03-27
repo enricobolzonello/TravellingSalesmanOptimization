@@ -1,6 +1,7 @@
 #include "tsp.h"
 #include "algorithms/heuristics.h"
 #include "algorithms/metaheuristic.h"
+#include "algorithms/cplex_model.h"
 
 // TODO: better handling of errors
 
@@ -73,6 +74,16 @@ int main(int argc, char* argv[]){
             tsp_handlefatal(&inst);
         } 
         printf("VNS: %f\n", inst.best_solution.cost);
+        tsp_plot_solution(&inst);
+        break;
+    case ALG_CPLEX:
+        log_info("running CPLEX");
+        e = cx_TSPopt(&inst);
+        if(!err_ok(e)){
+            log_fatal("VNS did not finish correctly");
+            tsp_handlefatal(&inst);
+        } 
+        printf("Optimal: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
     default:

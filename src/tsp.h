@@ -15,12 +15,15 @@
 #include <libgen.h>
 #include <math.h>
 
+#define EPSILON -1.0E-7
+
 typedef enum {
     ALG_GREEDY = 0,
     ALG_GREEDY_ITER = 1,
     ALG_2OPT_GREEDY = 2,
     ALG_TABU_SEARCH = 3,
-    ALG_VNS = 4
+    ALG_VNS = 4,
+    ALG_CPLEX = 5
 } algorithms;
 
 typedef struct {

@@ -126,6 +126,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }else if (strcmp("VNS", method) == 0){
                 inst->alg = ALG_VNS;
                 log_info("selected VNS algorithm");
+            }else if (strcmp("CPLEX", method) == 0){
+                inst->alg = ALG_CPLEX;
+                log_info("selected CPLEX");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }
@@ -388,7 +391,7 @@ void tsp_read_input(instance* inst){
                 tsp_handlefatal(inst);
             }
 			continue;
-		}  
+		}
 
         if ( strncmp(parameter, "EOF", 3) == 0 ) {
 			break;

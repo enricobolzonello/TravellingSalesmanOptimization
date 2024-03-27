@@ -7,6 +7,8 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
     for(int i=0; i<inst->nnodes; i++){
         solution->cost += tsp_get_cost(inst, i, solution->path[i]);
     }
+
+    ERROR_CODE e = OK;
     
     double delta = 0;
 
@@ -16,7 +18,7 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
             double ex_time = utils_timeelapsed(inst->c);
             if(ex_time > inst->options_t.timelimit){
                 log_debug("time limit exceeded");
-                return DEADLINE_EXCEEDED;
+                e = DEADLINE_EXCEEDED;
             }
         }
 
@@ -28,7 +30,7 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
         log_error("code %d : Error in 2opt solution update", error);
     }
     
-    return OK;
+    return e;
 }
 
 double ref_2opt_once(instance* inst, tsp_solution* solution){

@@ -53,3 +53,7 @@ results/TabuResults.dat
 results/VNSResults.dat
 
 plots/*
+
+/temp
+
+/webapp

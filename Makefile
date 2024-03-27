@@ -115,7 +115,7 @@ else
         	LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
     	endif
 		ifneq ($(filter arm%,$(UNAME_P)),)
-        	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L. -lcplex -lpthread -ldl
+        	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L. -lcplex -lpthread -ldl -L/opt/homebrew/opt/gperftools/lib
     	endif
     endif
 endif

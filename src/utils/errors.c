@@ -1,7 +1,7 @@
 #include "errors.h"
 
 bool err_ok(ERROR_CODE error){
-    if(error == OK || error == CANCELLED){
+    if(error == OK || error == CANCELLED || error == DEADLINE_EXCEEDED){
         return true;
     }
 
@@ -10,6 +10,10 @@ bool err_ok(ERROR_CODE error){
 
 void err_setverbosity(VERBOSITY verbosity){
     L.verbosity = verbosity;
+}
+
+bool err_dolog(void){
+    return L.verbosity >= VERBOSE;
 }
 
 void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, ...){
