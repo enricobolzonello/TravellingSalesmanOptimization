@@ -60,7 +60,7 @@ ifeq ($(OS),Windows_NT)
 else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
-        # define CPLEXDIR
+        CPLEXDIR := /opt/ibm/ILOG/CPLEX_Studio2211/cplex
     endif
     ifeq ($(UNAME_S),Darwin)
         CPLEXDIR := /Applications/CPLEX_Studio2211/cplex
@@ -108,11 +108,11 @@ else
     UNAME_S := $(shell uname -s)
 	UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_S),Linux)
-        LIBS := # -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
+        LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
     endif
     ifeq ($(UNAME_S),Darwin)
 		ifeq ($(UNAME_P),x86_64)
-        	LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
+        	LIBS := -L${CPLEXDIR}/lib/x86-64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
     	endif
 		ifneq ($(filter arm%,$(UNAME_P)),)
         	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L. -lcplex -lpthread -ldl -L/opt/homebrew/opt/gperftools/lib
@@ -189,6 +189,11 @@ valgrind:
 		--log-file=$(LOGDIR)/$@.log \
 		$(BINDIR)/$(BINARY)
 	@echo -en "\nCheck the log file: $(LOGDIR)/$@.log\n"
+
+leaks:
+	leaks \
+		--atExit \
+		-- ./$(BINDIR)/$(BINARY) -vv -n 200 -alg CPLEX 
 
 
 # Compile tests and run the test binary

@@ -10,6 +10,7 @@ Repository containing the project developed during the Operations Research 2 cou
 Install the following libraries to build the C program:
 *   **gnu make**, v.3.81
 *   **gnuplot**, v6.0
+*   **IBM ILOG CPLEX**
 *   **cmocka**, v1.1.7 (optional)
 
 For the profiling, install requirements with ```pip install scripts/requirements.txt```. 

@@ -6,7 +6,7 @@ void tsp_init(instance* inst){
     inst->options_t.timelimit = -1;
     inst->options_t.seed = 0;
     inst->options_t.tofile = false;
-    inst->options_t.k = 10000;
+    inst->options_t.k = 100000;
     
     inst->nnodes = -1;
     inst->best_solution.cost = __DBL_MAX__;

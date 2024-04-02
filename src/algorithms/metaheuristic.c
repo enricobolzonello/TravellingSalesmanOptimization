@@ -272,7 +272,7 @@ ERROR_CODE mh_VNS(instance* inst){
         }
 
         if(solution.cost < best_vns.cost){
-            log_info("found new best: %d ", solution.cost);
+            log_info("found new best: %f ", solution.cost);
             best_vns.cost = solution.cost;
             memcpy(best_vns.path, solution.path, inst->nnodes * sizeof(int));
         }
@@ -326,15 +326,26 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
         prev[solution->path[i]] = i;
     }
 
+    //From list of successor to Tour
+    int* tour = (int*)calloc(inst->nnodes, sizeof(int));
+    int node=0;
+    int idx=0;
+    while(idx<inst->nnodes){
+        tour[idx]=node;
+        idx+=1;
+        node=solution->path[node];
+    }
+
     int indexes[3];
     int i, j;
     for (i = 0; i < 3; i++) {
         int random_number;
         do {
-            random_number = rand() % (inst->nnodes + 1);
+            random_number = rand() % (inst->nnodes);
             // Check if the number is already generated
             for (j = 0; j < i; j++) {
-                if (random_number == indexes[j]) {
+                // no same number or predecessor/successor
+                if (random_number == indexes[j] || random_number == tour[indexes[j]-1] || random_number == tour[indexes[j]+1]) {
                     random_number = -1; // Mark as invalid
                     break;
                 }
@@ -350,22 +361,17 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
     }
 
     log_debug("random number: %d %d %d", indexes[0], indexes[1], indexes[2]);
-    //int case_swap = rand() % (8);
-    //log_debug("case swap: %d", case_swap);
-
-    // trasform in tour
-    int* tour = calloc(inst->nnodes, sizeof(int));
-    int node = solution->path[0];
-    for(int i=0; i<inst->nnodes; ++i) {
-        tour[i] = node;
-        node = solution->path[node];
-    }
 
     int nodeA = tour[indexes[0]];
+    int nodeSuccA = tour[(indexes[0]+1) % inst->nnodes];
     int nodeB = tour[indexes[1]];
+    int nodeSuccB = tour[(indexes[1]+1) % inst->nnodes];
     int nodeC = tour[indexes[2]];
+    int nodeSuccC = tour[(indexes[2]+1) % inst->nnodes];
 
-    ERROR_CODE e = makeMove(inst, prev, solution, 7, nodeA, solution->path[nodeA], nodeB, solution->path[nodeB], nodeC, solution->path[nodeC]);
+    log_debug("A:(%d,%d)\t B:(%d,%d)\t C:(%d,%d)\n", nodeA, nodeSuccA, nodeB, nodeSuccB, nodeC, nodeSuccC);
+
+    ERROR_CODE e = makeMove(inst, prev, solution, 7, nodeA, nodeSuccA, nodeB, nodeSuccB, nodeC, nodeSuccC);
     if(!err_ok(e)){
         log_fatal("code %d : Error in make move", e); 
         tsp_handlefatal(inst);

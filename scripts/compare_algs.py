@@ -17,7 +17,8 @@ load_dotenv(find_dotenv())
 
 METHODS = {
     "heuristic" : ["GREEDY", "GREEDY_ITER", "2OPT_GREEDY"],
-    "metaheuristic" : ["TABU_SEARCH", "VNS"]
+    "metaheuristic" : ["TABU_SEARCH", "VNS"],
+    "all" : ["CPLEX", "GREEDY_ITER", "2OPT_GREEDY", "TABU_SEARCH", "VNS"]
 }
 
 TIME_LIMIT = "1200"
@@ -63,7 +64,7 @@ def runTSP(paths, csv_filename, logger, start_time):
         row = [os.path.basename(tsp)]
         for m in METHODS[type]:
             try:
-                str_exec = f"make/bin/tsp -f {tsp} -q -alg {m} -t {TIME_LIMIT} -seed 123 --to_file -k 100"
+                str_exec = f"make/bin/tsp -f {tsp} -q -alg {m} -t {TIME_LIMIT} -seed 123 --to_file -t 30"
                 print("Running " + m+ " on dataset " +tsp)
                 output = subprocess.run(shlex.split(str_exec), capture_output=True, text=True).stdout
 
@@ -77,9 +78,10 @@ def runTSP(paths, csv_filename, logger, start_time):
                 logger.error(f"Skipping dataset {tsp}")
                 continue
     
-        with open(csv_filename, 'a', newline='') as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(row)
+        if len(row) > 1: # to not write files not done
+            with open(csv_filename, 'a', newline='') as csvfile:
+                writer = csv.writer(csvfile)
+                writer.writerow(row)
 
         # log every 30 documents done
         if i%30 == 0:
