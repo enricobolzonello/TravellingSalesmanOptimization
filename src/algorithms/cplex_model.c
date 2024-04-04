@@ -59,7 +59,6 @@ ERROR_CODE cx_Nosec(instance *inst){
 }
 
 // TODO: better error handling
-// TODO: time limit
 ERROR_CODE cx_BendersLoop(instance* inst){
 	// open CPLEX model
 	int e;
@@ -84,6 +83,13 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 	tsp_solution solution = tsp_init_solution(inst->nnodes);
 	int iteration = 0;
 	while(1){
+		double ex_time = utils_timeelapsed(inst->c);
+        if(inst->options_t.timelimit != -1.0){
+            if(ex_time > inst->options_t.timelimit){
+               return DEADLINE_EXCEEDED;
+            }
+        }
+
 		// solve with cplex
 		error = CPXmipopt(env,lp);
 		if ( error ){

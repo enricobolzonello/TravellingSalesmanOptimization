@@ -398,7 +398,6 @@ void tabu_free(tabu_search* ts){
 }
 
 // https://tsp-basics.blogspot.com/2017/03/3-opt-move.html
-// TODO: cases 4-5-6
 ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
     ERROR_CODE e = OK;
     int temp;
