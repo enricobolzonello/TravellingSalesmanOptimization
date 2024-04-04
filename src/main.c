@@ -76,14 +76,24 @@ int main(int argc, char* argv[]){
         printf("VNS: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
-    case ALG_CPLEX:
-        log_info("running CPLEX");
-        e = cx_TSPopt(&inst);
+    case ALG_CX_NOSEC:
+        log_info("running NOSEC");
+        e = cx_Nosec(&inst);
         if(!err_ok(e)){
-            log_fatal("VNS did not finish correctly");
+            log_fatal("NOSEC did not finish correctly");
             tsp_handlefatal(&inst);
         } 
-        printf("Optimal: %f\n", inst.best_solution.cost);
+        printf("No SEC: %f\n", inst.best_solution.cost);
+        tsp_plot_solution(&inst);
+        break;
+    case ALG_CX_BENDERS:
+        log_info("running BENDERS LOOP");
+        e = cx_BendersLoop(&inst);
+        if(!err_ok(e)){
+            log_fatal("Benders Loop did not finish correctly");
+            tsp_handlefatal(&inst);
+        } 
+        printf("Benders Loop: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
     default:

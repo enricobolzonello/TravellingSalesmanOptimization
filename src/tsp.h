@@ -23,7 +23,8 @@ typedef enum {
     ALG_2OPT_GREEDY = 2,
     ALG_TABU_SEARCH = 3,
     ALG_VNS = 4,
-    ALG_CPLEX = 5
+    ALG_CX_NOSEC = 5,
+    ALG_CX_BENDERS = 6,
 } algorithms;
 
 typedef struct {

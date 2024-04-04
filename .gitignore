@@ -41,8 +41,7 @@
 !/make/lib/utils/.gitkeep
 
 # Project logs files
-/make/plots/*
-!/make/plots/.gitkeep
+logs/*
 
 .DS_Store
 /.vscode

@@ -1,28 +1,156 @@
 #include "cplex_model.h"
 
-ERROR_CODE cx_TSPopt(instance *inst)
-{  
-
+ERROR_CODE cx_Nosec(instance *inst){  
 	// open CPLEX model
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);
 	if ( error ){
-		log_fatal("CPXopenCPLEX() error");
+		log_fatal("CPX code %d : CPXopenCPLEX() error", error);
 		tsp_handlefatal(inst);
 	} 
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1"); 
 	if ( error ) {
-		log_fatal("CPXcreateprob() error");
+		log_fatal("CPX code %d : CPXcreateprob() error", error);
 		tsp_handlefatal(inst);	
 	}
+
+	// initialize CPLEX model
+	cx_initialize(inst, env, lp);
+
+	// solve with cplex
+	error = CPXmipopt(env,lp);
+	if ( error ) 
+	{
+		log_fatal("CPX code %d : CPXmipopt() error", error); 
+		tsp_handlefatal(inst);
+	}
+
+	int ncols = CPXgetnumcols(env, lp);
+
+	// get the optimal value
+	double* xstar = (double *) calloc(ncols, sizeof(double));
+	error = cx_check_optimal(env, lp, xstar, ncols, inst);
+	if(error){
+		log_fatal("code %d : error in get_optimal", error);
+		tsp_handlefatal(inst);
+	}
+
+	int ncomp = 0;
+	int* comp = (int*) calloc(ncols, sizeof(int));
+
+	// with the optimal found by CPLEX, build the corresponding solution
+	tsp_solution solution = tsp_init_solution(inst->nnodes);
+	cx_build_sol(xstar, inst, comp, &ncomp, &solution);
+
+	// update best solution (not with tsp_update_solution since it is not a cycle)
+	memcpy(inst->best_solution.path, solution.path, inst->nnodes * sizeof(int));
+    inst->best_solution.cost = solution.cost;
+    log_debug("new best solution: %f", solution.cost);
+
+	log_info("number of independent components: %d", ncomp);
+
+	free(xstar);
+	
+	// free and close cplex model   
+	CPXfreeprob(env, &lp);
+	CPXcloseCPLEX(&env); 
+
+	return OK; 
+}
+
+// TODO: better error handling
+// TODO: time limit
+ERROR_CODE cx_BendersLoop(instance* inst){
+	// open CPLEX model
+	int e;
+	CPXENVptr env = CPXopenCPLEX(&e);
+	if(e){
+		log_fatal("CPX code %d : CPXopenCPLEX() error", e);
+		tsp_handlefatal(inst);
+	} 
+	CPXLPptr lp = CPXcreateprob(env, &e, "TSP model version 1"); 
+	if(e){
+		log_fatal("CPX code %d : CPXcreateprob() error", e);
+		tsp_handlefatal(inst);	
+	}
+
+	// initialize CPLEX model
+	ERROR_CODE error = cx_initialize(inst, env, lp);
+	if(error){
+		log_fatal("code %d : error in get_optimal", error);
+		tsp_handlefatal(inst);
+	}
+
+	tsp_solution solution = tsp_init_solution(inst->nnodes);
+	int iteration = 0;
+	while(1){
+		// solve with cplex
+		error = CPXmipopt(env,lp);
+		if ( error ){
+			log_fatal("CPX code %d : CPXmipopt() error", error); 
+			tsp_handlefatal(inst);
+		}
+
+		int ncols = CPXgetnumcols(env, lp);
+
+		// get the optimal value
+		double* xstar = (double *) calloc(ncols, sizeof(double));
+		error = cx_check_optimal(env, lp, xstar, ncols, inst);
+		if(error){
+			log_fatal("code %d : error in get_optimal", error);
+			tsp_handlefatal(inst);
+		}
+
+		int ncomp = 0;
+		int* comp = (int*) calloc(ncols, sizeof(int));
+		cx_build_sol(xstar, inst, comp, &ncomp, &solution);
+
+		log_info("number of components: %d", ncomp);
+
+		// only one component it means that we have found an Hamiltonian cycle
+		if(ncomp == 1){
+			break;
+		}
+
+		cx_add_sec(env, lp, comp, ncomp, iteration, inst);
+
+		iteration++;
+	}
+
+	// TODO: why doesnt work with tsp_update_solution
+	memcpy(inst->best_solution.path, solution.path, inst->nnodes * sizeof(int));
+    inst->best_solution.cost = solution.cost;
+	log_debug("sol: %f", inst->best_solution.cost);
+
+	free(solution.path);
+	
+	// free and close cplex model   
+	CPXfreeprob(env, &lp);
+	CPXcloseCPLEX(&env); 
+
+	return OK;
+}
+
+
+//================================================================================
+// CPLEX UTILS
+//================================================================================	
+
+ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 
 	cx_build_model(inst, env, lp);
 	
 	// Cplex's parameter setting
 	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
 	
+	// save CPLEX output to a log file
 	if(err_dolog()){
-		CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON); // Cplex output on screen 
+		//CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON); // Cplex output on screen 
+		log_info("save to log file");
+		mkdir("logs", 0777);
+    	char log_path[1024];
+    	sprintf(log_path, "logs/%s.log", inst->options_t.inputfile);
+    	CPXsetlogfilename(env, log_path, "w");
 	}
 
 	if(inst->options_t.seed != -1){
@@ -33,74 +161,110 @@ ERROR_CODE cx_TSPopt(instance *inst)
 		CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit); 
 	}
 
-	error = CPXmipopt(env,lp);
-	if ( error ) 
-	{
-		printf("CPX error code %d\n", error);
-		log_fatal("CPXmipopt() error"); 
-		tsp_handlefatal(inst);
-	}
-
-	// use the optimal solution found by CPLEX
-	
-	int ncols = CPXgetnumcols(env, lp);
-
-	// array to hold the optimal solution
-	double *xstar = (double *) calloc(ncols, sizeof(double));
-
-	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
-		log_fatal("CPXgetx() error");	
-		tsp_handlefatal(inst);
-	} 
-	for ( int i = 0; i < inst->nnodes; i++ )
-	{
-		for ( int j = i+1; j < inst->nnodes; j++ )
-		{
-			if ( xstar[cx_xpos(i,j,inst)] > 0.5 ){
-				printf("  ... x(%3d,%3d) = 1\n", i+1,j+1);
-			} 
-		}
-	}
-
-	int ncomp = 0;
-	int* comp = (int*) calloc(ncols, sizeof(int));
-
-	// with the optimal found by CPLEX, build the corresponding solution
-	cx_build_sol(xstar, inst, comp, &ncomp);
-
-	log_info("number of independent components: %d", ncomp);
-
-	free(xstar);
-	
-	// free and close cplex model   
-	CPXfreeprob(env, &lp);
-	CPXcloseCPLEX(&env); 
-
-	return OK; // or an appropriate nonzero error code
+	return OK;
 }
 
+ERROR_CODE cx_check_optimal(CPXENVptr env, CPXLPptr lp, double* xstar, int ncols, instance* inst){
+	// use the optimal solution found by CPLEX
 
-int cx_xpos(int i, int j, instance *inst)     
-{ 
+	// array to hold the optimal solution
+
+	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
+		log_fatal("CPX : CPXgetx() error");	
+		tsp_handlefatal(inst);
+	} 
+
+	/*if(err_dolog()){
+		// print the model
+		for ( int i = 0; i < inst->nnodes; i++ ){
+			for ( int j = i+1; j < inst->nnodes; j++ ){
+				if ( xstar[cx_xpos(i,j,inst)] > 0.5 ){
+					printf("  ... x(%3d,%3d) = 1\n", i+1,j+1);
+				} 
+			}
+		}
+	}*/
+
+	return OK;
+}
+
+int cx_xpos(int i, int j, instance *inst){ 
+
 	if ( i == j ){
 		log_fatal(" i == j in cx_xpos" );
 		tsp_handlefatal(inst);
 	} 
-	if ( i > j ) return cx_xpos(j,i,inst);
+
+	if ( i > j ){
+		return cx_xpos(j,i,inst);
+	} 
+
 	int pos = i * inst->nnodes + j - (( i + 1 ) * ( i + 2 )) / 2;
+
 	return pos;
 }
-	
 
-void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp)
-{    
+ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, int iteration, instance* inst){
+	if(ncomp == 1){
+		return INVALID_ARGUMENT;
+	}
+
+	const char sense='L';
+
+	// initialize index and value
+	int ncols = CPXgetnumcols(env, lp);
+	int* index = (int*) calloc(ncols, sizeof(int));
+	double* value = (double*) calloc(ncols, sizeof(double));
+
+	// column name initialization
+	char **cname = (char **) calloc(1, sizeof(char *));		// (char **) required by cplex...
+	cname[0] = (char *) calloc(100, sizeof(char));
+
+	for(int k=1; k<ncomp+1; k++){
+		int nnz=0;
+
+		int number_nodes = 0; // |S|
+
+		sprintf(cname[0], "it(%d)-row(%d)", iteration, k);  
+
+		for(int i=0; i<inst->nnodes; i++){
+
+			// skip iteration if it does belong to the current component k
+			if(comp[i] != k){
+				continue;
+			}
+
+			number_nodes++;
+
+			for(int j=i+1; j<inst->nnodes; j++){
+				// skip iteration if it does belong to the current component k
+				if(comp[j] != k){
+					continue;
+				}
+
+				index[nnz] = cx_xpos(i,j,inst);
+				value[nnz] = 1.0;
+
+				nnz++;
+			}
+		}
+
+		double rhs = number_nodes - 1.0; // |S|-1
+		// https://www.ibm.com/docs/en/icos/22.1.0?topic=cpxxaddrows-cpxaddrows
+		int izero = 0;
+		CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, &cname[0]);
+	}
+
+	return OK;
+}
+
+void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){    
 	char binary = 'B'; 
 
 	char **cname = (char **) calloc(1, sizeof(char *));		// (char **) required by cplex...
 	cname[0] = (char *) calloc(100, sizeof(char));
 
-// add binary var.s x(i,j) for i < j  
-
+	// add binary var.s x(i,j) for i < j  
 	for ( int i = 0; i < inst->nnodes; i++ )
 	{
 		for ( int j = i+1; j < inst->nnodes; j++ )
@@ -158,15 +322,18 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp)
 
 }
 
-void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp) 
+void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution) 
 {   
+	// initialize number of components and array of components
 	*ncomp = 0;
 	for ( int i = 0; i < inst->nnodes; i++ )
 	{
 		comp[i] = -1;
 	}
 	
-	inst->best_solution.cost = 0.0;
+	// initialize solution cost
+	solution->cost = 0.0;
+
 	for ( int start = 0; start < inst->nnodes; start++ )
 	{
 		if ( comp[start] >= 0 ) continue;  // node "start" was already visited, just skip it
@@ -183,15 +350,15 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp)
 			{
 				if ( i != j && xstar[cx_xpos(i,j,inst)] > 0.5 && comp[j] == -1 ) // the edge [i,j] is selected in xstar and j was not visited before 
 				{
-					inst->best_solution.path[i] = j;
-					inst->best_solution.cost += tsp_get_cost(inst, i, j);
+					solution->path[i] = j;
+					solution->cost += tsp_get_cost(inst, i, j);
 					i = j;
 					done = 0;
 					break;
 				}
 			}
 		}	
-		inst->best_solution.path[i] = start;  // last arc to close the cycle
+		solution->path[i] = start;  // last arc to close the cycle
 		
 		// go to the next component...
 	}

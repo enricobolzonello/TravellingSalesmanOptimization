@@ -126,9 +126,12 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }else if (strcmp("VNS", method) == 0){
                 inst->alg = ALG_VNS;
                 log_info("selected VNS algorithm");
-            }else if (strcmp("CPLEX", method) == 0){
-                inst->alg = ALG_CPLEX;
-                log_info("selected CPLEX");
+            }else if (strcmp("CPLEX_NOSEC", method) == 0){
+                inst->alg = ALG_CX_NOSEC;
+                log_info("selected NOSEC");
+            }else if (strcmp("CPLEX_BENDERS", method) == 0){
+                inst->alg = ALG_CX_BENDERS;
+                log_info("selected BENDERS LOOP");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }
@@ -246,8 +249,10 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - GREEDY\n");
         printf("    - GREEDY_ITER\n");
         printf("    - 2OPT_GREEDY\n");
-        printf("    - TABU_SEARCH");
-        printf("    - VNS");
+        printf("    - TABU_SEARCH\n");
+        printf("    - VNS\n");
+        printf("    - CPLEX_NOSEC\n");
+        printf("    - CPLEX_BENDERS\n");
         
         return ABORTED;
     }
@@ -270,6 +275,7 @@ ERROR_CODE tsp_generate_randompoints(instance* inst){
     return OK;
 }
 
+// TODO: better naming of files
 ERROR_CODE tsp_plot_points(instance* inst){
     int i;
     char* plotfile;
@@ -492,7 +498,7 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
 ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
     if(tsp_validate_solution(inst, current_solution->path)){
         if(current_solution->cost < inst->best_solution.cost){
-            memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int)); // here's the problem
+            memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int));
             inst->best_solution.cost = current_solution->cost;
             log_debug("new best solution: %f", current_solution->cost);
             return OK;
