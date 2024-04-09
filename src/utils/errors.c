@@ -1,5 +1,17 @@
 #include "errors.h"
 
+static struct{
+  int verbosity;
+} L;
+
+static const char *level_strings[] = {
+  "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"
+};
+
+static const char *level_colors[] = {
+  "\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
+};
+
 bool err_ok(ERROR_CODE error){
     if(error == OK || error == CANCELLED || error == DEADLINE_EXCEEDED){
         return true;

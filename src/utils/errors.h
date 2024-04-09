@@ -72,18 +72,6 @@ typedef enum{
 #define log_error(...) err_logging(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) err_logging(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__)
 
-static struct{
-  int verbosity;
-} L;
-
-static const char *level_strings[] = {
-  "TRACE", "DEBUG", "INFO", "WARN", "ERROR", "FATAL"
-};
-
-static const char *level_colors[] = {
-  "\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
-};
-
 /**
  * @brief returns true if the error\_code is OK
  * 
