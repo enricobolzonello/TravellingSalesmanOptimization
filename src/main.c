@@ -96,6 +96,16 @@ int main(int argc, char* argv[]){
         printf("Benders Loop: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
         break;
+    case ALG_EXTRAMILEAGE:
+        log_info("running EXTRA MILEAGE");
+        e = h_ExtraMileage(&inst);
+        if(!err_ok(e)){
+            log_fatal("Benders Loop did not finish correctly");
+            tsp_handlefatal(&inst);
+        } 
+        printf("Extra Mileage: %f\n", inst.best_solution.cost);
+        tsp_plot_solution(&inst);
+        break;
     default:
         log_error("cannot run any algorithm");
         break;

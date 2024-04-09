@@ -1,7 +1,7 @@
 #include "utils.h"
 
-static char* algs_string[7] = {
-    "Greedy", "Greedy\\_Iter", "2opt\\_Greedy", "Tabu\\_Search", "VNS", "Cplex\\_NoSec", "Cplex\\_BendersLoop"
+static char* algs_string[8] = {
+    "Greedy", "Greedy\\_Iter", "2opt\\_Greedy", "Tabu\\_Search", "VNS", "Cplex\\_NoSec", "Cplex\\_BendersLoop", "Extra\\_Mileage"
 };
 
 bool utils_file_exists (const char *filename) {

@@ -37,10 +37,22 @@ ERROR_CODE h_Greedy_iterative(instance* inst);
 /**
  * @brief Runs greedy iteratively on all nodes and perform 2-opt on each solution until no improvement
  * 
- * @param inst 
+ * @param inst tsp instance
  * @return ERROR_CODE 
  */
 ERROR_CODE h_greedy_2opt(instance* inst);
+
+//================================================================================
+// EXTRA MILEAGE HEURISTIC
+//================================================================================
+
+/**
+ * @brief Runs Extra Mileage heuristic
+ * 
+ * @param inst tsp instance
+ * @return ERROR_CODE 
+ */
+ERROR_CODE h_ExtraMileage(instance* inst);
 
 //================================================================================
 // UTILS

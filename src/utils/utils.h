@@ -29,7 +29,7 @@
 
 #define NOT_CONNECTED -1.0f
 
-static char* algs_string[7];
+static char* algs_string[8];
 
 typedef struct {
     double x;
