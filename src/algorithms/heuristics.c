@@ -111,7 +111,8 @@ ERROR_CODE h_ExtraMileage(instance* inst){
     ERROR_CODE error = OK;
 
     double max_distance = 0.0;
-    int nodeA, nodeB;
+    int nodeA = 0; 
+    int nodeB = 1;
 
     switch (inst->options_t.mileage_init)
     {
