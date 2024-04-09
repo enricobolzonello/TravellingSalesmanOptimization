@@ -16,7 +16,7 @@ pipeline {
         stage('Profiling'){
             steps {
                 echo 'Profiling the program'
-                sh 'make valgrind -n 20 -alg CPLEX_BENDERS -v -to_file -seed 123'
+                sh 'make valgrind ARGS="-n 20 -alg CPLEX_BENDERS -v --to_file -seed 123"'
 
                 // to add: performance profiling
             }

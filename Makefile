@@ -187,7 +187,7 @@ valgrind:
 		--leak-check=full \
 		--leak-resolution=high \
 		--log-file=$(LOGDIR)/$@.log \
-		$(BINDIR)/$(BINARY)
+		$(BINDIR)/$(BINARY) $(ARGS)
 	@echo -en "\nCheck the log file: $(LOGDIR)/$@.log\n"
 
 
