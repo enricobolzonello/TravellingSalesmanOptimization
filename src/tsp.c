@@ -4,9 +4,10 @@ void tsp_init(instance* inst){
     inst->options_t.graph_random = false;
     inst->options_t.graph_input = false;
     inst->options_t.timelimit = -1;
-    inst->options_t.seed = 0;
+    inst->options_t.seed = -1;
     inst->options_t.tofile = false;
     inst->options_t.k = 100000;
+    inst->options_t.mileage_init = EM_MAX;
     
     inst->nnodes = -1;
     inst->best_solution.cost = __DBL_MAX__;
@@ -198,6 +199,30 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             continue;
         }
 
+        if(strcmp("-em", argv[i]) == 0){
+            log_info("parsing em");
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            const char* method = argv[++i];
+
+            if (strcmp("MAX", method) == 0){
+                inst->options_t.mileage_init = EM_MAX;
+                log_info("selected max initialization for em");
+            }else if (strcmp("RANDOM", method) == 0){
+                inst->options_t.mileage_init = EM_RANDOM;
+                log_info("selected random initialization for em");
+            }else{
+                log_warn("initialization method not recognized, using MAX as default");
+                inst->options_t.mileage_init = EM_MAX;
+            }
+
+            continue;
+        }
+
         if(strcmp("-q", argv[i]) == 0){
             err_setverbosity(QUIET);
             continue;
@@ -238,6 +263,8 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    -seed <value>           seed for random generation, if not set defaults to user time\n");
         printf("    -alg <option>           selects the algorithm to solve TSP, run --all_algs to see the options\n");
         printf("    -n <value>              number of nodes\n");
+        printf("    -k <value>              number of iterations of some tabu search and vns, defaults to 10'000\n");
+        printf("    -em <option>            initialization for Extra Mileage, options: MAX, RANDOM. Defaults to MAX\n");
         printf("    --all_algs              prints all possible algorithms\n");
         printf("    --to_file               if present, plots will be saved in directory /plots\n");
         printf("    -q                      quiet verbosity level, prints only output\n");

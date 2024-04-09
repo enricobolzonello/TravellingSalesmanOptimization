@@ -100,7 +100,7 @@ int main(int argc, char* argv[]){
         log_info("running EXTRA MILEAGE");
         e = h_ExtraMileage(&inst);
         if(!err_ok(e)){
-            log_fatal("Benders Loop did not finish correctly");
+            log_fatal("Extra Mileage did not finish correctly");
             tsp_handlefatal(&inst);
         } 
         printf("Extra Mileage: %f\n", inst.best_solution.cost);
@@ -110,6 +110,9 @@ int main(int argc, char* argv[]){
         log_error("cannot run any algorithm");
         break;
     }
+
+    double ex_time = utils_timeelapsed(inst.c);
+    log_info("execution time %f", ex_time);
 
     exit(0);
 }

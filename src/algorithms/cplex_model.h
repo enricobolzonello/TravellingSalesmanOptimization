@@ -32,16 +32,6 @@ ERROR_CODE cx_BendersLoop(instance* inst);
 ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp);
 
 /**
- * @brief Get the optimal solution in an array xstar
- * 
- * @param env CPXENVptr
- * @param lp CPXLPptr
- * @param xstar array of double holding the values assigned of the optimal solution
- * @return ERROR_CODE 
- */
-ERROR_CODE cx_check_optimal(CPXENVptr env, CPXLPptr lp, double* xstar, int ncols, instance* inst);
-
-/**
  * @brief Map from edge (i,j) to position in the CPLEX matrix
  * 
  * @param i Start node
@@ -51,7 +41,7 @@ ERROR_CODE cx_check_optimal(CPXENVptr env, CPXLPptr lp, double* xstar, int ncols
  */
 int cx_xpos(int i, int j, instance *inst);
 
-ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, int iteration, instance* inst);
+ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance* inst);
 
 /**
  * @brief Builds the Mixed-Integer Problem in DFJ formulation (without subtour elimination constraint)

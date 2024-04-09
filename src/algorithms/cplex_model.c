@@ -29,11 +29,12 @@ ERROR_CODE cx_Nosec(instance *inst){
 
 	// get the optimal value
 	double* xstar = (double *) calloc(ncols, sizeof(double));
-	error = cx_check_optimal(env, lp, xstar, ncols, inst);
-	if(error){
-		log_fatal("code %d : error in get_optimal", error);
+
+	// check that cplex solved it right
+	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
+		log_fatal("CPX : CPXgetx() error");	
 		tsp_handlefatal(inst);
-	}
+	} 
 
 	int ncomp = 0;
 	int* comp = (int*) calloc(ncols, sizeof(int));
@@ -78,15 +79,19 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 
 	error = cx_initialize(inst, env, lp);
 	if(!err_ok(error)){
-		log_fatal("code %d : error in get_optimal", error);
+		log_fatal("code %d : error in initialize", error);
 		tsp_handlefatal(inst);
 	}
 
 	tsp_solution solution = tsp_init_solution(inst->nnodes);
 	int iteration = 0;
 	while(1){
+		printf("\n");
+		log_info("iteration %d", iteration);
 		double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
+			CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit - ex_time); 
+
             if(ex_time > inst->options_t.timelimit){
 				log_warn("exceeded time, saving best solution found until now");
 				error = DEADLINE_EXCEEDED;
@@ -97,7 +102,8 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 		// solve with cplex
 		e = CPXmipopt(env,lp);
 		if ( e ){
-			log_fatal("CPX code %d : CPXmipopt() error", error); 
+			log_fatal("CPX code %d : CPXmipopt() error", e); 
+			free(solution.path);
 			tsp_handlefatal(inst);
 		}
 
@@ -105,36 +111,39 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 
 		// get the optimal value
 		double* xstar = (double *) calloc(ncols, sizeof(double));
-		error = cx_check_optimal(env, lp, xstar, ncols, inst);
-		if(!err_ok(error)){
-			log_fatal("code %d : error in get_optimal", error);
+
+		// check that cplex solved it right
+		if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
+			log_fatal("CPX : CPXgetx() error");	
+			free(solution.path);
 			tsp_handlefatal(inst);
-		}
+		} 
 
 		int ncomp = 0;
 		int* comp = (int*) calloc(ncols, sizeof(int));
 		cx_build_sol(xstar, inst, comp, &ncomp, &solution);
 
 		log_info("number of components: %d", ncomp);
+		log_info("current solution cost: %f", solution.cost);
 
 		// only one component it means that we have found an Hamiltonian cycle
 		if(ncomp == 1){
 			break;
 		}
 
-		error = cx_add_sec(env, lp, comp, ncomp, iteration, inst);
+		error = cx_add_sec(env, lp, comp, ncomp, inst);
 		if(!err_ok(error)){
 			log_fatal("code %d : error in add_sec", error);
+			free(solution.path);
 			tsp_handlefatal(inst);
 		}
 
 		iteration++;
+		free(comp);
 	}
 
-	// TODO: why doesnt work with tsp_update_solution
-	memcpy(inst->best_solution.path, solution.path, inst->nnodes * sizeof(int));
-    inst->best_solution.cost = solution.cost;
-	log_debug("sol: %f", inst->best_solution.cost);
+	// save the best solution
+	tsp_update_best_solution(inst, &solution);
 
 	free(solution.path);
 	
@@ -167,37 +176,9 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
     	CPXsetlogfilename(env, log_path, "w");
 	}
 
-	if(inst->options_t.seed != -1){
-		CPXsetintparam(env, CPX_PARAM_RANDOMSEED, inst->options_t.seed);		
-	}
-
 	if(inst->options_t.timelimit > 0.0){
 		CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit); 
 	}
-
-	return OK;
-}
-
-ERROR_CODE cx_check_optimal(CPXENVptr env, CPXLPptr lp, double* xstar, int ncols, instance* inst){
-	// use the optimal solution found by CPLEX
-
-	// array to hold the optimal solution
-
-	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
-		log_fatal("CPX : CPXgetx() error");	
-		tsp_handlefatal(inst);
-	} 
-
-	/*if(err_dolog()){
-		// print the model
-		for ( int i = 0; i < inst->nnodes; i++ ){
-			for ( int j = i+1; j < inst->nnodes; j++ ){
-				if ( xstar[cx_xpos(i,j,inst)] > 0.5 ){
-					printf("  ... x(%3d,%3d) = 1\n", i+1,j+1);
-				} 
-			}
-		}
-	}*/
 
 	return OK;
 }
@@ -218,7 +199,7 @@ int cx_xpos(int i, int j, instance *inst){
 	return pos;
 }
 
-ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, int iteration, instance* inst){
+ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance* inst){
 	if(ncomp == 1){
 		return INVALID_ARGUMENT;
 	}
@@ -230,16 +211,11 @@ ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, int iter
 	int* index = (int*) calloc(ncols, sizeof(int));
 	double* value = (double*) calloc(ncols, sizeof(double));
 
-	// column name initialization
-	char **cname = (char **) calloc(1, sizeof(char *));		// (char **) required by cplex...
-	cname[0] = (char *) calloc(100, sizeof(char));
-
-	for(int k=1; k<ncomp+1; k++){
+	// non più di n**2
+	for(int k=1; k<=ncomp; k++){
 		int nnz=0;
 
 		int number_nodes = 0; // |S|
-
-		sprintf(cname[0], "it(%d)-row(%d)", iteration, k);  
 
 		for(int i=0; i<inst->nnodes; i++){
 
@@ -266,8 +242,12 @@ ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, int iter
 		double rhs = number_nodes - 1.0; // |S|-1
 		// https://www.ibm.com/docs/en/icos/22.1.0?topic=cpxxaddrows-cpxaddrows
 		int izero = 0;
-		CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, &cname[0]);
+		CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, NULL);
 	}
+
+	// free resources
+	free(index);
+	free(value);
 
 	return OK;
 }

@@ -67,4 +67,15 @@ ERROR_CODE h_ExtraMileage(instance* inst);
  */
 ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, double* solution_cost);
 
+/**
+ * @brief 
+ * 
+ * @param inst 
+ * @param solution 
+ * @param nodeA 
+ * @param nodeB 
+ * @return ERROR_CODE 
+ */
+ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA, int nodeB);
+
 #endif

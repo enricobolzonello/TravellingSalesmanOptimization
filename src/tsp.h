@@ -17,6 +17,11 @@
 
 #define EPSILON -1.0E-7
 
+typedef enum{
+    EM_MAX = 0,
+    EM_RANDOM = 1
+} em_initialization;
+
 typedef enum {
     ALG_GREEDY = 0,
     ALG_GREEDY_ITER = 1,
@@ -36,6 +41,7 @@ typedef struct {
     char* inputfile;            // input file path
     bool tofile;                // if true, plots will be saved in directory /plots
     int k;
+    em_initialization mileage_init;       // how to initialize extra mileage
 } options;
 
 typedef struct {

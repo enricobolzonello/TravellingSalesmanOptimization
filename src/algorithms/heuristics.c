@@ -110,18 +110,31 @@ ERROR_CODE h_greedy_2opt(instance* inst){
 ERROR_CODE h_ExtraMileage(instance* inst){
     ERROR_CODE error = OK;
 
-    // choose the maximum distance edge (A,B) to start
     double max_distance = 0.0;
     int nodeA, nodeB;
-    for(int i=0; i<inst->nnodes; i++){
-        for(int j=i+1; j<inst->nnodes; j++){
-            double distance = tsp_get_cost(inst, i, j);
-            if(distance > max_distance){
-                nodeA = i;
-                nodeB = j;
-                max_distance = distance;
+
+    switch (inst->options_t.mileage_init)
+    {
+    case EM_MAX:
+        for(int i=0; i<inst->nnodes; i++){
+            for(int j=i+1; j<inst->nnodes; j++){
+                double distance = tsp_get_cost(inst, i, j);
+                if(distance > max_distance){
+                    nodeA = i;
+                    nodeB = j;
+                    max_distance = distance;
+                }
             }
         }
+
+        break;
+    case EM_RANDOM:
+        nodeA = rand() % (inst->nnodes + 1);
+        nodeB = rand() % (inst->nnodes - nodeA + 1) + nodeA;
+        break;
+    default:
+        log_warn("aborted");
+        return ABORTED;
     }
 
     log_debug("max edge : (%d, %d) with distance %f", nodeA, nodeB, max_distance);
@@ -135,84 +148,15 @@ ERROR_CODE h_ExtraMileage(instance* inst){
 
     log_debug("initial cost: %f", solution.cost);
 
-    // initalize visited array
-    bool* visited = (bool*) calloc(inst->nnodes, sizeof(int));
-    visited[nodeA] = true;
-    visited[nodeB] = true;
-
-    int num_visited = 0;
-    struct edge edges[inst->nnodes];
-
-    struct edge e1 = {.i = nodeA, .j = nodeB};
-    struct edge e2 = {.i = nodeB, .j = nodeA};
-    edges[num_visited++] = e1;
-    edges[num_visited++] = e2;
-
-    while(num_visited < inst->nnodes){
-        // time limit check
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
-            if(ex_time > inst->options_t.timelimit){
-                error = DEADLINE_EXCEEDED;
-                break;
-            }
-        }
-
-        double mileage = __DBL_MAX__;
-        int best_edge_idx = -1;
-        int best_new_node = -1;
-        struct edge best_edge;
-
-        for(int i=0; i<inst->nnodes; i++){
-            if(visited[i]){
-                continue;
-            }
-
-            // find the nearest edge to the tour
-            for(int j=0; j<num_visited; j++){
-                int u = edges[j].i;
-                int v = edges[j].j;
-
-                double delta = tsp_get_cost(inst, u, i) + tsp_get_cost(inst, i, v) - tsp_get_cost(inst, u, v);
-
-                if(delta < mileage){
-                    mileage = delta;
-                    best_edge_idx = j;
-                    best_new_node = i;
-                    best_edge = edges[j];
-                }
-            }
-        }
-
-        // no edge found so we are done
-        if(best_edge_idx == -1){
-            break;
-        }
-
-        // replace edge with two new edges
-        // update the visited edges
-        struct edge temp1 = {.i = best_edge.i, .j = best_new_node};
-        solution.path[temp1.i] = temp1.j;
-        edges[best_edge_idx] = temp1;
-
-        struct edge temp2 = {.i = best_new_node, .j = best_edge.j};
-        solution.path[temp2.i] = temp2.j;
-        edges[num_visited++] = temp2;
-
-        // mark the new node as visited
-        visited[best_new_node] = true;
-
-        // update cost
-        solution.cost += mileage;
-
-        log_debug("current cost: %f", solution.cost);
-    }
+    // execute extra mileage algorithm
+    error = h_extramileage_util(inst, &solution, nodeA, nodeB);
 
     // save solution
     tsp_update_best_solution(inst, &solution);
 
     return error;
 }
+
 
 //================================================================================
 // UTILS
@@ -282,4 +226,83 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
     free(visited);
 
     return e;
+}
+
+ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA, int nodeB){
+    ERROR_CODE error = OK;    
+
+    // initalize visited array
+    bool* visited = (bool*) calloc(inst->nnodes, sizeof(int));
+    visited[nodeA] = true;
+    visited[nodeB] = true;
+
+    int num_visited = 0;
+    struct edge edges[inst->nnodes];
+
+    struct edge e1 = {.i = nodeA, .j = nodeB};
+    struct edge e2 = {.i = nodeB, .j = nodeA};
+    edges[num_visited++] = e1;
+    edges[num_visited++] = e2;
+
+    while(num_visited < inst->nnodes){
+        // time limit check
+        if(inst->options_t.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(inst->c);
+            if(ex_time > inst->options_t.timelimit){
+                error = DEADLINE_EXCEEDED;
+                break;
+            }
+        }
+
+        double mileage = __DBL_MAX__;
+        int best_edge_idx = -1;
+        int best_new_node = -1;
+        struct edge best_edge;
+
+        for(int i=0; i<inst->nnodes; i++){
+            if(visited[i]){
+                continue;
+            }
+
+            // find the nearest edge to the tour
+            for(int j=0; j<num_visited; j++){
+                int u = edges[j].i;
+                int v = edges[j].j;
+
+                double delta = tsp_get_cost(inst, u, i) + tsp_get_cost(inst, i, v) - tsp_get_cost(inst, u, v);
+
+                if(delta < mileage){
+                    mileage = delta;
+                    best_edge_idx = j;
+                    best_new_node = i;
+                    best_edge = edges[j];
+                }
+            }
+        }
+
+        // no edge found so we are done
+        if(best_edge_idx == -1){
+            break;
+        }
+
+        // replace edge with two new edges
+        // update the visited edges
+        struct edge temp1 = {.i = best_edge.i, .j = best_new_node};
+        solution->path[temp1.i] = temp1.j;
+        edges[best_edge_idx] = temp1;
+
+        struct edge temp2 = {.i = best_new_node, .j = best_edge.j};
+        solution->path[temp2.i] = temp2.j;
+        edges[num_visited++] = temp2;
+
+        // mark the new node as visited
+        visited[best_new_node] = true;
+
+        // update cost
+        solution->cost += mileage;
+
+        log_debug("current cost: %f", solution->cost);
+    }
+
+    return error;
 }
