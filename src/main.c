@@ -114,5 +114,7 @@ int main(int argc, char* argv[]){
     double ex_time = utils_timeelapsed(inst.c);
     log_info("execution time %f", ex_time);
 
+    tsp_free_instance(&inst);
+
     exit(0);
 }

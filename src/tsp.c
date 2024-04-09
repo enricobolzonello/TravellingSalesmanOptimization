@@ -368,6 +368,8 @@ void tsp_free_instance(instance *inst){
     if(inst->costs_computed){
         free(inst->costs);
     }
+
+    free(inst->best_solution.path);
 }
 
 void tsp_read_input(instance* inst){
