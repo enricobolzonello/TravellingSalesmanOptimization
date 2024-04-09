@@ -64,8 +64,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 tsp_handlefatal(inst);
             }
 
-            inst->options_t.inputfile = (char*) calloc(strlen(path), sizeof(char));
-            strcpy(inst->options_t.inputfile, path);
+            inst->options_t.inputfile = strdup(path);
 
             inst->options_t.graph_input = true;
 
@@ -167,8 +166,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
             char buffer[40];
             utils_plotname(buffer, 40);
-            inst->options_t.inputfile = (char*) calloc(strlen(buffer), sizeof(char));
-            strcpy(inst->options_t.inputfile, buffer);
+            inst->options_t.inputfile = strdup(buffer);
 
             inst->options_t.graph_random = true;
 
@@ -295,6 +293,7 @@ ERROR_CODE tsp_generate_randompoints(instance* inst){
     srand(inst->options_t.seed);
 
     inst->points = (point*) calloc(inst->nnodes, sizeof(point));
+    inst->points_allocated = true;
 
     for(int i=0; i<inst->nnodes; i++){
         inst->points[i].x = TSP_RAND();
@@ -358,9 +357,8 @@ void tsp_handlefatal(instance *inst){
 }
 
 void tsp_free_instance(instance *inst){
-    if(inst->options_t.graph_input){
-        free(inst->options_t.inputfile);
-    }
+    free(inst->options_t.inputfile);
+
     if(inst->points_allocated){
         free(inst->points);
     }
