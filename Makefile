@@ -50,7 +50,7 @@ END_COLOR=\$(COLOR_PREFIX)[0m
 # Source code directory structure
 BINDIR := make/bin
 SRCDIR := src
-LOGDIR := make/log
+LOGDIR := make/logs
 LIBDIR := make/lib
 TESTDIR := test
 UTILSDIR = $(SRCDIR)/utils
