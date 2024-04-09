@@ -175,7 +175,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             continue;
         }
 
-        if(strcmp("--to_file", argv[i]) == 0){
+        if(strcmp("-to_file", argv[i]) == 0){
             log_info("plots will be saved to directory /plots");
 
             if(utils_invalid_input(i, argc, &help)){
