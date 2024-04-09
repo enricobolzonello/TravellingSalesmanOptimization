@@ -74,8 +74,10 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 	}
 
 	// initialize CPLEX model
-	ERROR_CODE error = cx_initialize(inst, env, lp);
-	if(error){
+	ERROR_CODE error = OK;
+
+	error = cx_initialize(inst, env, lp);
+	if(!err_ok(error)){
 		log_fatal("code %d : error in get_optimal", error);
 		tsp_handlefatal(inst);
 	}
@@ -86,13 +88,15 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 		double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
-               return DEADLINE_EXCEEDED;
+				log_warn("exceeded time, saving best solution found until now");
+				error = DEADLINE_EXCEEDED;
+				break;
             }
         }
 
 		// solve with cplex
-		error = CPXmipopt(env,lp);
-		if ( error ){
+		e = CPXmipopt(env,lp);
+		if ( e ){
 			log_fatal("CPX code %d : CPXmipopt() error", error); 
 			tsp_handlefatal(inst);
 		}
@@ -102,7 +106,7 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 		// get the optimal value
 		double* xstar = (double *) calloc(ncols, sizeof(double));
 		error = cx_check_optimal(env, lp, xstar, ncols, inst);
-		if(error){
+		if(!err_ok(error)){
 			log_fatal("code %d : error in get_optimal", error);
 			tsp_handlefatal(inst);
 		}
@@ -118,7 +122,11 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 			break;
 		}
 
-		cx_add_sec(env, lp, comp, ncomp, iteration, inst);
+		error = cx_add_sec(env, lp, comp, ncomp, iteration, inst);
+		if(!err_ok(error)){
+			log_fatal("code %d : error in add_sec", error);
+			tsp_handlefatal(inst);
+		}
 
 		iteration++;
 	}
@@ -134,7 +142,7 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 	CPXfreeprob(env, &lp);
 	CPXcloseCPLEX(&env); 
 
-	return OK;
+	return error;
 }
 
 

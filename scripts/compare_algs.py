@@ -18,7 +18,7 @@ load_dotenv(find_dotenv())
 METHODS = {
     "heuristic" : ["GREEDY", "GREEDY_ITER", "2OPT_GREEDY"],
     "metaheuristic" : ["TABU_SEARCH", "VNS"],
-    "all" : ["CPLEX", "GREEDY_ITER", "2OPT_GREEDY", "TABU_SEARCH", "VNS"]
+    "all" : ["CPLEX_BENDERS", "CPLEX_NOSEC", "GREEDY_ITER", "2OPT_GREEDY", "TABU_SEARCH", "VNS"]
 }
 
 TIME_LIMIT = "1200"
