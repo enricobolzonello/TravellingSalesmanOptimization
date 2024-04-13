@@ -15,7 +15,7 @@ ERROR_CODE cx_Nosec(instance *inst);
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE cx_BendersLoop(instance* inst);
+ERROR_CODE cx_BendersLoop(instance* inst, bool patching);
 
 //================================================================================
 // UTILS

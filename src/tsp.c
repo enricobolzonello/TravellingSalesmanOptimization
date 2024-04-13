@@ -135,6 +135,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }else if (strcmp("EXTRA_MILEAGE", method) == 0){
                 inst->alg = ALG_EXTRAMILEAGE;
                 log_info("selected EXTRA MILEAGE");
+            }else if (strcmp("CPLEX_BENDERS_PAT", method) == 0){
+                inst->alg = ALG_CX_BENDERS_PAT;
+                log_info("selected BENDERS LOOP with PATCHING");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }
@@ -281,6 +284,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - VNS\n");
         printf("    - CPLEX_NOSEC\n");
         printf("    - CPLEX_BENDERS\n");
+        printf("    - CPLEX_BENDERS_PAT\n");
         printf("    - EXTRA_MILEAGE\n");
         
         return ABORTED;

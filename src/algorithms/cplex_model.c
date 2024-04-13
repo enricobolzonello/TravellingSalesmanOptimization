@@ -60,7 +60,7 @@ ERROR_CODE cx_Nosec(instance *inst){
 }
 
 // TODO: better error handling
-ERROR_CODE cx_BendersLoop(instance* inst){
+ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 	// open CPLEX model
 	int e;
 	CPXENVptr env = CPXopenCPLEX(&e);
@@ -136,6 +136,15 @@ ERROR_CODE cx_BendersLoop(instance* inst){
 			log_fatal("code %d : error in add_sec", error);
 			free(solution.path);
 			tsp_handlefatal(inst);
+		}
+
+		// patch solution
+		if(patching){
+			while(ncomp > 1){
+				heuristic_patching(inst, comp, &ncomp, &solution);
+				log_info("number of components: %d", ncomp);
+				log_info("current solution cost: %f", solution.cost);
+			}
 		}
 
 		iteration++;
@@ -358,7 +367,62 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
 	}
 }
 
+void heuristic_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution){
+	double best_delta = __DBL_MAX__;
+	int best_nodes[2] = {-1, -1};
 
+	// compute nodes to patch together
+	for (int a = 0; a < inst->nnodes; a++){
+		for(int b = 0; b < inst->nnodes; b++){
+			if(comp[a] == comp[b]){
+				continue;
+			}
+			int succ_a = solution->path[a]; //successor of a
+            int succ_b = solution->path[b]; //successor of b
+
+            double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
+            double swapped_cost = tsp_get_cost(inst, a, succ_b) + tsp_get_cost(inst, b, succ_a);
+            double delta = swapped_cost - current_cost;
+
+			if(delta < best_delta && delta > 0){
+				best_delta = delta;
+				best_nodes[0] = a;
+				best_nodes[1] = b;
+			}
+		}
+	}
+	// patch components
+	log_debug("best_delta: %f", best_delta);
+	if(best_delta > EPSILON){
+		log_debug("  patching...\n");
+        int a = best_nodes[0];
+        int b = best_nodes[1];
+
+        int succ_a = solution->path[a]; //successor of a
+        int succ_b = solution->path[b]; //successor of b
+        
+		solution->path[a] = succ_b;
+		solution->path[b] = succ_a;
+
+        // update solution cost
+        solution->cost += best_delta;
+
+		// update comp
+		int i = succ_b;
+		int comp_index = comp[a];
+		bool finish = false; 
+		while(!finish){
+			comp[i] = comp_index;
+			if(i == b){
+				finish = true;
+			}			
+			i = solution->path[i];
+		}
+
+		(*ncomp) = (*ncomp)-1;
+    }
+	
+}
 
 /*
 **** LAZY CONTRAINTS IN THE INPUT MODEL ****

@@ -88,13 +88,23 @@ int main(int argc, char* argv[]){
         break;
     case ALG_CX_BENDERS:
         log_info("running BENDERS LOOP");
-        e = cx_BendersLoop(&inst);
+        e = cx_BendersLoop(&inst, false);
         if(!err_ok(e)){
             log_fatal("Benders Loop did not finish correctly");
             tsp_handlefatal(&inst);
         } 
         printf("Benders Loop: %f\n", inst.best_solution.cost);
         tsp_plot_solution(&inst);
+        break;
+    case ALG_CX_BENDERS_PAT:
+        log_info("running BENDERS LOOP with PATCHING");
+        e = cx_BendersLoop(&inst, true);
+        if(!err_ok(e)){
+            log_fatal("Benders Loop with patching did not finish correctly");
+            tsp_handlefatal(&inst);
+        } 
+        printf("Benders Loop: %f\n", inst.best_solution.cost);
+        //tsp_plot_solution(&inst);
         break;
     case ALG_EXTRAMILEAGE:
         log_info("running EXTRA MILEAGE");

@@ -30,7 +30,8 @@ typedef enum {
     ALG_VNS = 4,
     ALG_CX_NOSEC = 5,
     ALG_CX_BENDERS = 6,
-    ALG_EXTRAMILEAGE = 7
+    ALG_EXTRAMILEAGE = 7,
+    ALG_CX_BENDERS_PAT = 8
 } algorithms;
 
 typedef struct {
