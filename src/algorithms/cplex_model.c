@@ -125,6 +125,8 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 
 		log_info("number of components: %d", ncomp);
 		log_info("current solution cost: %f", solution.cost);
+		log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
+		log_info("cost re-computed: %f", solutionCost(inst, solution.path));
 
 		// only one component it means that we have found an Hamiltonian cycle
 		if(ncomp == 1){
@@ -144,6 +146,8 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 				heuristic_patching(inst, comp, &ncomp, &solution);
 				log_info("number of components: %d", ncomp);
 				log_info("current solution cost: %f", solution.cost);
+				log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
+				log_info("cost re-computed: %f", solutionCost(inst, solution.path));
 			}
 		}
 
@@ -151,6 +155,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		free(comp);
 	}
 
+	log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
 	// save the best solution
 	tsp_update_best_solution(inst, &solution);
 
@@ -394,7 +399,7 @@ void heuristic_patching(instance *inst, int *comp, int *ncomp, tsp_solution* sol
 	// patch components
 	log_debug("best_delta: %f", best_delta);
 	if(best_delta > EPSILON){
-		log_debug("  patching...\n");
+		log_debug("  patching...");
         int a = best_nodes[0];
         int b = best_nodes[1];
 

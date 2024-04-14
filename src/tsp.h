@@ -173,4 +173,8 @@ double tsp_get_cost(instance* inst, int i, int j);
 
 tsp_solution tsp_init_solution(int nnodes);
 
+bool isTour(int path[], int n);
+
+double solutionCost(instance *inst, int path[]);
+
 #endif

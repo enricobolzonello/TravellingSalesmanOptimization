@@ -515,7 +515,7 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
             return false;
         }
         node_visit_counter[node] ++;
-    } 
+    }
 
     // check that each node is visited once
     for(int i=0; i<inst->nnodes; i++){
@@ -545,4 +545,56 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_soluti
         
         return INVALID_ARGUMENT;
     }   
+}
+
+
+bool isTour(int path[], int n) {
+    // Check if the path has at least one node
+    if (n == 0)
+        return false;
+
+    // Array to keep track of visited nodes
+    bool visited[n]; // Declare the array without initialization
+
+    // Initialize the visited array
+    for (int i = 0; i < n; i++)
+        visited[i] = false;
+
+    // Mark the starting node as visited
+
+    // Check if each node is visited exactly once
+    int i = 0;
+    visited[0] = true;
+
+    bool end_tour = false;
+    while (!end_tour) {
+        // Check if the node is within the valid range
+        if (path[i] < 0 || path[i] >= n)
+            return false;
+
+        // Check if the node appears more than once
+        if (visited[path[i]])
+            end_tour = true;
+
+        // Mark the node as visited
+        visited[path[i]] = true;
+
+        i = path[i];
+    }
+
+    // Check if all nodes have been visited
+    for (int i = 0; i < n; i++) {
+        if (!visited[i])
+            return false;
+    }
+
+    return true;
+}
+
+double solutionCost(instance *inst, int path[]){
+    double cost = 0;
+    for(int i =0; i< inst->nnodes; i++){
+        cost += tsp_get_cost(inst, i, path[i]);
+    }
+    return cost;
 }
