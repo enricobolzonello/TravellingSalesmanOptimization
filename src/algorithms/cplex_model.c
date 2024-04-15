@@ -367,6 +367,7 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
 			}
 		}	
 		solution->path[i] = start;  // last arc to close the cycle
+		solution->cost += tsp_get_cost(inst, i, start);
 		
 		// go to the next component...
 	}
