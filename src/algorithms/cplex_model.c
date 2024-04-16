@@ -85,6 +85,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 
 	tsp_solution solution = tsp_init_solution(inst->nnodes);
 	int iteration = 0;
+	int n_sec = 0;
 	while(1){
 		printf("\n");
 		log_info("iteration %d", iteration);
@@ -128,6 +129,8 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
 		log_info("cost re-computed: %f", solutionCost(inst, solution.path));
 
+		n_sec += ncomp;
+
 		// only one component it means that we have found an Hamiltonian cycle
 		if(ncomp == 1){
 			break;
@@ -143,7 +146,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		// patch solution
 		if(patching){
 			while(ncomp > 1){
-				heuristic_patching(inst, comp, &ncomp, &solution);
+				cx_patching(inst, comp, &ncomp, &solution);
 				log_info("number of components: %d", ncomp);
 				log_info("current solution cost: %f", solution.cost);
 				log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
@@ -158,6 +161,10 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 	log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
 	// save the best solution
 	tsp_update_best_solution(inst, &solution);
+
+	FILE *f = fopen("results/BendersSEC.csv", "a");
+	fprintf(f, "%d,%d\n", n_sec, inst->nnodes);
+
 
 	free(solution.path);
 	
@@ -373,7 +380,7 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
 	}
 }
 
-void heuristic_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution){
+void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution){
 	double best_delta = __DBL_MAX__;
 	int best_nodes[2] = {-1, -1};
 

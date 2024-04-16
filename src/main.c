@@ -78,23 +78,13 @@ ERROR_CODE runAlg(instance* inst){
         break;
     case ALG_CX_BENDERS_PAT:
         log_info("running BENDERS LOOP with PATCHING");
-        e = cx_BendersLoop(&inst, true);
+        e = cx_BendersLoop(inst, true);
         if(!err_ok(e)){
             log_fatal("Benders Loop with patching did not finish correctly");
-            tsp_handlefatal(&inst);
+            tsp_handlefatal(inst);
         } 
         printf("Benders Loop: %f\n", inst->best_solution.cost);
-        //tsp_plot_solution(&inst);
-        break;
-    case ALG_CX_BENDERS_PAT:
-        log_info("running BENDERS LOOP with PATCHING");
-        e = cx_BendersLoop(&inst, true);
-        if(!err_ok(e)){
-            log_fatal("Benders Loop with patching did not finish correctly");
-            tsp_handlefatal(&inst);
-        } 
-        printf("Benders Loop: %f\n", inst->best_solution.cost);
-        tsp_plot_solution(inst);
+        //tsp_plot_solution(inst);
         break;
     case ALG_EXTRAMILEAGE:
         log_info("running EXTRA MILEAGE");
@@ -203,7 +193,7 @@ int main(int argc, char* argv[]){
     e = runAlg(&inst);
 
     double ex_time = utils_timeelapsed(inst.c);
-    log_info("execution time %f", ex_time);
+    log_info("execution time %.4f seconds", ex_time);
 
     tsp_free_instance(&inst);
 

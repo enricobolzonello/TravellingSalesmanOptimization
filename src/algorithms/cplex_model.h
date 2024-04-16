@@ -61,3 +61,13 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
  * @param ncomp Number of independent components
  */
 void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution);
+
+/**
+ * @brief Patch together the two highest cost subtours in the current solution
+ * 
+ * @param inst Tsp instance
+ * @param comp array that indicates at which component the vertex i belongs
+ * @param ncomp total number of components
+ * @param solution current Tsp solution
+ */
+void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);

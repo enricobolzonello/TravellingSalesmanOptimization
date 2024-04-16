@@ -16,12 +16,14 @@ import time
 load_dotenv(find_dotenv())
 
 METHODS = {
-    "heuristic" : ["GREEDY", "GREEDY_ITER", "2OPT_GREEDY"],
+    "heuristic" : ["GREEDY", "GREEDY_ITER", "EXTRA_MILEAGE"],
     "metaheuristic" : ["TABU_SEARCH", "VNS"],
-    "all" : ["CPLEX_BENDERS", "CPLEX_NOSEC", "GREEDY_ITER", "2OPT_GREEDY", "TABU_SEARCH", "VNS"]
+    "all" : ["CPLEX_BENDERS_PAT", "EXTRA_MILEAGE", "CPLEX_BENDERS", "GREEDY_ITER", "2OPT_GREEDY", "TABU_SEARCH", "VNS"],
+    "cplex" : ["CPLEX_BENDERS", "CPLEX_BENDERS_PAT"],
+    "greedy" : ["GREEDY", "GREEDY_ITER", "2OPT_GREEDY"]
 }
 
-TIME_LIMIT = "1200"
+TIME_LIMIT = "6000"
  
 # create an .env file to contain telegram token and chat id
 # the file has the following format
