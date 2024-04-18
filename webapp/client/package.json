@@ -1,0 +1,40 @@
+{
+  "name": "client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@visx/clip-path": "^3.3.0",
+    "@visx/network": "^3.3.0",
+    "@visx/responsive": "^3.10.2",
+    "@visx/scale": "^3.5.0",
+    "@visx/zoom": "^3.3.0",
+    "axios": "^1.6.8",
+    "prop-types": "^15.8.1",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-hook-form": "^7.51.3",
+    "react-resizable-panels": "^2.0.17",
+    "tw-elements": "^2.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@types/react": "^18.2.66",
+    "@types/react-dom": "^18.2.22",
+    "@visx/event": "^3.3.0",
+    "@visx/xychart": "^3.10.2",
+    "@vitejs/plugin-react-swc": "^3.5.0",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "eslint-plugin-react-refresh": "^0.4.6",
+    "tailwindcss": "^3.4.3",
+    "vite": "^5.2.0"
+  }
+}
