@@ -1,5 +1,9 @@
 pipeline {
     agent any
+    environment {
+        TOKEN = credentials('telegram-token')
+        ID = credentials('telegram-id')
+    }
     stages {
         stage('Build') {
             steps {
@@ -24,7 +28,7 @@ pipeline {
         stage('Run') { 
             steps {
                 echo 'Running on all files, check status on Telegram'
-                sh 'pip3 install scripts/requirements.txt' 
+                sh 'pip3 install -r scripts/requirements.txt' 
                 sh 'python3 scripts/compare_algs.py all'
                 sh 'python3 scripts/perfprof.py results/all.csv results/all.pdf -D , -M 3' 
             }

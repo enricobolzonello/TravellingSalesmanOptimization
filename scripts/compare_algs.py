@@ -5,7 +5,7 @@ import os
 import sys
 import shlex
 from py_reminder import config
-from dotenv import load_dotenv, find_dotenv
+#from dotenv import load_dotenv, find_dotenv
 
 import requests
 from logging import Handler, Formatter
@@ -13,7 +13,7 @@ import logging
 import datetime
 import time
 
-load_dotenv(find_dotenv())
+#load_dotenv(find_dotenv())
 
 METHODS = {
     "heuristic" : ["GREEDY", "GREEDY_ITER", "EXTRA_MILEAGE"],
@@ -29,8 +29,8 @@ TIME_LIMIT = "6000"
 # the file has the following format
 # TOKEN=token
 # ID=id
-TELEGRAM_TOKEN = os.getenv('TOKEN')
-TELEGRAM_CHAT_ID = os.getenv('ID')
+TELEGRAM_TOKEN = os.environ.get('TOKEN')
+TELEGRAM_CHAT_ID = os.environ.get('ID')
 
 # -------------------------------------------------------------------------------------------------------------
 #   TELEGRAM BOT
