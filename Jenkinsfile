@@ -7,6 +7,7 @@ pipeline {
     stages {
         stage('Build') {
             steps {
+                echo "id: ${ID}"
                 echo 'Building project'
                 sh 'make clean && make'
             }
