@@ -152,6 +152,8 @@ return_struct* webapp_run(const char* path, int seed, int time_limit, int alg){
         return rs;
     }
 
+    double ex_time = utils_timeelapsed(inst.c);
+
     // save result in a struct to be processed by Node-Addon-API
     rs->nnodes = inst.nnodes;
     
@@ -166,6 +168,8 @@ return_struct* webapp_run(const char* path, int seed, int time_limit, int alg){
     for(int i=0; i<inst.nnodes; i++){
         rs->points[i] = inst.points[i];
     }
+
+    rs->execution_time = ex_time;
 
     return rs;
 }

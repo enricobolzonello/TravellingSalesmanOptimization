@@ -488,7 +488,7 @@ ERROR_CODE tsp_compute_costs(instance* inst){
             if (j == i){
                 continue;
             }
-            double distance = sqrtf(pow(inst->points[j].x - inst->points[i].x, 2) + pow(inst->points[j].y - inst->points[i].y, 2));
+            double distance = (double) ((int) (sqrtf(pow(inst->points[j].x - inst->points[i].x, 2) + pow(inst->points[j].y - inst->points[i].y, 2)) + 0.5));
             inst->costs[i* inst->nnodes + j] = distance;
             inst->costs[j* inst->nnodes + i] = distance;
         }

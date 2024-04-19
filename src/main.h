@@ -8,6 +8,7 @@ typedef struct {
     int* path;
     point* points;
     int nnodes;
+    double execution_time;
 } return_struct;
 
 ERROR_CODE runAlg(instance* inst);
