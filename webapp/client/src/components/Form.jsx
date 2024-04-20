@@ -2,6 +2,8 @@ import { useForm } from "react-hook-form";
 import PropTypes from 'prop-types';
 import { useState } from 'react';
 
+//import AlgorithmModal from "./AlgorithmModal";
+
 import '../output.css'
 
 Form.propTypes = {
@@ -12,14 +14,20 @@ Form.propTypes = {
 
 
 function Form({select_array ,onSubmit, processing }) {
-
     const {
         register,
         handleSubmit,
-        setValue
-    } = useForm()
+        setValue,
+        formState: { errors }
+    } = useForm({ mode: "onBlur" })
 
-    const [selectedValue, setSelectedValue] = useState(""); // Initialize with empty string or any default value
+    const [selectedValue, setSelectedValue] = useState(''); // Initialize with empty string or any default value
+
+    const [selectedAlgorithm, setSelectedAlgorithm] = useState("0");
+
+    const handleAlgorithmChange = (event) => {
+        setSelectedAlgorithm(event.target.value);
+    };
 
     return (
         <form
@@ -31,10 +39,14 @@ function Form({select_array ,onSubmit, processing }) {
                 <div className="flex flex-wrap">
                     <div className="w-full px-3">
                         <label className="block uppercase tracking-wide text-gray-100 text-xs font-bold mb-2">ALGORITHM</label>
+
+                        <div className="flex">
                         <select
                             className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
                             name="algorithm"
                             {...register("algorithm", { required: true })}
+                            value={selectedAlgorithm}
+                            onChange={handleAlgorithmChange}
                         >
                             <option value="0">Greedy</option>
                             <option value="1">Greedy Iterative</option>
@@ -46,6 +58,11 @@ function Form({select_array ,onSubmit, processing }) {
                             <option value="7">Extra Mileage</option>
                             <option value="8">Benders Loop with Patching</option>
                         </select>
+
+                        {/*<AlgorithmModal algorithm={selectedAlgorithm}/>*/}
+
+                        </div>
+
                         <p id="helper-text-explanation" className="mt-2 text-xs text-gray-500 dark:text-gray-400">Which algorithm will be used to solve the instance </p>
                     </div>
                 </div>
@@ -82,28 +99,11 @@ function Form({select_array ,onSubmit, processing }) {
                 <div className="flex flex-wrap">
                     <div className="w-full px-3">
                         <label className="block uppercase tracking-wide text-gray-100 text-xs font-bold mb-2">Dataset</label>
-                        {/*<select
-                            className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                            name="dataset"
-                            {...register("dataset")}
-                        >
-                            <option
-                                value="../../data/berlin52.tsp"
-                            
-                            >
-                                berlin52
-                            </option>
-                            <option
-                                value="../../data/a280.tsp"
-                                
-                            >
-                                a280
-                            </option>
-                        </select>*/}
-
                         <select
+                            {...register('dataset',{
+                                required: true
+                             })}
                             className="block appearance-none w-full bg-gray-200 border border-gray-200 text-gray-700 py-3 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-                            name="dataset"
                             value={selectedValue} // Set the value of the select to the selectedValue state
                             onChange={(e) => {
                                 setSelectedValue(e.target.value); // Update selectedValue state when an option is selected
@@ -116,6 +116,7 @@ function Form({select_array ,onSubmit, processing }) {
                                 </option>
                             ))}
                         </select>
+                        {errors.dataset && <p className="mt-2 text-xs text-red-500"> Select a dataset</p> }
                         <p id="helper-text-explanation" className="mt-2 text-xs text-gray-500 dark:text-gray-400"> TSPLIB instance (limited to Symmetric TSP and Euclidean distance) </p>
                     </div>
                 </div>

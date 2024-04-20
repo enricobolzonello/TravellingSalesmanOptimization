@@ -41,6 +41,8 @@ Napi::Object TSP_runner(const Napi::CallbackInfo& info){
 
     ret.Set("nnodes", rs->nnodes);
 
+    ret.Set("execution_time", rs->execution_time);
+
     return ret;
 }
 

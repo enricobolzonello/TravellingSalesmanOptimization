@@ -11,15 +11,6 @@ import { useState } from 'react';
 const bg = '#212121';
 
 const initialTransform = {
-  scaleX: 0.3,
-  scaleY: 0.3,
-  translateX: 0,
-  translateY: 0,
-  skewX: 0,
-  skewY: 0,
-};
-
-const transformMinimap = {
   scaleX: 0.5,
   scaleY: 0.5,
   translateX: 0,
@@ -135,15 +126,6 @@ function NetworkGraph({width, height, nodes_s, links_s}) {
                 }}
               />
               {showMiniMap && (
-                <Zoom
-                width={width}
-                height={height}
-                scaleXMin={1 / 8}
-                scaleXMax={3}
-                scaleYMin={1 / 8}
-                scaleYMax={3}
-                initialTransformMatrix={transformMinimap}
-              >{(zoom2) => (
                 <g
                   clipPath="url(#zoom-clip)"
                   transform={`
@@ -153,7 +135,6 @@ function NetworkGraph({width, height, nodes_s, links_s}) {
                 >
                   <rect width={width} height={height} fill="#1a1a1a"/>
                   {
-                    <g transform={zoom2.toString()}>
                     <Graph
                       graph={graph}
                       top={0}
@@ -172,8 +153,8 @@ function NetworkGraph({width, height, nodes_s, links_s}) {
                           strokeOpacity={0.6}
                         />
                       )}
-                />
-                  </g>}
+                    />
+                  }
                   <rect
                     width={width}
                     height={height}
@@ -184,8 +165,6 @@ function NetworkGraph({width, height, nodes_s, links_s}) {
                     transform={zoom.toStringInvert()}
                   />
                 </g>
-              )}
-                </Zoom>
               )}
             </svg>
             <div className="controls">

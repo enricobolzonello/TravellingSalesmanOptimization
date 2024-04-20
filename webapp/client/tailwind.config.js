@@ -20,6 +20,7 @@ export default {
   plugins: [
     require("tw-elements/plugin.cjs"),
     require('@tailwindcss/forms'),
+    require('@tailwindcss/typography'),
 ],
   darkMode: "class"
 }

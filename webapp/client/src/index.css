@@ -25,3 +25,7 @@ p {
 }
 
 @tailwind variants;
+
+.markdown > * {
+  all: revert;
+}

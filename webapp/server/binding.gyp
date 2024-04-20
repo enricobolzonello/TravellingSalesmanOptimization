@@ -1,7 +1,18 @@
 {
-    'variables' : {
-        'CPLEXDIR': '/Applications/CPLEX_Studio2211/cplex',
-    },
+    'conditions': [
+        ['OS=="linux"', {
+            'variables': {
+                'CPLEXDIR': '/opt/ibm/ILOG/CPLEX_Studio2211/cplex',
+                'ARCH' : 'x86-64_linux'
+            }
+        }],
+        ['OS=="mac"', {
+            'variables': {
+                'CPLEXDIR': '/Applications/CPLEX_Studio2211/cplex',
+                'ARCH' : 'arm64_osx'
+            }
+        }],
+    ],
     "targets": [
         {
             "target_name" : "tspsolver",
@@ -32,7 +43,7 @@
                     '-ldl',
                 ],
                 'library_dirs': [
-                    '<@(CPLEXDIR)/lib/arm64_osx/static_pic',
+                    '<@(CPLEXDIR)/lib/<@(ARCH)/static_pic',
                     '.'
                 ],
             },
