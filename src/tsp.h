@@ -31,7 +31,8 @@ typedef enum {
     ALG_CX_NOSEC = 5,
     ALG_CX_BENDERS = 6,
     ALG_EXTRAMILEAGE = 7,
-    ALG_CX_BENDERS_PAT = 8
+    ALG_CX_BENDERS_PAT = 8,
+    ALG_CX_BRANCH_AND_CUT = 9
 } algorithms;
 
 typedef struct {
@@ -68,6 +69,8 @@ typedef struct {
     tsp_solution best_solution;
 
     int starting_node;          // save the starting node of the best tour
+
+    int ncols;
 } instance;
 
 /**

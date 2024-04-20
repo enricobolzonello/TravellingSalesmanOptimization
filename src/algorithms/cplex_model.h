@@ -1,6 +1,14 @@
 #include "../tsp.h"
 #include <cplex.h>  
 
+
+typedef struct {
+    int nnz;
+    double rhs;
+    int* index;
+    double* value;
+} cut;
+
 /**
  * @brief Solves the TSP finding the optimal solution with CPLEX
  * 
@@ -16,6 +24,14 @@ ERROR_CODE cx_Nosec(instance *inst);
  * @return ERROR_CODE 
  */
 ERROR_CODE cx_BendersLoop(instance* inst, bool patching);
+
+/**
+ * @brief solve inst tsp problem using branch and cut implemented with CPLEX callback
+ * 
+ * @param inst 
+ * @return ERROR_CODE 
+ */
+ERROR_CODE cx_BranchAndCut(instance *inst);
 
 //================================================================================
 // UTILS
@@ -71,3 +87,5 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
  * @param solution current Tsp solution
  */
 void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);
+
+static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle);

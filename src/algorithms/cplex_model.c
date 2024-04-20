@@ -176,6 +176,70 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 }
 
 
+ERROR_CODE cx_BranchAndCut(instance *inst){  
+	// open CPLEX model
+	int error;
+	CPXENVptr env = CPXopenCPLEX(&error);
+	if ( error ){
+		log_fatal("CPX code %d : CPXopenCPLEX() error", error);
+		tsp_handlefatal(inst);
+	} 
+	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1"); 
+	if ( error ) {
+		log_fatal("CPX code %d : CPXcreateprob() error", error);
+		tsp_handlefatal(inst);	
+	}
+
+	// initialize CPLEX model
+	cx_initialize(inst, env, lp);
+
+	int ncols = CPXgetnumcols(env, lp);
+	double* xstar = (double *) calloc(ncols, sizeof(double));
+
+	CPXLONG contextid = CPX_CALLBACKCONTEXT_CANDIDATE;
+	if ( CPXcallbacksetfunc(env, lp, contextid, callback_branch_and_cut, inst) ) {
+		log_fatal("CPXcallbacksetfunc() error");
+		tsp_handlefatal(inst);
+	}
+
+	// solve with cplex
+	error = CPXmipopt(env,lp);
+	if ( error ) 
+	{
+		log_fatal("CPX code %d : CPXmipopt() error", error); 
+		tsp_handlefatal(inst);
+	}
+
+	// check that cplex solved it right
+	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
+		log_fatal("CPX : CPXgetx() error");	
+		tsp_handlefatal(inst);
+	} 
+
+	int ncomp = 0;
+	int* comp = (int*) calloc(ncols, sizeof(int));
+
+	// with the optimal found by CPLEX, build the corresponding solution
+	tsp_solution solution = tsp_init_solution(inst->nnodes);
+	cx_build_sol(xstar, inst, comp, &ncomp, &solution);
+
+	// update best solution (not with tsp_update_solution since it is not a cycle)
+	memcpy(inst->best_solution.path, solution.path, inst->nnodes * sizeof(int));
+    inst->best_solution.cost = solution.cost;
+    log_debug("new best solution: %f", solution.cost);
+
+	log_info("number of independent components: %d", ncomp);
+	log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
+
+	free(xstar);
+	
+	// free and close cplex model   
+	CPXfreeprob(env, &lp);
+	CPXcloseCPLEX(&env); 
+
+	return OK; 
+}
+
 //================================================================================
 // CPLEX UTILS
 //================================================================================	
@@ -273,6 +337,74 @@ ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance
 	return OK;
 }
 
+ERROR_CODE cx_get_sec(int* comp, int ncomp, instance* inst, cut *cuts){
+	printf("starting sec computing\n");
+	if(ncomp == 1){
+		return INVALID_ARGUMENT;
+	}
+	// initialize index and value
+	int ncols = inst->ncols;
+	int* index = (int*) calloc(ncols, sizeof(int));
+	double* value = (double*) calloc(ncols, sizeof(double));
+	printf("finish init\n");
+
+	// non più di n**2
+	for(int k=1; k<=ncomp; k++){
+		cut new_cut;
+		init_cut(&new_cut, ncols);
+
+		int nnz=0;
+
+		int number_nodes = 0; // |S|
+
+		for(int i=0; i<inst->nnodes; i++){
+
+			// skip iteration if it does belong to the current component k
+			if(comp[i] != k){
+				continue;
+			}
+
+			number_nodes++;
+
+			for(int j=i+1; j<inst->nnodes; j++){
+				// skip iteration if it does belong to the current component k
+				if(comp[j] != k){
+					continue;
+				}
+
+				index[nnz] = cx_xpos(i,j,inst);
+				value[nnz] = 1.0;
+
+				nnz++;
+			}
+		}
+		//printf("cut computed\n");
+		double rhs = number_nodes - 1.0; // |S|-1
+
+		new_cut.nnz = nnz;
+    	new_cut.rhs = rhs;
+    	new_cut.index = index;
+    	new_cut.value = value;
+		cuts[k-1] = new_cut;
+	}
+
+	printf("finish computing cuts\n");
+	printf("freeing...");
+	// free resources
+	free(index);
+	free(value);
+	printf("done. returning.\n");
+
+	return OK;
+}
+
+void init_cut(cut* new_cut, int ncols){
+	//printf("init cut...");
+	new_cut->index = (int*) calloc(ncols, sizeof(int));
+	new_cut->value = (double*) calloc(ncols, sizeof(double));
+	//printf("done\n");
+}
+
 void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){    
 	char binary = 'B'; 
 
@@ -295,7 +427,7 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
     		if ( CPXgetnumcols(env,lp)-1 != cx_xpos(i,j, inst) ){
 				log_fatal(" wrong position for x var.s");
 				tsp_handlefatal(inst);
-			} 
+			}
 		}
 	} 
 
@@ -323,7 +455,9 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
 			log_fatal("CPXaddrows(): error 1");
 			tsp_handlefatal(inst);
 		} 
-	} 
+	}
+
+	inst->ncols = CPXgetnumcols(env, lp);
 
 	free(value);
 	free(index);
@@ -435,6 +569,100 @@ void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution){
 		(*ncomp) = (*ncomp)-1;
     }
 	
+}
+
+static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle){
+	log_debug("callback called");
+	instance* inst = (instance*) userhandle;
+	int ncols = inst->ncols;
+	double* xstar = (double *) calloc(ncols, sizeof(double));
+	double objval = CPX_INFBOUND; 
+	if ( CPXcallbackgetcandidatepoint(context, xstar, 0, inst->ncols-1, &objval) ) log_error("CPXcallbackgetcandidatepoint error");
+
+	int ncomp = 0;
+	int* comp = (int*) calloc(ncols, sizeof(int));
+
+	tsp_solution solution = tsp_init_solution(inst->nnodes);
+	cx_build_sol(xstar, inst, comp, &ncomp, &solution);
+	
+	if(ncomp > 1){
+
+		const char sense='L';
+		int izero = 0;
+		int* index = (int*) calloc(ncols, sizeof(int));
+		double* value = (double*) calloc(ncols, sizeof(double));
+
+		// VERSIONE PIU PULITA MA BUGGATA
+		/*
+		cut* cuts = (cut*) calloc(ncomp, sizeof(cut));
+		cx_get_sec(comp, ncomp, inst, cuts);
+
+		for(int k=0; k<ncomp; k++){
+			printf("cuts[%d]\n", k);
+			printf("nnz: %d\n", cuts[k].nnz);
+			printf("rhs: %f\n", cuts[k].rhs);
+		}
+
+		for(int k=0; k<ncomp; k++){
+			if(cuts[k].nnz > 0){
+				if ( CPXcallbackrejectcandidate(context, 1, cuts[k].nnz, &(cuts[k].rhs), &sense, &izero, cuts[k].index, cuts[k].value )) {
+					log_fatal("CPXcallbackrejectcandidate() error");
+					tsp_handlefatal(inst);
+				}
+			}
+		}
+
+		free(cuts);
+		*/
+
+		// VERSIONE BASIC FUNZIONANTE
+		for(int k=1; k<=ncomp; k++){
+
+			int nnz=0;
+			int number_nodes = 0; // |S|
+
+			for(int i=0; i<inst->nnodes; i++){
+
+				// skip iteration if it does belong to the current component k
+				if(comp[i] != k){
+					continue;
+				}
+
+				number_nodes++;
+
+				for(int j=i+1; j<inst->nnodes; j++){
+					// skip iteration if it does belong to the current component k
+					if(comp[j] != k){
+						continue;
+					}
+
+					index[nnz] = cx_xpos(i,j,inst);
+					value[nnz] = 1.0;
+
+					nnz++;
+				}
+			}
+			double rhs = number_nodes - 1.0; // |S|-1
+
+			//printf("nnz: %d, rhs: %f", nnz, rhs);
+
+
+			if ( CPXcallbackrejectcandidate(context, 1, nnz, &rhs, &sense, &izero, index, value )) {
+				log_fatal("CPXcallbackrejectcandidate() error");
+				tsp_handlefatal(inst);
+			}
+		}
+		
+		// free resources
+		free(index);
+		free(value);
+		
+	}
+
+	free(xstar);
+	free(comp);
+
+	return 0;
 }
 
 /*

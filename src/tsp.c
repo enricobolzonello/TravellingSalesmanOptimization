@@ -21,6 +21,8 @@ void tsp_init(instance* inst){
 
     inst->c = utils_startclock();
 
+    inst->ncols = -1;
+
 }
 
 tsp_solution tsp_init_solution(int nnodes){
@@ -138,6 +140,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }else if (strcmp("CPLEX_BENDERS_PAT", method) == 0){
                 inst->alg = ALG_CX_BENDERS_PAT;
                 log_info("selected BENDERS LOOP with PATCHING");
+            }else if (strcmp("CPLEX_BRANCH_CUT", method) == 0){
+                inst->alg = ALG_CX_BRANCH_AND_CUT;
+                log_info("selected CPLEX BRANCH AND CUT");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }

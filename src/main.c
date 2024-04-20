@@ -96,6 +96,15 @@ ERROR_CODE runAlg(instance* inst){
         printf("Extra Mileage: %f\n", inst->best_solution.cost);
         tsp_plot_solution(inst);
         break;
+    case ALG_CX_BRANCH_AND_CUT:
+        log_info("running Branch and Cut");
+        e = cx_BranchAndCut(inst);
+        if(!err_ok(e)){
+            log_fatal("CPLEX Branch and Cut did not finish correctly");
+            tsp_handlefatal(inst);
+        } 
+        printf("CPLEX Branch and Cut: %f\n", inst->best_solution.cost);
+        break;
     default:
         log_error("cannot run any algorithm");
         break;
