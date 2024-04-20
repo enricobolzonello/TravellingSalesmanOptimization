@@ -87,7 +87,6 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 	int iteration = 0;
 	int n_sec = 0;
 	while(1){
-		printf("\n");
 		log_info("iteration %d", iteration);
 		double ex_time = utils_timeelapsed(inst->c);
         if(inst->options_t.timelimit != -1.0){
