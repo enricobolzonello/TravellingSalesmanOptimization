@@ -1,3 +1,0 @@
-\title{Greedy}
-This is a greedy algorithm which finds a solution in \(O(n^2)\) given a starting node. It is based on the simple rule of extending the path to the closest not visited node to the current last node visited, till the exhaustion of the unvisited nodes, when it will close the path connecting the last node to the starting one. 
-Since its execution is very fast for reasonable sized instances, a first improvement is to run the algorithm multiple times (at maximum n times, with n equal to the number of nodes) considering at every iteration a different starting node, and at the end keep the path of minimum cost.
