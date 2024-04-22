@@ -350,7 +350,7 @@ ERROR_CODE cx_get_sec(int* comp, int ncomp, instance* inst, cut *cuts){
 	// non più di n**2
 	for(int k=1; k<=ncomp; k++){
 		cut new_cut;
-		init_cut(&new_cut, ncols);
+		cx_init_cut(&new_cut, ncols);
 
 		int nnz=0;
 
@@ -397,7 +397,7 @@ ERROR_CODE cx_get_sec(int* comp, int ncomp, instance* inst, cut *cuts){
 	return OK;
 }
 
-void init_cut(cut* new_cut, int ncols){
+void cx_init_cut(cut* new_cut, int ncols){
 	//printf("init cut...");
 	new_cut->index = (int*) calloc(ncols, sizeof(int));
 	new_cut->value = (double*) calloc(ncols, sizeof(double));

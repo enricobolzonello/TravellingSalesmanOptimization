@@ -57,7 +57,25 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp);
  */
 int cx_xpos(int i, int j, instance *inst);
 
+/**
+ * @brief Util for Benders Loop method to add subtour elimination constraints to the model
+ * 
+ * @param env CPXENVptr
+ * @param lp CPXLPptr
+ * @param comp An array indicating the component to which each node belongs
+ * @param ncomp Number of independent components
+ * @param inst Tsp instance
+ * @return ERROR_CODE 
+ */
 ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance* inst);
+
+/**
+ * @brief 
+ * 
+ * @param new_cut 
+ * @param ncols 
+ */
+void cx_init_cut(cut* new_cut, int ncols);
 
 /**
  * @brief Builds the Mixed-Integer Problem in DFJ formulation (without subtour elimination constraint)
@@ -88,4 +106,12 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
  */
 void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);
 
+/**
+ * @brief 
+ * 
+ * @param context 
+ * @param contextid 
+ * @param userhandle 
+ * @return int 
+ */
 static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle);
