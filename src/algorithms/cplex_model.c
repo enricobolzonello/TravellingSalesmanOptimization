@@ -161,10 +161,6 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 	// save the best solution
 	tsp_update_best_solution(inst, &solution);
 
-	FILE *f = fopen("results/BendersSEC.csv", "a");
-	fprintf(f, "%d,%d\n", n_sec, inst->nnodes);
-
-
 	free(solution.path);
 	
 	// free and close cplex model   
