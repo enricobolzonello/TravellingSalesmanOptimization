@@ -108,7 +108,7 @@ else
     UNAME_S := $(shell uname -s)
 	UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_S),Linux)
-        LIBS := -L${CPLEXDIR}/lib/x86-64_linux/static_pic -L. -lcplex -lm -lpthread -ldl
+        LIBS := -L${CPLEXDIR}/lib/x86-64_linux/static_pic -L/home/ricky/concorde -L. -lcplex -lm -lpthread -ldl -lconcorde
     endif
     ifeq ($(UNAME_S),Darwin)
 		ifeq ($(UNAME_P),x86_64)
