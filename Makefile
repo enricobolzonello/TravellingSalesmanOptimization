@@ -112,10 +112,10 @@ else
     endif
     ifeq ($(UNAME_S),Darwin)
 		ifeq ($(UNAME_P),x86_64)
-        	LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
+        	LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L/Users/enricobolzonello/concorde -L. -lcplex -lm -lpthread -ldl -lconcorde
     	endif
 		ifneq ($(filter arm%,$(UNAME_P)),)
-        	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L. -lcplex -lpthread -ldl
+        	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L/Users/enricobolzonello/concorde -L. -lcplex -lpthread -ldl -lconcorde
     	endif
     endif
 endif

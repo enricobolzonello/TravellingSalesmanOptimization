@@ -1,4 +1,6 @@
 #include "../tsp.h"
+
+#include "../mincut.hpp"
 #include <cplex.h>  
 
 
@@ -8,6 +10,11 @@ typedef struct {
     int* index;
     double* value;
 } cut;
+
+typedef struct{
+    CPXCALLBACKCONTEXTptr context;
+    instance* inst;
+} violatedcuts_passparams;
 
 /**
  * @brief Solves the TSP finding the optimal solution with CPLEX
@@ -115,3 +122,34 @@ void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);
  * @return int 
  */
 static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle);
+
+/**
+ * @brief 
+ * 
+ * @param context 
+ * @param contextid 
+ * @param inst 
+ * @return int 
+ */
+static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst);
+
+/**
+ * @brief 
+ * 
+ * @param context 
+ * @param contextid 
+ * @param inst 
+ * @return int 
+ */
+static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst);
+
+/**
+ * @brief 
+ * 
+ * @param cut_value 
+ * @param cut_nnodes 
+ * @param cut_indexes 
+ * @param userhandle 
+ * @return int 
+ */
+int cx_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void* userhandle);

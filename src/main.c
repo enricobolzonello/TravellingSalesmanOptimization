@@ -104,6 +104,7 @@ ERROR_CODE runAlg(instance* inst){
             tsp_handlefatal(inst);
         } 
         printf("CPLEX Branch and Cut: %f\n", inst->best_solution.cost);
+        tsp_plot_solution(inst);
         break;
     default:
         log_error("cannot run any algorithm");
