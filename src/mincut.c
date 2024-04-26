@@ -907,7 +907,7 @@ int CCcut_mincut_st(int ncount, int ecount, int* elist, double* ecap,
 
 CLEANUP:
 
-    free_graph(&G, true);
+    free_graph_aux(&G, true);
     return rval;
 }
 
@@ -1354,9 +1354,9 @@ CLEANUP:
     }
     CC_IFFREE(tcut, int);
     return rval;
-}
+    }
 
-static void backwards_bfs(node* s, int K, graph* G)
+static void backwards_bfs(node * s, int K, graph * G)
 {
     node* this1, * next, * tail;
     edge* e;
@@ -1458,10 +1458,10 @@ static void backwards_bfs(node* s, int K, graph* G)
         if (high[dist])
             G->highest = dist;
 #endif
-    } while (next);
-}
+        } while (next);
+    }
 
-static void setlabels(graph* G, node* s, node* t)
+static void setlabels(graph * G, node * s, node * t)
 {
     node* n;
     int ncount = G->nnodes;
@@ -1486,7 +1486,7 @@ static void setlabels(graph* G, node* s, node* t)
     }
 }
 
-static double flow(graph* G, node* s, node* t)
+static double flow(graph * G, node * s, node * t)
 {
 #ifdef QUEUE_PRF
     node* qhead = (node*)NULL;
@@ -1581,121 +1581,122 @@ static double flow(graph* G, node* s, node* t)
             }
 #endif
 
-    if (count == round) {
-        setlabels(G, s, t);
-        if (n->flowlabel >= ncount)
-            continue;
-        count = 0;
-    }
-    else
-        count++;
+            if (count == round) {
+                setlabels(G, s, t);
+                if (n->flowlabel >= ncount)
+                    continue;
+                count = 0;
+            }
+            else
+                count++;
 
-    if (n->inout == GOING_IN)
-        goto DO_ME_IN;
+            if (n->inout == GOING_IN)
+                goto DO_ME_IN;
 
-    if (n->outcurrent) {
-        while (n->excess > 0.0) {
-            e = n->outcurrent;
-            { /* PUSH OUT */
-                double rf = e->cap - e->flow;
-                node* n1 = e->ends[1];
-                if (n->flowlabel == n1->flowlabel + 1 && rf > 0.0) {
-                    if (n->excess <= rf) {
-                        e->flow += n->excess;
-                        n1->excess += n->excess;
-                        n->excess = 0.0;
-                        ADD_TO_ACTIVE(n1);
-                    }
-                    else {
-                        e->flow += rf;
-                        n1->excess += rf;
-                        n->excess -= rf;
-                        ADD_TO_ACTIVE(n1);
-                        n->outcurrent = e->outnext;
-                        if (!n->outcurrent) {
-                            n->outcurrent = n->out;
-                            n->inout = GOING_IN;
-                            goto DO_ME_IN;
+            if (n->outcurrent) {
+                while (n->excess > 0.0) {
+                    e = n->outcurrent;
+                    { /* PUSH OUT */
+                        double rf = e->cap - e->flow;
+                        node* n1 = e->ends[1];
+                        if (n->flowlabel == n1->flowlabel + 1 && rf > 0.0) {
+                            if (n->excess <= rf) {
+                                e->flow += n->excess;
+                                n1->excess += n->excess;
+                                n->excess = 0.0;
+                                ADD_TO_ACTIVE(n1);
+                            }
+                            else {
+                                e->flow += rf;
+                                n1->excess += rf;
+                                n->excess -= rf;
+                                ADD_TO_ACTIVE(n1);
+                                n->outcurrent = e->outnext;
+                                if (!n->outcurrent) {
+                                    n->outcurrent = n->out;
+                                    n->inout = GOING_IN;
+                                    goto DO_ME_IN;
+                                }
+                            }
+                        }
+                        else {
+                            n->outcurrent = e->outnext;
+                            if (!n->outcurrent) {
+                                n->outcurrent = n->out;
+                                n->inout = GOING_IN;
+                                goto DO_ME_IN;
+                            }
                         }
                     }
                 }
-                else {
-                    n->outcurrent = e->outnext;
-                    if (!n->outcurrent) {
-                        n->outcurrent = n->out;
-                        n->inout = GOING_IN;
-                        goto DO_ME_IN;
-                    }
-                }
             }
-        }
-    }
-DO_ME_IN:
-    if (n->incurrent) {
-        while (n->excess > 0.0) {
-            e = n->incurrent;
-            { /* PUSH IN */
+        DO_ME_IN:
+            if (n->incurrent) {
+                while (n->excess > 0.0) {
+                    e = n->incurrent;
+                    { /* PUSH IN */
 #ifdef UNDIRECTED_GRAPH
-                double rf = e->cap + e->flow;
+                        double rf = e->cap + e->flow;
 #else
-                double rf = e->flow;
+                        double rf = e->flow;
 #endif
-                node* n1 = e->ends[0];
-                if (n->flowlabel == n1->flowlabel + 1 && rf > 0.0) {
-                    if (n->excess <= rf) {
-                        e->flow -= n->excess;
-                        n1->excess += n->excess;
-                        n->excess = 0.0;
-                        ADD_TO_ACTIVE(n1);
-                    }
-                    else {
-                        e->flow -= rf;
-                        n1->excess += rf;
-                        n->excess -= rf;
-                        ADD_TO_ACTIVE(n1);
-                        n->incurrent = e->innext;
-                        if (!n->incurrent) {
-                            n->incurrent = n->in;
-                            n->inout = GOING_OUT;
-                            RELABEL(n);
-                            break;
+                        node* n1 = e->ends[0];
+                        if (n->flowlabel == n1->flowlabel + 1 && rf > 0.0) {
+                            if (n->excess <= rf) {
+                                e->flow -= n->excess;
+                                n1->excess += n->excess;
+                                n->excess = 0.0;
+                                ADD_TO_ACTIVE(n1);
+                            }
+                            else {
+                                e->flow -= rf;
+                                n1->excess += rf;
+                                n->excess -= rf;
+                                ADD_TO_ACTIVE(n1);
+                                n->incurrent = e->innext;
+                                if (!n->incurrent) {
+                                    n->incurrent = n->in;
+                                    n->inout = GOING_OUT;
+                                    RELABEL(n);
+                                    break;
+                                }
+                            }
+                        }
+                        else {
+                            n->incurrent = e->innext;
+                            if (!n->incurrent) {
+                                n->incurrent = n->in;
+                                n->inout = GOING_OUT;
+                                RELABEL(n);
+                                break;
+                            }
                         }
                     }
                 }
-                else {
-                    n->incurrent = e->innext;
-                    if (!n->incurrent) {
-                        n->incurrent = n->in;
-                        n->inout = GOING_OUT;
-                        RELABEL(n);
-                        break;
-                    }
-                }
+            }
+            else {
+                /* n->in is NULL */
+                n->inout = GOING_OUT;
+                RELABEL(n);
+            }
+            if (n->excess > 0.0 && n->flowlabel < ncount) {
+                ADD_TO_ACTIVE(n);
             }
         }
-    }
-    else {
-        /* n->in is NULL */
-        n->inout = GOING_OUT;
-        RELABEL(n);
-    }
-    if (n->excess > 0.0 && n->flowlabel < ncount) {
-        ADD_TO_ACTIVE(n);
-    }
-}
 
-return t->excess;
-}
+        return t->excess;
+    }
 
 
-static void free_graph(graph* G, bool aux)
-{
-    CC_IFFREE(G->nodelist, node);
-    CC_IFFREE(G->edgelist, edge);
+    static void free_graph_aux(graph * G, bool aux)
+    {
+        CC_IFFREE(G->nodelist, node);
+        CC_IFFREE(G->edgelist, edge);
 #ifdef USE_GAP
-    CC_IFFREE(G->level, node*);
+        CC_IFFREE(G->level, node*);
 #endif
 #ifdef HIGHEST_LABEL_PRF
-    CC_IFFREE(G->high, node*);
+        CC_IFFREE(G->high, node*);
 #endif
-}
+    }
+    

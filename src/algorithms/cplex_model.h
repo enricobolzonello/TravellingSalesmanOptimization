@@ -1,6 +1,6 @@
 #include "../tsp.h"
 
-#include "../mincut.hpp"
+#include "../mincut.h"
 #include <cplex.h>  
 
 

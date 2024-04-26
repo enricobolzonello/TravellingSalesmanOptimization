@@ -218,10 +218,8 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	tsp_solution solution = tsp_init_solution(inst->nnodes);
 	cx_build_sol(xstar, inst, comp, &ncomp, &solution);
 
-	// update best solution (not with tsp_update_solution since it is not a cycle)
-	memcpy(inst->best_solution.path, solution.path, inst->nnodes * sizeof(int));
-    inst->best_solution.cost = solution.cost;
-    log_debug("new best solution: %f", solution.cost);
+	// update best solution
+	tsp_update_best_solution(inst, &solution);
 
 	log_info("number of independent components: %d", ncomp);
 	log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
@@ -691,12 +689,12 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 
 	// transform into elist format for Concorde
 	// elist[2*i] contains one node of the i-th edge, and elist[2*i+1] contains the other node
-	int* elist = (int*) calloc(2 * inst->ncols, sizeof(int));
+	int* elist = (int*) calloc(2 * ncols, sizeof(int));
 	int num_edges = 0;
 	int k=0;
 
-	for(int i=0; i<inst->ncols; i++){
-		for(int j=i+1; j<inst->ncols; j++){
+	for(int i=0; i<ncols; i++){
+		for(int j=i+1; j<ncols; j++){
 			elist[k++] = i;
 			elist[k++] = j;
 
