@@ -675,8 +675,7 @@ static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG c
 }
 
 static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst){
-	int ncols = inst->ncols;
-	double* xstar = (double *) calloc(ncols, sizeof(double));
+	double* xstar = (double *) calloc(inst->ncols, sizeof(double));
 	double objval = CPX_INFBOUND; 
 
 	if ( CPXcallbackgetrelaxationpoint(context, xstar, 0, inst->ncols-1, &objval) ){
@@ -687,16 +686,23 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 	int* comps = NULL;
 	int* compscount = NULL;
 
+	log_debug("ncols: %d", inst->ncols);
+
 	// transform into elist format for Concorde
 	// elist[2*i] contains one node of the i-th edge, and elist[2*i+1] contains the other node
-	int* elist = (int*) calloc(2 * ncols, sizeof(int));
+	int* elist = (int*) calloc(2 * inst->ncols, sizeof(int));
 	int num_edges = 0;
 	int k=0;
 
-	for(int i=0; i<ncols; i++){
-		for(int j=i+1; j<ncols; j++){
+	for(int i=0; i<inst->ncols; i++){
+		for(int j=i+1; j<inst->ncols; j++){
 			elist[k++] = i;
 			elist[k++] = j;
+
+			// TODO: qui da il segmentation fault (k diventa molto piu grande di 2*ncols per qualche motivo)
+			if(k > 2*inst->ncols){
+				log_debug("k : %d", k);
+			}
 
 			num_edges++;
 		}
@@ -736,13 +742,13 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 		cut* cuts = (cut*) calloc(ncomp, sizeof(cut));
 		cx_get_sec(components, ncomp, inst, cuts);
 
-		const char* sense = 'L';
+		const char sense = 'L';
 		const int rmatbeg = 0;
 		const int purgeable = CPX_USECUT_FILTER;
 		const int local = 0;
 
 		for(int i=0; i<ncomp; i++){
-			if(CPXcallbackaddusercuts(context, 1, cuts[i].nnz, &(cuts[i].rhs), sense, &rmatbeg, &(cuts[i].index), &(cuts[i].value), &purgeable, &local)){
+			if(CPXcallbackaddusercuts(context, 1, cuts[i].nnz, &(cuts[i].rhs), &sense, &rmatbeg, cuts[i].index, cuts[i].value, &purgeable, &local)){
 				log_error("CPXcallbackaddusercuts");
 			}
 		}
@@ -755,6 +761,8 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 	free(comps);
 	free(compscount);
 	free(elist);
+
+	return 0;
 }
 
 int cx_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void* userhandle){
@@ -779,13 +787,13 @@ int cx_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void
 		}
 	}
 
-	const char* sense = 'L';
-	const int rhs = cut_nnodes - 1;
+	const char sense = 'L';
+	const double rhs = cut_nnodes - 1;
 	const int rmatbeg = 0;
 	const int purgeable = CPX_USECUT_PURGE; // The cut is added to the relaxation but can be purged later on if CPLEX deems the cut ineffective.
 	const int local = 0; // Array of flags that specifies for each cut whether it is only locally valid (value = 1) or globally valid (value = 0).
 
-	if(CPXcallbackaddusercuts(context, 1, num_edges, rhs, sense, &rmatbeg, &index, &value, &purgeable, &local)){
+	if(CPXcallbackaddusercuts(context, 1, num_edges, &rhs, &sense, &rmatbeg, index, value, &purgeable, &local)){
 		log_error("CPXcallbackaddusercuts");
 	}
 
