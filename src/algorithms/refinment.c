@@ -15,7 +15,7 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
     do {
         // see if it exceeds the time limit
         if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
+            double ex_time = utils_timeelapsed(&inst->c);
             if(ex_time > inst->options_t.timelimit){
                 log_debug("time limit exceeded");
                 e = DEADLINE_EXCEEDED;

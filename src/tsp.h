@@ -58,7 +58,7 @@ typedef struct {
 
     int nnodes;                 // number of nodes
 
-    struct utils_clock c;       // clock
+    struct timespec c;       // clock
     
     bool points_allocated;
     point* points;              // dynamic array of points
@@ -71,6 +71,7 @@ typedef struct {
     int starting_node;          // save the starting node of the best tour
 
     int ncols;
+    int* threads_seeds;
 } instance;
 
 /**

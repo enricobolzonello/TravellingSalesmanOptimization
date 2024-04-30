@@ -3,6 +3,7 @@
 #include "../mincut.h"
 #include <cplex.h>  
 
+#define EPSILON_BC 0.1
 
 typedef struct {
     int nnz;
@@ -15,6 +16,12 @@ typedef struct{
     CPXCALLBACKCONTEXTptr context;
     instance* inst;
 } violatedcuts_passparams;
+
+enum{
+    BC_PROB = 0,
+    BC_NODES = 1, 
+    BC_DEPTH = 2
+} bc_skip;
 
 /**
  * @brief Solves the TSP finding the optimal solution with CPLEX
@@ -77,14 +84,6 @@ int cx_xpos(int i, int j, instance *inst);
 ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance* inst);
 
 /**
- * @brief 
- * 
- * @param new_cut 
- * @param ncols 
- */
-void cx_init_cut(cut* new_cut, int ncols);
-
-/**
  * @brief Builds the Mixed-Integer Problem in DFJ formulation (without subtour elimination constraint)
  * 
  * @param inst Tsp instance
@@ -114,42 +113,61 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
 void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);
 
 /**
- * @brief 
+ * @brief Callback function that will be called by CPLEX, both for candidate and relaxation. The role of this function is to call the appropriate callback function
  * 
- * @param context 
- * @param contextid 
- * @param userhandle 
- * @return int 
+ * @param context CPXCALLBACKCONTEXTptr
+ * @param contextid either CPX_CALLBACKCONTEXT_CANDIDATE or CPX_CALLBACKCONTEXT_RELAXATION, will fail otherwise
+ * @param userhandle pointer to tsp instance (needs to be void for CPLEX compatibility)
+ * @return int 0 if it is successful, 1 otherwise
  */
 static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle);
 
 /**
- * @brief 
+ * @brief Callback function for the candidate solution
  * 
- * @param context 
- * @param contextid 
- * @param inst 
- * @return int 
+ * @param context CPXCALLBACKCONTEXTptr
+ * @param contextid Should be CPX_CALLBACKCONTEXT_CANDIDATE, otherwise it fails
+ * @param inst Tsp instance
+ * @return int 0 if it is successful, 1 otherwise
  */
 static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst);
 
 /**
- * @brief 
+ * @brief Callback function for the relaxation
  * 
- * @param context 
- * @param contextid 
- * @param inst 
- * @return int 
+ * @param context CPXCALLBACKCONTEXTptr
+ * @param contextid Should be CPX_CALLBACKCONTEXT_RELAXATION, otherwise it fails
+ * @param inst Tsp instance
+ * @return int 0 if it is successful, 1 otherwise
  */
 static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst);
 
 /**
- * @brief 
+ * @brief Initialize empty cut struct
  * 
- * @param cut_value 
- * @param cut_nnodes 
- * @param cut_indexes 
- * @param userhandle 
- * @return int 
+ * @param new_cut Reference to a cut
+ * @param ncols Number of columns of the CPLEX model
  */
-int cx_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void* userhandle);
+void cx_init_cut(cut* new_cut, int ncols);
+
+/**
+ * @brief Given the independent components, computes the cuts to be added to CPLEX
+ * 
+ * @param comp An array indicating the component to which each node belongs (starts from 1)
+ * @param ncomp Total number of independent components
+ * @param inst Tsp instance
+ * @param cuts Reference to an array that will hold the cuts
+ * @return ERROR_CODE 
+ */
+ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, cut *cuts);
+
+/**
+ * @brief Callback function called by Concorde, corresponds to int (*doit_fn) in the documentation. 
+ * 
+ * @param cut_value Value of the cut
+ * @param cut_nnodes Number of nodes in the cut
+ * @param cut_indexes Array that specify the index of the nodes in the cut
+ * @param userhandle pointer to violatedcuts_passparams struct (needs to be void for Concorde)
+ * @return int 0 if it is successful, 1 otherwise
+ */
+int cc_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void* userhandle);

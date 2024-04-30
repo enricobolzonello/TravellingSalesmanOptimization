@@ -84,7 +84,7 @@ ERROR_CODE runAlg(instance* inst){
             tsp_handlefatal(inst);
         } 
         printf("Benders Loop: %f\n", inst->best_solution.cost);
-        //tsp_plot_solution(inst);
+        tsp_plot_solution(inst);
         break;
     case ALG_EXTRAMILEAGE:
         log_info("running EXTRA MILEAGE");
@@ -162,7 +162,7 @@ return_struct* webapp_run(const char* path, int seed, int time_limit, int alg){
         return rs;
     }
 
-    double ex_time = utils_timeelapsed(inst.c);
+    double ex_time = utils_timeelapsed(&inst.c);
 
     // save result in a struct to be processed by Node-Addon-API
     rs->nnodes = inst.nnodes;
@@ -206,7 +206,7 @@ int main(int argc, char* argv[]){
 
     e = runAlg(&inst);
 
-    double ex_time = utils_timeelapsed(inst.c);
+    double ex_time = utils_timeelapsed(&inst.c);
     log_info("execution time %.4f seconds", ex_time);
 
     tsp_free_instance(&inst);

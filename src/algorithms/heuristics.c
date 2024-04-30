@@ -34,7 +34,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
 
     for(int i=0; i<inst->nnodes; i++){
         if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
+            double ex_time = utils_timeelapsed(&inst->c);
             if(ex_time > inst->options_t.timelimit){
                 e = DEADLINE_EXCEEDED;
                 break;
@@ -70,7 +70,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
 
     for(int i=0; i<inst->nnodes; i++){
         if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
+            double ex_time = utils_timeelapsed(&inst->c);
             if(ex_time > inst->options_t.timelimit){
                 e = DEADLINE_EXCEEDED;
                 break;
@@ -180,7 +180,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
 
     while(!done){
         // check that we have not exceed time limit
-        double ex_time = utils_timeelapsed(inst->c);
+        double ex_time = utils_timeelapsed(&inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
                 e = DEADLINE_EXCEEDED;
@@ -248,7 +248,7 @@ ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA
     while(num_visited < inst->nnodes){
         // time limit check
         if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(inst->c);
+            double ex_time = utils_timeelapsed(&inst->c);
             if(ex_time > inst->options_t.timelimit){
                 error = DEADLINE_EXCEEDED;
                 break;

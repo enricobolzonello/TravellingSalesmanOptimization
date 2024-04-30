@@ -15,6 +15,7 @@
 #include <string.h>
 #include <sys/stat.h> 
 #include <errno.h>
+#include <time.h>
 
 #include "errors.h"
 
@@ -34,16 +35,11 @@ typedef struct {
     double y;
 } point;
 
-struct utils_clock{
-    bool started;
-    clock_t starting_time;
-};
-
 
 bool utils_file_exists(const char *filename);
 bool utils_invalid_input(int i, int argc, bool* help);
-struct utils_clock utils_startclock(void);
-double utils_timeelapsed(struct utils_clock c);
+void utils_startclock(struct timespec* c);
+double utils_timeelapsed(struct timespec* c);
 void utils_plotname(char* buffer, int buffersize);
 void utils_format_title(char *fname, int alg);
 void swap(int* a, int* b);

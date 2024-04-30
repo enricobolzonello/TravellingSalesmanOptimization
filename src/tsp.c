@@ -19,7 +19,7 @@ void tsp_init(instance* inst){
 
     err_setverbosity(NORMAL);
 
-    inst->c = utils_startclock();
+    utils_startclock(&inst->c);
 
     inst->ncols = -1;
 
@@ -483,7 +483,7 @@ ERROR_CODE tsp_compute_costs(instance* inst){
         for (int j = 0; j < inst->nnodes; j++) {
 
             // check that we have not exceed time limit
-            double ex_time = utils_timeelapsed(inst->c);
+            double ex_time = utils_timeelapsed(&inst->c);
             if(inst->options_t.timelimit != -1.0){
                 if(ex_time > inst->options_t.timelimit){
                     return DEADLINE_EXCEEDED;

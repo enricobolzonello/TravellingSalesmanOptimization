@@ -114,7 +114,7 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
     for(int k=0; k < inst->options_t.k; k++){
 
         // check if exceeds time
-        double ex_time = utils_timeelapsed(inst->c);
+        double ex_time = utils_timeelapsed(&inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
                 e = DEADLINE_EXCEEDED;
@@ -254,7 +254,7 @@ ERROR_CODE mh_VNS(instance* inst){
     // call 3 opt k times
     for(int i=0; i<inst->options_t.k; i++){
         // check if exceeds time
-        double ex_time = utils_timeelapsed(inst->c);
+        double ex_time = utils_timeelapsed(&inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
                e = DEADLINE_EXCEEDED;

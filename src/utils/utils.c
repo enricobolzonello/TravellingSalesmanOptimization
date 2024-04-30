@@ -18,21 +18,21 @@ bool utils_invalid_input(int i, int argc, bool* help){
     return false;
 }
 
-struct utils_clock utils_startclock(void){
-  struct utils_clock c;
-  c.starting_time = clock();
-  c.started = true;
-
-  return c;
+void utils_startclock(struct timespec* c){
+  if(clock_gettime(CLOCK_MONOTONIC, c) == -1 ){
+    log_error("monotonic clock not supported");
+  }
 }
 
-double utils_timeelapsed(struct utils_clock c){
-  if(!c.started){
-    log_debug("clock not started");
-    exit(0);
-  }
+double utils_timeelapsed(struct timespec* c){
 
-  return (double) (clock() - c.starting_time) / CLOCKS_PER_SEC;
+ 
+  struct timespec finish;
+  if(clock_gettime(CLOCK_MONOTONIC, &finish) == -1){
+    log_error("monotonic clock not supported");
+    return -1.0;
+  }
+  return (finish.tv_sec - c->tv_sec) + ( (finish.tv_nsec - c->tv_nsec) / 1000000000.0 );
 }
 
 void utils_print_array(int* arr){
