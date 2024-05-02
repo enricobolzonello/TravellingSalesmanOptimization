@@ -6,7 +6,7 @@ void tsp_init(instance* inst){
     inst->options_t.timelimit = -1;
     inst->options_t.seed = -1;
     inst->options_t.tofile = false;
-    inst->options_t.k = 100000;
+    inst->options_t.k = __INT_MAX__;
     inst->options_t.mileage_init = EM_MAX;
     
     inst->nnodes = -1;

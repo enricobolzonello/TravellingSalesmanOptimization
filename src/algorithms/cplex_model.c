@@ -194,8 +194,11 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	inst->threads_seeds = (int*) calloc(threads, sizeof(int));
 
 	for(int i=0; i<threads; i++){
-		unsigned int seed = (unsigned) time(NULL);		// non replicabile
-		inst->threads_seeds[i] = (seed & 0xFFFFFFF0) | (i + 1);
+		unsigned int seed = (inst->options_t.seed == -1) ? (unsigned) time(NULL) : (unsigned) inst->options_t.seed;
+
+		// clears the last 5 bits of seed and replace them with i+1
+		// has place for 32 threads (cplex defaults to at most 32 threads or the number of cores, whetever is smaller)
+ 		inst->threads_seeds[i] = (seed & 0xFFFFFFE0) | (i + 1);
 	}
 
 	int ncols = CPXgetnumcols(env, lp);
@@ -249,27 +252,71 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 //================================================================================	
 
 ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
+	ERROR_CODE error;
 
 	cx_build_model(inst, env, lp);
 	
 	// Cplex's parameter setting
-	CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF);
 	
 	// save CPLEX output to a log file
 	if(err_dolog()){
-		//CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_ON); // Cplex output on screen 
+		CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF); // output to screen
+
 		log_info("save to log file");
 		mkdir("logs", 0777);
     	char log_path[1024];
-    	sprintf(log_path, "logs/%s.log", inst->options_t.inputfile);
+
+		char buffer[40];
+		utils_plotname(buffer, 40);
+
+    	sprintf(log_path, "logs/%s.log", buffer);
+
+		log_debug("log path: %s", log_path);
     	CPXsetlogfilename(env, log_path, "w");
 	}
+
+	// disable clone log in parallel optimization
+	CPXsetintparam(env, CPX_PARAM_CLONELOG, -1);
 
 	if(inst->options_t.timelimit > 0.0){
 		CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit); 
 	}
 
-	return OK;
+	// Run one of our heurstics to be added to the MIP starts
+	// Can be faster than CPLEX heuristics since ours are specific for TSP
+
+	error = h_greedy_2opt(inst);
+
+	int* varindices = (int*) calloc(inst->nnodes, sizeof(int));
+	double* values = (double*) calloc(inst->nnodes, sizeof(double));
+
+	// initialize values for CPLEX
+	// An entry values[j] greater than or equal to CPX_INFBOUND specifies that no value is set for the variable varindices[j]
+	for(int i=0; i<inst->nnodes; i++){
+		values[i] = CPX_INFBOUND;
+	}
+
+	int k = 0;
+	for(int i=0; i<inst->nnodes; i++){
+		int j = inst->best_solution.path[i];
+
+		varindices[k] = cx_xpos(i,j,inst);
+		values[k] = 1.0;
+
+		k++;
+	}
+
+	const int beg = 0;
+	const int efforlevel = CPX_MIPSTART_NOCHECK;
+	if( CPXaddmipstarts(env, lp, 1, inst->nnodes, &beg, varindices, values, &efforlevel, NULL) ){
+		log_error("CPXaddmipstarts error");
+		error = INTERNAL;
+	}
+
+	free(varindices);
+	free(values);
+
+	return error;
 }
 
 int cx_xpos(int i, int j, instance *inst){ 
@@ -381,8 +428,8 @@ ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, cut *cuts){
 
 				cuts[k-1].nnz++;
 			}
+
 		}
-		//printf("cut computed\n");
 
     	cuts[k-1].rhs = number_nodes - 1.0;
 	}
@@ -632,7 +679,7 @@ static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG c
 
 static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst){
 
-	log_debug("relaxation callback");
+	log_debug("RELAXATION CALLBACK");
 	// execute this code only an handful of times, since this callback will be called milion of times
 
 	// three methods:
@@ -699,6 +746,9 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 	int* comps = NULL;
 	int* compscount = NULL;
 
+	/*tsp_solution solution = tsp_init_solution(inst->nnodes);
+	cx_build_sol(xstar, inst, comps, &ncomp, &solution);*/
+
 	// transform into elist format for Concorde
 	// elist[2*i] contains one node of the i-th edge, and elist[2*i+1] contains the other node
 	int* elist = (int*) calloc(2 * inst->ncols, sizeof(int));
@@ -721,14 +771,35 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 			num_edges++;
 		}
 	}
+	
+	/*int k=0;
+	int num_edges = 0;
+	int* elist = (int*) calloc(2*inst->nnodes, sizeof(int));
+	for(int i=0; i<inst->nnodes; i++){
+		elist[k++] = i;
+		elist[k++] = solution.path[i];
+		num_edges++;
+	}*/
 
 	// Detect the connected components of the graph. Receives:
 	// ncomp - number of connected components
 	// compscount - array to receive the number of connected components
 	// comps - array to receive the edges pertaining to each component
-	if(CCcut_connect_components(inst->nnodes, num_edges, elist, xstar, &ncomp, &compscount, &comps)){
+	/*if(CCcut_connect_components(inst->nnodes, num_edges, elist, xstar, &ncomp, &compscount, &comps)){
 		log_error("CCcut_connect_components");
-	}
+	}*/
+
+	log_debug("number of components: %d", ncomp);
+
+
+	// Works, but should not by what it's written on documentation
+	/*violatedcuts_passparams userhandle = {.context = context, .inst = inst};
+
+	// find the cut that violate the 2.0-EPSILON_BC threshold
+	// for each violated cut it calls the callback function cc_add_violated_sec
+	if(CCcut_violated_cuts(inst->nnodes, num_edges, elist, xstar, 2.0-EPSILON_BC, cc_add_violated_sec, &userhandle)){
+		log_error("CCcut_violated_cuts");
+	}*/
 
 	if(ncomp == 1){
 		// connected graph, but it may not be a tsp solution
@@ -739,12 +810,11 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 		if(CCcut_violated_cuts(inst->nnodes, num_edges, elist, xstar, 2.0-EPSILON_BC, cc_add_violated_sec, &userhandle)){
 			log_error("CCcut_violated_cuts");
 		}
-
-
 	}else{
 
 		// transform components array from concorde format to ours
 		// ours: index is the node, value is the components (starting from 1)
+		
 		int* components = (int*) calloc(inst->nnodes, sizeof(int));
 
 		int start = 0;
@@ -790,6 +860,8 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 }
 
 int cc_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void* userhandle){
+
+	log_debug("cc_add_violated_sec called");
 	violatedcuts_passparams* uh = (violatedcuts_passparams*) userhandle;
 	instance* inst = uh->inst;
 	CPXCALLBACKCONTEXTptr context = uh->context;

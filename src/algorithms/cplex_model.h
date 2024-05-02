@@ -1,6 +1,11 @@
 #include "../tsp.h"
+#include "heuristics.h"
 
+#pragma GCC diagnostic push 
+#pragma GCC diagnostic ignored "-Wunused-function"
 #include "../mincut.h"
+#pragma GCC diagnostic pop
+
 #include <cplex.h>  
 
 #define EPSILON_BC 0.1

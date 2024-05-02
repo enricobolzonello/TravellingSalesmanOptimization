@@ -25,8 +25,6 @@ void utils_startclock(struct timespec* c){
 }
 
 double utils_timeelapsed(struct timespec* c){
-
- 
   struct timespec finish;
   if(clock_gettime(CLOCK_MONOTONIC, &finish) == -1){
     log_error("monotonic clock not supported");
@@ -47,12 +45,12 @@ void utils_print_array(int* arr){
 
 void utils_plotname(char* buffer, int buffersize){
   char plotname[40];
-  struct tm *timenow;
+  struct tm timenow;
 
   time_t now = time(NULL);
-  timenow = gmtime(&now);
+  localtime_r(&now, &timenow);
 
-  strftime(plotname, sizeof(plotname), "PLOT_%Y-%m-%d_%H:%M:%S", timenow);
+  strftime(plotname, sizeof(plotname), "PLOT_%Y-%m-%d_%H:%M:%S", &timenow);
 
   strncpy(buffer, plotname, buffersize-1);
   buffer[buffersize-1] = '\0';
