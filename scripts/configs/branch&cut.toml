@@ -1,0 +1,14 @@
+[BranchCut]
+algorithm = "CPLEX_BRANCH_CUT"
+
+[BranchCut-MIPstart]
+algorithm = "CPLEX_BRANCH_CUT"
+flags = "--init_mip"
+
+[BranchCut-NoFract]
+algorithm = "CPLEX_BRANCH_CUT"
+flags = "--no_relax"
+
+[BranchCut-NoFract-MIPstart]
+algorithm = "CPLEX_BRANCH_CUT"
+flags = "--no_relax --init_mip"

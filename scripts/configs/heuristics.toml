@@ -1,0 +1,8 @@
+[NN]
+algorithm = "GREEDY"
+
+[allNN]
+algorithm = "GREEDY_ITER"
+
+[NN-2opt]
+algorithm = "2OPT_GREEDY"

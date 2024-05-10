@@ -5,25 +5,15 @@ import os
 import sys
 import shlex
 from py_reminder import config
-#from dotenv import load_dotenv, find_dotenv
+import tomllib
+
 
 import requests
 from logging import Handler, Formatter
 import logging
 import datetime
 import time
-
-#load_dotenv(find_dotenv())
-
-METHODS = {
-    "heuristic" : ["GREEDY", "GREEDY_ITER", "EXTRA_MILEAGE"],
-    "metaheuristic" : ["TABU_SEARCH", "VNS"],
-    "all" : ["CPLEX_BENDERS_PAT", "EXTRA_MILEAGE", "CPLEX_BENDERS", "GREEDY_ITER", "2OPT_GREEDY", "TABU_SEARCH", "VNS"],
-    "cplex" : ["CPLEX_BENDERS", "CPLEX_BENDERS_PAT"],
-    "greedy" : ["GREEDY", "GREEDY_ITER", "2OPT_GREEDY"]
-}
-
-TIME_LIMIT = "6000"
+TIME_LIMIT = "300"
  
 # create an .env file to contain telegram token and chat id
 # the file has the following format
@@ -59,15 +49,17 @@ class LogstashFormatter(Formatter):
 #   END TELEGRAM BOT
 # -------------------------------------------------------------------------------------------------------------
 
-def runTSP(paths, csv_filename, logger, start_time):
-    data = []
-
+def runTSP(paths, csv_filename, data, logger, start_time):
     for i,tsp in enumerate(paths):
         row = [os.path.basename(tsp)]
-        for m in METHODS[type]:
+        for m in data:
             try:
-                str_exec = f"make/bin/tsp -f {tsp} -q -alg {m} -t {TIME_LIMIT} -seed 123 --to_file -t 30"
-                print("Running " + m+ " on dataset " +tsp)
+                if 'algorithm' not in m:
+                    raise ValueError("Missing 'algorithm' key in dictionary, skipping this iteration")
+                algorithm = m['algorithm']
+                flags = m.get('flags', '')
+                str_exec = f"make/bin/tsp -f {tsp} -q -alg {algorithm} -t {TIME_LIMIT} -seed 123 --to_file {flags}"
+                print("Running " + algorithm + " on dataset " + tsp)
                 output = subprocess.run(shlex.split(str_exec), capture_output=True, text=True).stdout
 
                 cost = output.split(":")[1].strip()
@@ -86,7 +78,7 @@ def runTSP(paths, csv_filename, logger, start_time):
                 writer.writerow(row)
 
         # log every 30 documents done
-        if i%30 == 0:
+        if i%20 == 0:
             logger.info(f"Done {i} documents")
     
     logger.warning(f"Program finished in {(time.time() - start_time):.4f} seconds")
@@ -96,36 +88,42 @@ def runTSP(paths, csv_filename, logger, start_time):
 if __name__ == '__main__':
 
     if len(sys.argv) < 2:
-        print("Usage: python script.py <method>")
+        print("Usage: python script.py <file>")
         sys.exit()
     
     # parse for method in command line
-    type = sys.argv[1]
-    if type not in METHODS.keys():
-        print("method not recognized")
+    filepath = sys.argv[1]
+    if not os.path.isfile(filepath):
+        print("file does not exist")
         sys.exit()
+    basename = os.path.splitext(os.path.basename(filepath))[0]
 
-    logger = logging.getLogger('Travelling Salesman Problem')
-    logger.setLevel(logging.INFO)
+    with open(filepath, "rb") as f:
+        data = tomllib.load(f)
+        
+        logger = logging.getLogger('Travelling Salesman Problem')
+        logger.setLevel(logging.INFO)
 
-    handler = RequestsHandler()
-    formatter = LogstashFormatter()
-    handler.setFormatter(formatter)
-    logger.addHandler(handler)
+        handler = RequestsHandler()
+        formatter = LogstashFormatter()
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
-    start_time = time.time()
+        start_time = time.time()
 
-    paths = []
-    for root, _, files in os.walk("data/test"):
-        # Append file paths to the list
-        for file in files:
-            paths.append(os.path.join(root, file))
+        paths = []
+        for root, _, files in os.walk("data/test"):
+            # Append file paths to the list
+            for file in files:
+                paths.append(os.path.join(root, file))
+        
+        csv_filename = f"results/{basename}.csv"
 
-    csv_filename = f"results/{type}.csv"
-    
-    header = [len(METHODS[type])] + METHODS[type]
-    with open(csv_filename, 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile)
-        writer.writerow(header)
+        header = [len(data.keys())] + list(data.keys())
 
-    runTSP(paths, csv_filename, logger, start_time)
+        with open(csv_filename, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(header)
+
+        data = list(data.values())
+        runTSP(paths, csv_filename, data, logger, start_time)

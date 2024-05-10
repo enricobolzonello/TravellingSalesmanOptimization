@@ -1,0 +1,7 @@
+[Run-#1]
+algorithm = "GREEDY"
+flags = "--to_file"
+
+[Run-#2]
+algorithm = "CPLEX_BRANCH_CUT"
+flags = "--no_relax --init_mip --to_file"

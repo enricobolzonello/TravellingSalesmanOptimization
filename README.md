@@ -16,18 +16,38 @@ Install the following libraries to build the C program:
 For the profiling, install requirements with ```pip install scripts/requirements.txt```. 
 
 ## 🛠️ Usage
-Once the repo is cloned, go to the folder and run ```make```. Once it has finished, the executable will be located in ```make/bin```
+Once the repo is cloned, go to the folder and run ```make```. Once it has finished, the executable will be located in ```make/bin```.
 
+To see the full list of commands, run 
+```
+make/bin/tsp --help
+```
+
+### Automated Profiling
 To run profiling run:
 ```
-python scripts/compare_algs.py {method}
+python scripts/compare_algs.py {config file}
 ```
-where ```method``` is heuristic,... This will create a .csv file in ```/results``` with times for each algorithm and each dataset.
+where ```config file``` is a configuration file in TOML format (for an example, see the [TOML template](/scripts/configs/template.toml)). This will create a .csv file in ```/results``` with times for each algorithm and each dataset.
 
 Once done, run the profiling with:
 ```
 python scripts/perfprof.py results/{filename}.csv results/{outputfile}.pdf
 ```
+
+## 📺 Implemented Algorithms
+* HEURISTICS
+    * Nearest Neighbour
+    * All Nearest Neighbour
+    * All Nearest Neighbour + 2OPT
+    * Extra Mileage
+* META HEURISTICS
+    * Tabu Search
+    * Variable Neighborhood Search
+* EXACT METHODS
+    * Benders Loop
+    * Benders Loop with Patching
+    * Branch & Cut
 
 ## 🛡️ License
 
