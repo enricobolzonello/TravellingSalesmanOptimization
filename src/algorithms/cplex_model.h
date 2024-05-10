@@ -10,23 +10,10 @@
 
 #define EPSILON_BC 0.1
 
-typedef struct {
-    int nnz;
-    double rhs;
-    int* index;
-    double* value;
-} cut;
-
 typedef struct{
     CPXCALLBACKCONTEXTptr context;
     instance* inst;
 } violatedcuts_passparams;
-
-enum{
-    BC_PROB = 0,
-    BC_NODES = 1, 
-    BC_DEPTH = 2
-} bc_skip;
 
 /**
  * @brief Solves the TSP finding the optimal solution with CPLEX
@@ -53,7 +40,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching);
 ERROR_CODE cx_BranchAndCut(instance *inst);
 
 //================================================================================
-// UTILS
+// GENERAL UTILS
 //================================================================================
 
 /**
@@ -107,6 +94,13 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
  */
 void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution);
 
+ERROR_CODE cx_handle_cplex_status(CPXENVptr env, CPXLPptr lp);
+
+
+//================================================================================
+// BENDERS UTILS
+//================================================================================
+
 /**
  * @brief Patch together the two highest cost subtours in the current solution
  * 
@@ -116,6 +110,25 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
  * @param solution current Tsp solution
  */
 void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);
+
+//================================================================================
+// BRANCH & CUT UTILS
+//================================================================================
+
+/**
+ * @brief Given the independent components, computes the cuts to be added to CPLEX
+ * 
+ * @param comp An array indicating the component to which each node belongs (starts from 1)
+ * @param ncomp Total number of independent components
+ * @param inst Tsp instance
+ * @param cuts Reference to an array that will hold the cuts
+ * @return ERROR_CODE 
+ */
+ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, double* rhs, char* sense, int* matbeg, int* matind, double* matval);
+
+//================================================================================
+// CALLBACKS
+//================================================================================
 
 /**
  * @brief Callback function that will be called by CPLEX, both for candidate and relaxation. The role of this function is to call the appropriate callback function
@@ -146,25 +159,6 @@ static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG c
  * @return int 0 if it is successful, 1 otherwise
  */
 static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst);
-
-/**
- * @brief Initialize empty cut struct
- * 
- * @param new_cut Reference to a cut
- * @param ncols Number of columns of the CPLEX model
- */
-void cx_init_cut(cut* new_cut, int ncols);
-
-/**
- * @brief Given the independent components, computes the cuts to be added to CPLEX
- * 
- * @param comp An array indicating the component to which each node belongs (starts from 1)
- * @param ncomp Total number of independent components
- * @param inst Tsp instance
- * @param cuts Reference to an array that will hold the cuts
- * @return ERROR_CODE 
- */
-ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, cut *cuts);
 
 /**
  * @brief Callback function called by Concorde, corresponds to int (*doit_fn) in the documentation. 

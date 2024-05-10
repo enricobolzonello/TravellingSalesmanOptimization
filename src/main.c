@@ -1,7 +1,10 @@
 #include "main.h"
 
+// TODO: refactoring of outputs
+// before running, logs and final output
+
 ERROR_CODE runAlg(instance* inst){
-    ERROR_CODE e = OK;
+    ERROR_CODE e = T_OK;
     inst->best_solution.path = (int*) calloc(inst->nnodes, sizeof(int));
 
     switch (inst->alg)
@@ -16,7 +19,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_GREEDY_ITER:
-        log_info("running GREEDY-ITER");
         e = h_Greedy_iterative(inst);
         if(!err_ok(e)){
             log_fatal("greedy iterative did not finish correctly");
@@ -27,7 +29,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_2OPT_GREEDY:
-        log_info("running 2OPT-GREEDY");
         e = h_greedy_2opt(inst);
         if(!err_ok(e)){
             log_fatal("greedy did not finish correctly");
@@ -37,8 +38,7 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_TABU_SEARCH:
-        log_info("running Tabu Search");
-        e = mh_TabuSearch(inst, POL_LINEAR);
+        e = mh_TabuSearch(inst);
         if(!err_ok(e)){
             log_fatal("tabu search did not finish correctly");
             tsp_handlefatal(inst);
@@ -47,7 +47,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_VNS:
-        log_info("running VNS");
         e = mh_VNS(inst);
         if(!err_ok(e)){
             log_fatal("VNS did not finish correctly");
@@ -57,7 +56,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_CX_NOSEC:
-        log_info("running NOSEC");
         e = cx_Nosec(inst);
         if(!err_ok(e)){
             log_fatal("NOSEC did not finish correctly");
@@ -67,7 +65,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_CX_BENDERS:
-        log_info("running BENDERS LOOP");
         e = cx_BendersLoop(inst, false);
         if(!err_ok(e)){
             log_fatal("Benders Loop did not finish correctly");
@@ -77,7 +74,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_CX_BENDERS_PAT:
-        log_info("running BENDERS LOOP with PATCHING");
         e = cx_BendersLoop(inst, true);
         if(!err_ok(e)){
             log_fatal("Benders Loop with patching did not finish correctly");
@@ -87,7 +83,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_EXTRAMILEAGE:
-        log_info("running EXTRA MILEAGE");
         e = h_ExtraMileage(inst);
         if(!err_ok(e)){
             log_fatal("Extra Mileage did not finish correctly");
@@ -97,7 +92,6 @@ ERROR_CODE runAlg(instance* inst){
         tsp_plot_solution(inst);
         break;
     case ALG_CX_BRANCH_AND_CUT:
-        log_info("running Branch and Cut");
         e = cx_BranchAndCut(inst);
         if(!err_ok(e)){
             log_fatal("CPLEX Branch and Cut did not finish correctly");
@@ -187,11 +181,14 @@ return_struct* webapp_run(const char* path, int seed, int time_limit, int alg){
 
 // TODO: better handling of errors
 
+// TODO: clock not working
+
 int main(int argc, char* argv[]){
-    log_info("program started!");
     instance inst;
     ERROR_CODE e = tsp_parse_commandline(argc, argv, &inst);
-    if(!err_ok(e)){
+    if(e == ABORTED){
+        exit(0);
+    }else if(!err_ok(e)){
         log_error("error in command line parsing, error code: %d", e);
         tsp_free_instance(&inst);
         exit(0);
@@ -204,12 +201,16 @@ int main(int argc, char* argv[]){
         tsp_generate_randompoints(&inst);
     }
 
+    err_setinfo(inst.alg, inst.nnodes, inst.options_t.graph_random, inst.options_t.inputfile, inst.options_t.timelimit, inst.options_t.timelimit, inst.options_t.policy, inst.options_t.mileage_init, inst.options_t.init_mip, inst.options_t.skip_policy, inst.options_t.callback_relaxation);
+
+    utils_startclock(&inst.c);
+
     e = runAlg(&inst);
 
     double ex_time = utils_timeelapsed(&inst.c);
     log_info("execution time %.4f seconds", ex_time);
 
     tsp_free_instance(&inst);
-
+    
     exit(0);
 }

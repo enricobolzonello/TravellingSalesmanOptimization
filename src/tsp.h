@@ -17,10 +17,27 @@
 
 #define EPSILON -1.0E-7
 
+/**
+ * @brief Policies for Tabu Search
+ * 
+ */
+typedef enum{
+    POL_FIXED = 0,
+    POL_SIZE = 1,
+    POL_RANDOM = 2,
+    POL_LINEAR = 3
+} ts_policies;
+
 typedef enum{
     EM_MAX = 0,
     EM_RANDOM = 1
-} em_initialization;
+} em_init;
+
+typedef enum{
+    BC_PROB = 0,
+    BC_NODES = 1, 
+    BC_DEPTH = 2
+} bc_skip;
 
 typedef enum {
     ALG_GREEDY = 0,
@@ -36,6 +53,12 @@ typedef enum {
 } algorithms;
 
 typedef struct {
+    double cost;
+    int* path;
+}tsp_solution;
+
+typedef struct {
+    // General options
     double timelimit;           // time limit of the algorithm (in seconds)
     int seed;                   // seed for random generation, if not set by the user, defaults to current time
     bool graph_random;          // flag to indicate wheter the graph is randomly generated
@@ -43,13 +66,29 @@ typedef struct {
     char* inputfile;            // input file path
     bool tofile;                // if true, plots will be saved in directory /plots
     int k;
-    em_initialization mileage_init;       // how to initialize extra mileage
+
+    // Tabu Search options
+    ts_policies policy;            // how to update tenure
+
+    // Extra Mileage options
+    em_init mileage_init;       // how to initialize extra mileage
+
+    // Branch and Cut options
+    bool init_mip;              // set MIP start for CPLEX branch & cut
+    bc_skip skip_policy;            // skip policy for branch & cut fractional callback
+    bool callback_relaxation;   // if true, it also calls callback for relaxation
+
 } options;
 
 typedef struct {
-    double cost;
-    int* path;
-}tsp_solution;
+    int tenure;                 // current tenure
+    int max_tenure;             // maximum possible tenure
+    int min_tenure;             // minimum possible tenure
+
+    bool increment;             // flag for the linear policy
+
+    int* tabu_list;             // tabu list, nnodes long, each element is the last iteration the element has been encountered
+} tabu_search;
 
 typedef struct {
     options options_t;
@@ -60,10 +99,8 @@ typedef struct {
 
     struct timespec c;       // clock
     
-    bool points_allocated;
     point* points;              // dynamic array of points
-
-    bool costs_computed;        
+       
     double* costs;             // matrix of costs between pairs of points
 
     tsp_solution best_solution;

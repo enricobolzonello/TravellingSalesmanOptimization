@@ -16,13 +16,22 @@
 #include <time.h>
 #include <stdlib.h>
 #include <stdarg.h>
+#include <unistd.h>
+#include <sys/ioctl.h>
+#include <string.h>
+
+#define COLOR_BOLD  "\033[1m"
+#define COLOR_OFF   "\033[m"
+
+#define NUM_LINES 25
+#define MAX_LINE_LENGTH 2048
 
 /**
  * @brief error codes as refered in <a href="https://github.com/googleapis/googleapis/blob/master/google/rpc/code.proto">Google's RPC standard</a> 
  * 
  */
 typedef enum{
-    OK = 0,                      // not error
+    T_OK = 0,                      // not error
     CANCELLED = 1,               // not error
     UNKNOWN = 2,
     INVALID_ARGUMENT = 3,
@@ -106,5 +115,7 @@ bool err_dolog(void);
  * @param ... 
  */
 void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, ...);
+
+void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation);
 
 #endif

@@ -8,7 +8,7 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
         solution->cost += tsp_get_cost(inst, i, solution->path[i]);
     }
 
-    ERROR_CODE e = OK;
+    ERROR_CODE e = T_OK;
     
     double delta = 0;
 
@@ -83,7 +83,7 @@ double ref_2opt_once(instance* inst, tsp_solution* solution){
         log_info("2-opt improved solution: new cost: %f", solution->cost);
     }
 
-    free(prev);
+    utils_safe_free(prev);
 
     return best_delta;
 

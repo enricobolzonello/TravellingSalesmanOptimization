@@ -11,6 +11,8 @@ struct edge{
 
 ERROR_CODE h_Greedy(instance* inst){
 
+    log_info("running Nearest Neighbour");
+
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     log_info("running GREEDY");
@@ -24,12 +26,15 @@ ERROR_CODE h_Greedy(instance* inst){
         log_error("code %d : error in updating solution for greedy", error);
     }
 
-    free(solution.path);
+    //utils_safe_free(solution.path);
     return error;
 }
 
 ERROR_CODE h_Greedy_iterative(instance* inst){
-    ERROR_CODE e = OK;
+
+    log_info("running All Nearest Neighbour");
+
+    ERROR_CODE e = T_OK;
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     for(int i=0; i<inst->nnodes; i++){
@@ -59,13 +64,16 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
         }
     }
 
-    free(solution.path);
+    utils_safe_free(solution.path);
 
     return e;
 }
 
 ERROR_CODE h_greedy_2opt(instance* inst){
-    ERROR_CODE e = OK;
+
+    log_info("running All Nearest Neighbour + 2OPT");
+
+    ERROR_CODE e = T_OK;
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     for(int i=0; i<inst->nnodes; i++){
@@ -90,7 +98,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
         if(!err_ok(error)){
             log_error("code %d : error in 2opt", error);
             break;
-        }else if (error == OK)
+        }else if (error == T_OK)
         {
             log_info("found new best solution: starting node %d, cost %f", i, inst->best_solution.cost);
             inst->starting_node = i;
@@ -98,7 +106,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
         
     }
 
-    free(solution.path);
+    utils_safe_free(solution.path);
 
     return e;
 }
@@ -108,7 +116,10 @@ ERROR_CODE h_greedy_2opt(instance* inst){
 //================================================================================
 
 ERROR_CODE h_ExtraMileage(instance* inst){
-    ERROR_CODE error = OK;
+
+    log_info("running Extra Mileage");
+
+    ERROR_CODE error = T_OK;
 
     double max_distance = 0.0;
     int nodeA = 0; 
@@ -168,7 +179,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
         return UNAVAILABLE;
     }
 
-    ERROR_CODE e = OK;
+    ERROR_CODE e = T_OK;
 
     int* visited = (int*)calloc(inst->nnodes, sizeof(int));
 
@@ -224,13 +235,13 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
     sol_cost += tsp_get_cost(inst, curr, starting_node);
     *(solution_cost) = sol_cost;
 
-    free(visited);
+    utils_safe_free(visited);
 
     return e;
 }
 
 ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA, int nodeB){
-    ERROR_CODE error = OK;    
+    ERROR_CODE error = T_OK;    
 
     // initalize visited array
     bool* visited = (bool*) calloc(inst->nnodes, sizeof(int));

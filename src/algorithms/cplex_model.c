@@ -1,28 +1,41 @@
 #include "cplex_model.h"
 
 ERROR_CODE cx_Nosec(instance *inst){  
+
+	ERROR_CODE e = T_OK;
+
+	log_info("running CPLEX without SECs");
+
 	// open CPLEX model
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);
 	if ( error ){
 		log_fatal("CPX code %d : CPXopenCPLEX() error", error);
-		tsp_handlefatal(inst);
+		e = FAILED_PRECONDITION;
+		goto cx_free;
 	} 
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1"); 
 	if ( error ) {
 		log_fatal("CPX code %d : CPXcreateprob() error", error);
-		tsp_handlefatal(inst);	
+		e = FAILED_PRECONDITION;
+		goto cx_free;
 	}
 
 	// initialize CPLEX model
-	cx_initialize(inst, env, lp);
+	e = cx_initialize(inst, env, lp);
+	if(!err_ok(e)){
+		log_error("error in initializing cplex model");
+		e = FAILED_PRECONDITION;
+		goto cx_free;
+	}
 
 	// solve with cplex
 	error = CPXmipopt(env,lp);
 	if ( error ) 
 	{
 		log_fatal("CPX code %d : CPXmipopt() error", error); 
-		tsp_handlefatal(inst);
+		e = INTERNAL;
+		goto cx_free;
 	}
 
 	int ncols = CPXgetnumcols(env, lp);
@@ -33,8 +46,15 @@ ERROR_CODE cx_Nosec(instance *inst){
 	// check that cplex solved it right
 	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
 		log_fatal("CPX : CPXgetx() error");	
-		tsp_handlefatal(inst);
+		e = INTERNAL;
+		goto cx_free;
 	} 
+
+	e = cx_handle_cplex_status(env, lp);
+	if(!err_ok(e)){
+		log_error("cplex did not finish correctly, error code %d", e);
+		goto cx_free;
+	}
 
 	int ncomp = 0;
 	int* comp = (int*) calloc(ncols, sizeof(int));
@@ -50,37 +70,46 @@ ERROR_CODE cx_Nosec(instance *inst){
 
 	log_info("number of independent components: %d", ncomp);
 
-	free(xstar);
-	
-	// free and close cplex model   
-	CPXfreeprob(env, &lp);
-	CPXcloseCPLEX(&env); 
+	cx_free:
+		utils_safe_free(comp);
+		utils_safe_free(solution.path);
 
-	return OK; 
+		utils_safe_free(xstar);
+	
+		// free and close cplex model   
+		CPXfreeprob(env, &lp);
+		CPXcloseCPLEX(&env); 
+
+	return e; 
 }
 
-// TODO: better error handling
 ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
+
+	ERROR_CODE e = T_OK;
+
+	log_info("running CPLEX Benders Loop %s Patching", patching ? "with" : "without");
+
 	// open CPLEX model
-	int e;
-	CPXENVptr env = CPXopenCPLEX(&e);
-	if(e){
+	int error;
+	CPXENVptr env = CPXopenCPLEX(&error);
+	if(error){
 		log_fatal("CPX code %d : CPXopenCPLEX() error", e);
-		tsp_handlefatal(inst);
+		e = FAILED_PRECONDITION;
+		goto cx_free;
 	} 
-	CPXLPptr lp = CPXcreateprob(env, &e, "TSP model version 1"); 
-	if(e){
+	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1"); 
+	if(error){
 		log_fatal("CPX code %d : CPXcreateprob() error", e);
-		tsp_handlefatal(inst);	
+		e = FAILED_PRECONDITION;
+		goto cx_free;
 	}
 
 	// initialize CPLEX model
-	ERROR_CODE error = OK;
 
-	error = cx_initialize(inst, env, lp);
-	if(!err_ok(error)){
-		log_fatal("code %d : error in initialize", error);
-		tsp_handlefatal(inst);
+	e = cx_initialize(inst, env, lp);
+	if(!err_ok(e)){
+		log_fatal("code %d : error in initialize", e);
+		goto cx_free;
 	}
 
 	tsp_solution solution = tsp_init_solution(inst->nnodes);
@@ -93,17 +122,17 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 
             if(ex_time > inst->options_t.timelimit){
 				log_warn("exceeded time, saving best solution found until now");
-				error = DEADLINE_EXCEEDED;
+				e = DEADLINE_EXCEEDED;
 				break;
             }
         }
 
 		// solve with cplex
-		e = CPXmipopt(env,lp);
-		if ( e ){
+		error = CPXmipopt(env,lp);
+		if ( error ){
 			log_fatal("CPX code %d : CPXmipopt() error", e); 
-			free(solution.path);
-			tsp_handlefatal(inst);
+			e = INTERNAL;
+			goto cx_free;
 		}
 
 		int ncols = CPXgetnumcols(env, lp);
@@ -114,9 +143,16 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		// check that cplex solved it right
 		if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
 			log_fatal("CPX : CPXgetx() error");	
-			free(solution.path);
+			utils_safe_free(solution.path);
 			tsp_handlefatal(inst);
 		} 
+
+		// check cplex status code on exit
+		e = cx_handle_cplex_status(env, lp);
+		if(!err_ok(e)){
+			log_error("cplex did not finish correctly, error code %d", e);
+			goto cx_free;
+		}
 
 		int ncomp = 0;
 		int* comp = (int*) calloc(ncols, sizeof(int));
@@ -135,8 +171,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		error = cx_add_sec(env, lp, comp, ncomp, inst);
 		if(!err_ok(error)){
 			log_fatal("code %d : error in add_sec", error);
-			free(solution.path);
-			tsp_handlefatal(inst);
+			goto cx_free;
 		}
 
 		// patch solution
@@ -151,45 +186,61 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		}
 
 		iteration++;
-		free(comp);
+
+		utils_safe_free(xstar);
+		utils_safe_free(comp);
 	}
 
 	log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
 	// save the best solution
 	tsp_update_best_solution(inst, &solution);
 
-	free(solution.path);
-	
-	// free and close cplex model   
-	CPXfreeprob(env, &lp);
-	CPXcloseCPLEX(&env); 
+	cx_free:
+		utils_safe_free(solution.path);
+		
+		// free and close cplex model   
+		CPXfreeprob(env, &lp);
+		CPXcloseCPLEX(&env); 
 
 	return error;
 }
 
 
-ERROR_CODE cx_BranchAndCut(instance *inst){  
+ERROR_CODE cx_BranchAndCut(instance *inst){ 
+
+	ERROR_CODE e = T_OK; 
+
+	log_info("runnning CPLEX Branch&Cut");
+
 	// open CPLEX model
 	int error;
 	CPXENVptr env = CPXopenCPLEX(&error);
 	if ( error ){
-		log_fatal("CPX code %d : CPXopenCPLEX() error", error);
-		tsp_handlefatal(inst);
+		log_fatal("CPX code %d : CPXopenCPLEX() error", e);
+		e = FAILED_PRECONDITION;
+		goto cx_free;
 	} 
 	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1"); 
 	if ( error ) {
-		log_fatal("CPX code %d : CPXcreateprob() error", error);
-		tsp_handlefatal(inst);	
+		log_fatal("CPX code %d : CPXopenCPLEX() error", e);
+		e = FAILED_PRECONDITION;
+		goto cx_free;
 	}
 
 	// initialize CPLEX model
-	cx_initialize(inst, env, lp);
+	e = cx_initialize(inst, env, lp);
+	if(!err_ok(e)){
+		log_error("error in initialization");
+		goto cx_free;
+	}
 
 	// initialize seeds for different threads
 	// https://selkie.macalester.edu/csinparallel/modules/MonteCarloSimulationExemplar/build/html/SeedingThreads/SeedEachThread.html
 	int threads = -1;
 	if(CPXgetintparam(env, CPXPARAM_Threads, &threads)){
 		log_error("CPXgetintparam error in threads");
+		e = ABORTED;
+		goto cx_free;
 	}
 	inst->threads_seeds = (int*) calloc(threads, sizeof(int));
 
@@ -204,10 +255,15 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	int ncols = CPXgetnumcols(env, lp);
 	double* xstar = (double *) calloc(ncols, sizeof(double));
 
-	CPXLONG contextid = CPX_CALLBACKCONTEXT_CANDIDATE | CPX_CALLBACKCONTEXT_RELAXATION;
+	CPXLONG contextid = CPX_CALLBACKCONTEXT_CANDIDATE;
+	if(inst->options_t.callback_relaxation){
+		contextid |= CPX_CALLBACKCONTEXT_RELAXATION;
+	}
+
 	if ( CPXcallbacksetfunc(env, lp, contextid, callback_branch_and_cut, inst) ) {
 		log_fatal("CPXcallbacksetfunc() error");
-		tsp_handlefatal(inst);
+		e = INTERNAL;
+		goto cx_free;
 	}
 
 	// solve with cplex
@@ -216,14 +272,23 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	if ( error ) 
 	{
 		log_fatal("CPX code %d : CPXmipopt() error", error); 
-		tsp_handlefatal(inst);
+		e = INTERNAL;
+		goto cx_free;
 	}
 
 	// check that cplex solved it right
 	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
 		log_fatal("CPX : CPXgetx() error");	
+		CPXcloseCPLEX(&env); 
 		tsp_handlefatal(inst);
 	} 
+
+	// check cplex status code on exit
+	e = cx_handle_cplex_status(env, lp);
+	if(!err_ok(e)){
+		log_error("cplex did not finish correctly, error code %d", e);
+		goto cx_free;
+	}
 
 	int ncomp = 0;
 	int* comp = (int*) calloc(ncols, sizeof(int));
@@ -238,13 +303,16 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	log_info("number of independent components: %d", ncomp);
 	log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
 
-	free(xstar);
-	
-	// free and close cplex model   
-	CPXfreeprob(env, &lp);
-	CPXcloseCPLEX(&env); 
+	utils_safe_free(comp);
 
-	return OK; 
+	cx_free:
+		utils_safe_free(xstar);
+	
+		// free and close cplex model   
+		//CPXfreeprob(env, &lp);
+		CPXcloseCPLEX(&env); 
+
+	return e; 
 }
 
 //================================================================================
@@ -252,7 +320,10 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 //================================================================================	
 
 ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
-	ERROR_CODE error;
+
+	log_info("initializing CPLEX parameters");
+
+	ERROR_CODE error = T_OK;
 
 	cx_build_model(inst, env, lp);
 	
@@ -262,7 +333,6 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 	if(err_dolog()){
 		CPXsetintparam(env, CPX_PARAM_SCRIND, CPX_OFF); // output to screen
 
-		log_info("save to log file");
 		mkdir("logs", 0777);
     	char log_path[1024];
 
@@ -271,7 +341,7 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 
     	sprintf(log_path, "logs/%s.log", buffer);
 
-		log_debug("log path: %s", log_path);
+		log_info("CPLEX logs will be saved in file %s", log_path);
     	CPXsetlogfilename(env, log_path, "w");
 	}
 
@@ -282,39 +352,54 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 		CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit); 
 	}
 
-	// Run one of our heurstics to be added to the MIP starts
-	// Can be faster than CPLEX heuristics since ours are specific for TSP
+	if(inst->options_t.init_mip){
 
-	error = h_greedy_2opt(inst);
+		log_info("computing heuristic for MIP Start");
 
-	int* varindices = (int*) calloc(inst->nnodes, sizeof(int));
-	double* values = (double*) calloc(inst->nnodes, sizeof(double));
+		// Run one of our heurstics to be added to the MIP starts
+		// Can be faster than CPLEX heuristics since ours are specific for TSP
 
-	// initialize values for CPLEX
-	// An entry values[j] greater than or equal to CPX_INFBOUND specifies that no value is set for the variable varindices[j]
-	for(int i=0; i<inst->nnodes; i++){
-		values[i] = CPX_INFBOUND;
+		double old_timelimit = inst->options_t.timelimit;
+		// set the new timelimit to 1/10 of the total time, to make it so the heuristic doesnt consume all of the available time
+		inst->options_t.timelimit = old_timelimit / 10.0;
+
+		// run all nearest neighbor heuristic
+		error = h_Greedy_iterative(inst);
+
+		// change the timelimit back to the original one
+		inst->options_t.timelimit = old_timelimit;
+
+		int* varindices = (int*) calloc(inst->nnodes, sizeof(int));
+		double* values = (double*) calloc(inst->nnodes, sizeof(double));
+
+		// initialize values for CPLEX
+		// An entry values[j] greater than or equal to CPX_INFBOUND specifies that no value is set for the variable varindices[j]
+		for(int i=0; i<inst->nnodes; i++){
+			values[i] = CPX_INFBOUND;
+		}
+
+		int k = 0;
+		for(int i=0; i<inst->nnodes; i++){
+			int j = inst->best_solution.path[i];
+
+			varindices[k] = cx_xpos(i,j,inst);
+			values[k] = 1.0;
+
+			k++;
+		}
+
+		const int beg = 0;
+		const int effortlevel = CPX_MIPSTART_NOCHECK;
+		if( CPXaddmipstarts(env, lp, 1, inst->nnodes, &beg, varindices, values, &effortlevel, NULL) ){
+			log_error("CPXaddmipstarts error");
+			error = INTERNAL;
+		}
+
+		log_info("heuristic solution added to MIP start");
+
+		utils_safe_free(varindices);
+		utils_safe_free(values);
 	}
-
-	int k = 0;
-	for(int i=0; i<inst->nnodes; i++){
-		int j = inst->best_solution.path[i];
-
-		varindices[k] = cx_xpos(i,j,inst);
-		values[k] = 1.0;
-
-		k++;
-	}
-
-	const int beg = 0;
-	const int efforlevel = CPX_MIPSTART_NOCHECK;
-	if( CPXaddmipstarts(env, lp, 1, inst->nnodes, &beg, varindices, values, &efforlevel, NULL) ){
-		log_error("CPXaddmipstarts error");
-		error = INTERNAL;
-	}
-
-	free(varindices);
-	free(values);
 
 	return error;
 }
@@ -381,31 +466,34 @@ ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance
 		CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, NULL);
 	}
 
-	// free resources
-	free(index);
-	free(value);
+	// utils_safe_free resources
+	utils_safe_free(index);
+	utils_safe_free(value);
 
-	return OK;
+	return T_OK;
 }
 
 // construct sec
-ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, cut *cuts){
+ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, double* rhs, char* sense, int* matbeg, int* matind, double* matval){
+
 	log_info("starting sec computing");
 
-	if (ncomp <= 1 || comp == NULL || inst == NULL || cuts == NULL) {
+	if (ncomp <= 1 || comp == NULL || inst == NULL) {
+		log_debug("invalid argument");
         return INVALID_ARGUMENT;
     }
 
+	*nnz = 0;
+
 	// initialize index and value
-	int ncols = inst->ncols;
 	log_debug("finish init");
 
 	// non più di n**2
 	for(int k=1; k<=ncomp; k++){
-		cx_init_cut(&cuts[k-1], ncols);
 
-		cuts[k-1].nnz=0;
+		matbeg[k-1] = *nnz;
 
+		int cnt = 0;
 		int number_nodes = 0; // |S|
 
 		for(int i=0; i<inst->nnodes; i++){
@@ -423,26 +511,24 @@ ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, cut *cuts){
 					continue;
 				}
 
-				cuts[k-1].index[cuts[k-1].nnz] = cx_xpos(i,j,inst);
-				cuts[k-1].value[cuts[k-1].nnz] = 1.0;
+				matind[*nnz + cnt] = cx_xpos(i,j,inst);
+				matval[*nnz + cnt] = 1.0;
 
-				cuts[k-1].nnz++;
+				cnt++;
 			}
 
 		}
+		
+		*nnz += cnt;
+    	rhs[k-1] = number_nodes - 1.0;
+		sense[k-1] = 'L';
 
-    	cuts[k-1].rhs = number_nodes - 1.0;
 	}
 
 	log_debug("finish computing cuts");
 	log_debug("done. returning.\n");
 
-	return OK;
-}
-
-void cx_init_cut(cut* new_cut, int ncols){
-	new_cut->index = (int*) calloc(ncols, sizeof(int));
-	new_cut->value = (double*) calloc(ncols, sizeof(double));
+	return T_OK;
 }
 
 void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){    
@@ -499,17 +585,73 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
 
 	inst->ncols = CPXgetnumcols(env, lp);
 
-	free(value);
-	free(index);
+	utils_safe_free(value);
+	utils_safe_free(index);
 
-	free(cname[0]);
-	free(cname);
+	utils_safe_free(cname[0]);
+	utils_safe_free(cname);
 
 	if(err_dolog()){
 		CPXwriteprob(env, lp, "results/model.lp", NULL);   
 	}
 
 }
+
+/*ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, cut *cuts){
+	log_info("starting sec computing");
+
+	if (ncomp <= 1 || comp == NULL || inst == NULL || cuts == NULL) {
+        return INVALID_ARGUMENT;
+    }
+
+	// initialize index and value
+	int ncols = inst->ncols;
+	log_debug("finish init");
+
+	// non più di n**2
+	for(int k=1; k<=ncomp; k++){
+		cx_init_cut(&cuts[k-1], ncols);
+
+		cuts[k-1].nnz=0;
+
+		int number_nodes = 0; // |S|
+
+		for(int i=0; i<inst->nnodes; i++){
+
+			// skip iteration if it does belong to the current component k
+			if(comp[i] != k){
+				continue;
+			}
+
+			number_nodes++;
+
+			for(int j=i+1; j<inst->nnodes; j++){
+				// skip iteration if it does belong to the current component k
+				if(comp[j] != k){
+					continue;
+				}
+
+				cuts[k-1].index[cuts[k-1].nnz] = cx_xpos(i,j,inst);
+				cuts[k-1].value[cuts[k-1].nnz] = 1.0;
+
+				cuts[k-1].nnz++;
+			}
+
+		}
+
+    	cuts[k-1].rhs = number_nodes - 1.0;
+	}
+
+	log_debug("finish computing cuts");
+	log_debug("done. returning.\n");
+
+	return T_OK;
+}
+
+void cx_init_cut(cut* new_cut, int ncols){
+	new_cut->index = (int*) calloc(ncols, sizeof(int));
+	new_cut->value = (double*) calloc(ncols, sizeof(double));
+}*/
 
 void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution) 
 {   
@@ -551,6 +693,32 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
 		solution->cost += tsp_get_cost(inst, i, start);
 		
 		// go to the next component...
+	}
+}
+
+// TODO: handle ctrl+c by user gracefully
+ERROR_CODE cx_handle_cplex_status(CPXENVptr env, CPXLPptr lp){
+	int status = CPXgetstat(env, lp);
+
+	switch (status)
+	{
+	case CPXMIP_TIME_LIM_FEAS:
+		return DEADLINE_EXCEEDED;
+	case CPXMIP_TIME_LIM_INFEAS:
+		return RESOURCE_EXHAUSTED;
+	case CPXMIP_INFEASIBLE:
+		return NOT_FOUND;
+	case CPXMIP_ABORT_FEAS:
+		return CANCELLED;
+	case CPXMIP_ABORT_INFEAS:
+		return NOT_FOUND;	
+	case CPXMIP_OPTIMAL_TOL:
+		return T_OK;
+	case CPXMIP_OPTIMAL:
+		return T_OK;
+	default:
+		log_error("unhandled cplex status code %d\n", status);
+		return UNIMPLEMENTED;
 	}
 }
 
@@ -628,12 +796,15 @@ static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXL
 }
 
 static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst){
+
+	int ret_value = 0;
+
 	double* xstar = (double *) calloc(inst->ncols, sizeof(double));
 	double objval = CPX_INFBOUND; 
 	if ( CPXcallbackgetcandidatepoint(context, xstar, 0, inst->ncols-1, &objval) ){
 		log_error("CPXcallbackgetcandidatepoint error");
-		free(xstar);
-		return 1;
+		ret_value = 1;
+		goto cx_free;
 	} 
 
 	int ncomp = 0;
@@ -643,41 +814,44 @@ static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG c
 	cx_build_sol(xstar, inst, comp, &ncomp, &solution);
 	
 	if(ncomp > 1){
+		int nnz = 0;
+		double* rhs = (double*) calloc(ncomp, sizeof(double));
+		char* sense = (char*) calloc(ncomp, sizeof(char));
+		int* matbeg = (int*) calloc(ncomp, sizeof(int));
+		double* matval = (double*) calloc(ncomp * inst->ncols, sizeof(double));
+		int* matind = (int*) calloc(ncomp * inst->ncols, sizeof(int));
+		cx_compute_cuts(comp, ncomp, inst, &nnz, rhs, sense, matbeg, matind, matval);
 
-		const char sense='L';
-		int izero = 0;
-		int* index = (int*) calloc(inst->ncols, sizeof(int));
-		double* value = (double*) calloc(inst->ncols, sizeof(double));
-		
-		cut* cuts = (cut*) calloc(ncomp, sizeof(cut));
-		cx_compute_cuts(comp, ncomp, inst, cuts);
-
-		for(int k=0; k<ncomp; k++){
-			if(cuts[k].nnz > 0){
-				if ( CPXcallbackrejectcandidate(context, 1, cuts[k].nnz, &(cuts[k].rhs), &sense, &izero, cuts[k].index, cuts[k].value )) {
-					log_error("CPXcallbackrejectcandidate() error");
-					return 1;
-				}
-			}
-
-			free(cuts[k].index);
-			free(cuts[k].value);
+		int error = CPXcallbackrejectcandidate(context, ncomp, nnz, rhs, sense, matbeg, matind, matval );
+		if ( error ) {
+			log_error("CPXcallbackrejectcandidate() error, code %d", error);
+			ret_value = 1;
 		}
 		
 		// free resources
-		free(cuts);
-		free(index);
-		free(value);
-		
+		utils_safe_free(rhs);
+		utils_safe_free(sense);
+		utils_safe_free(matbeg);
+		utils_safe_free(matval);
+		utils_safe_free(matind);
+
+		// means that reject candidate has encountered an error
+		// dont continue and go to free
+		if(ret_value == 1){
+			goto cx_free;
+		}
 	}
 
-	free(xstar);
-	free(comp);
+	cx_free:
+		utils_safe_free(xstar);
+		utils_safe_free(comp);
 
-	return 0;
+	return ret_value;
 }
 
 static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst){
+
+	int ret_value = 0;
 
 	log_debug("RELAXATION CALLBACK");
 	// execute this code only an handful of times, since this callback will be called milion of times
@@ -690,8 +864,7 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 	int nodes = -1;
 	int depth = -1;
 
-	// TODO: choose how to select the skip method
-	switch (1){
+	switch (inst->options_t.skip_policy){
 	case BC_PROB:
 		// method 1 
 		if(CPXcallbackgetinfoint(context, CPXCALLBACKINFO_THREADID, &threadid)){
@@ -731,6 +904,7 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 		}
 		break;
 	default:
+		log_error("not found");
 		break;
 	}
 
@@ -746,12 +920,10 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 	int* comps = NULL;
 	int* compscount = NULL;
 
-	/*tsp_solution solution = tsp_init_solution(inst->nnodes);
-	cx_build_sol(xstar, inst, comps, &ncomp, &solution);*/
-
 	// transform into elist format for Concorde
 	// elist[2*i] contains one node of the i-th edge, and elist[2*i+1] contains the other node
 	int* elist = (int*) calloc(2 * inst->ncols, sizeof(int));
+	double* new_xstar = (double*) calloc(inst->ncols, sizeof(double));
 	int num_edges = 0;
 	int k=0;
 
@@ -759,47 +931,35 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 
 	for(int i=0; i<inst->nnodes; i++){
 		for(int j=i+1; j<inst->nnodes; j++){
-			elist[k++] = i;
-			elist[k++] = j;
+			if(xstar[cx_xpos(i,j, inst)] > 1e-10){
+				elist[k++] = i;
+				elist[k++] = j;
 
-			// verified correspondence between edges and cplex columns
-			if(cx_xpos(i,j,inst) != kpos){
-				log_error("cx_xpos error");
+				new_xstar[num_edges] = xstar[cx_xpos(i,j,inst)];
+
+				// verified correspondence between edges and cplex columns
+				if(cx_xpos(i,j,inst) != kpos){
+					log_error("cx_xpos error");
+				}
+
+				num_edges++;
 			}
-			kpos++;
 
-			num_edges++;
+			kpos++;
 		}
 	}
-	
-	/*int k=0;
-	int num_edges = 0;
-	int* elist = (int*) calloc(2*inst->nnodes, sizeof(int));
-	for(int i=0; i<inst->nnodes; i++){
-		elist[k++] = i;
-		elist[k++] = solution.path[i];
-		num_edges++;
-	}*/
 
 	// Detect the connected components of the graph. Receives:
 	// ncomp - number of connected components
 	// compscount - array to receive the number of connected components
 	// comps - array to receive the edges pertaining to each component
-	/*if(CCcut_connect_components(inst->nnodes, num_edges, elist, xstar, &ncomp, &compscount, &comps)){
+	if(CCcut_connect_components(inst->nnodes, num_edges, elist, new_xstar, &ncomp, &compscount, &comps)){
 		log_error("CCcut_connect_components");
-	}*/
+		ret_value = 1;
+		goto cx_free;
+	}
 
 	log_debug("number of components: %d", ncomp);
-
-
-	// Works, but should not by what it's written on documentation
-	/*violatedcuts_passparams userhandle = {.context = context, .inst = inst};
-
-	// find the cut that violate the 2.0-EPSILON_BC threshold
-	// for each violated cut it calls the callback function cc_add_violated_sec
-	if(CCcut_violated_cuts(inst->nnodes, num_edges, elist, xstar, 2.0-EPSILON_BC, cc_add_violated_sec, &userhandle)){
-		log_error("CCcut_violated_cuts");
-	}*/
 
 	if(ncomp == 1){
 		// connected graph, but it may not be a tsp solution
@@ -807,8 +967,10 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 		violatedcuts_passparams userhandle = {.context = context, .inst = inst};
 
 		// find the cut that violate the 2.0-EPSILON_BC threshold
-		if(CCcut_violated_cuts(inst->nnodes, num_edges, elist, xstar, 2.0-EPSILON_BC, cc_add_violated_sec, &userhandle)){
+		if(CCcut_violated_cuts(inst->nnodes, num_edges, elist, new_xstar, 2.0-EPSILON_BC, cc_add_violated_sec, &userhandle)){
 			log_error("CCcut_violated_cuts");
+			ret_value = 1;
+			goto cx_free;
 		}
 	}else{
 
@@ -826,37 +988,54 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 		}
 
 		// add all the subtour elimination constraints
-		cut* cuts = (cut*) calloc(ncomp, sizeof(cut));
-		cx_compute_cuts(components, ncomp, inst, cuts);
+		
+		int nnz = 0;
+		double* rhs = (double*) calloc(ncomp, sizeof(double));
+		char* sense = (char*) calloc(ncomp, sizeof(char));
+		int* matbeg = (int*) calloc(ncomp, sizeof(int));
+		double* matval = (double*) calloc(ncomp * inst->ncols, sizeof(double));
+		int* matind = (int*) calloc(ncomp * inst->ncols, sizeof(int));
+		cx_compute_cuts(components, ncomp, inst, &nnz, rhs, sense, matbeg, matind, matval);
 
-		const char sense = 'L';
-		const int rmatbeg = 0;
-		const int purgeable = CPX_USECUT_FILTER;
-		const int local = 0;
+		int* purgeable = (int*) calloc(ncomp, sizeof(int));
+		int* local = (int*) calloc(ncomp, sizeof(int));
 
-		// there will be one cut for each independent component, add it one at a time
 		for(int i=0; i<ncomp; i++){
-			if(CPXcallbackaddusercuts(context, 1, cuts[i].nnz, &(cuts[i].rhs), &sense, &rmatbeg, cuts[i].index, cuts[i].value, &purgeable, &local)){
-				log_error("CPXcallbackaddusercuts");
-			}
+			purgeable[i] = CPX_USECUT_FORCE;			// The cut is added to the relaxation and stays there
+			local[i] = 0;								// Means it is globally valid
 		}
 
-		// free resources
-		for(int i=0; i<ncomp; i++){
-			free(cuts[i].index);
-			free(cuts[i].value);
+		// add all the cuts
+		int error = CPXcallbackaddusercuts(context, ncomp, nnz, rhs, sense, matbeg, matind, matval, purgeable, local);
+		if(error){
+			log_error("CPXcallbackaddusercuts error, cod %d", error);
+			ret_value = 1;
 		}
-		free(cuts);
 
-		free(components);
+		utils_safe_free(rhs);
+		utils_safe_free(sense);
+		utils_safe_free(matbeg);
+		utils_safe_free(matval);
+		utils_safe_free(matind);
+		utils_safe_free(purgeable);
+		utils_safe_free(local);
+
+		utils_safe_free(components);
+
+		// add user cuts gave an error, so we break from the loop and free all other resources
+		if(ret_value == 1){
+			goto cx_free;
+		}
 	}
 
-	free(xstar);
-	free(comps);
-	free(compscount);
-	free(elist);
+	cx_free:
+		utils_safe_free(xstar);
+		utils_safe_free(new_xstar);
+		utils_safe_free(comps);
+		utils_safe_free(compscount);
+		utils_safe_free(elist);
 
-	return 0;
+	return ret_value;
 }
 
 int cc_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void* userhandle){
@@ -901,8 +1080,8 @@ int cc_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void
 	log_debug("add user cut, edges %d", nnz);
 	log_debug("cut value: %.4f", cut_value);
 
-	free(index);
-	free(value);
+	utils_safe_free(index);
+	utils_safe_free(value);
 
 	return 0;
 }

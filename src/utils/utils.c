@@ -4,6 +4,16 @@ static char* algs_string[10] = {
     "Greedy", "Greedy\\_Iter", "2opt\\_Greedy", "Tabu\\_Search", "VNS", "Cplex\\_NoSec", "Cplex\\_BendersLoop", "Extra\\_Mileage", "Cplex\\_BendersLoop\\_Patching", "Cplex\\_Branch\\&Cut"
 };
 
+void utils_safe_memory_free (void ** pointer_address)
+{
+  if (pointer_address != NULL && *pointer_address != NULL)
+  {
+    free(*pointer_address);
+
+    *pointer_address = NULL;
+  }
+}
+
 bool utils_file_exists (const char *filename) {
   struct stat  buffer;   
   return (stat (filename, &buffer) == 0);

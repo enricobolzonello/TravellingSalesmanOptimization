@@ -4,41 +4,41 @@
 // POLICIES
 //================================================================================
 
-ERROR_CODE tabu_fixed_policy(tabu_search* t, int value){
-    if(t->policy != POL_FIXED){
+ERROR_CODE tabu_fixed_policy(instance* inst, tabu_search* t, int value){
+    if(inst->options_t.policy != POL_FIXED){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
 
     t->tenure = value;
 
-    return OK;
+    return T_OK;
 }
 
-ERROR_CODE tabu_dependent_policy(tabu_search* t){
-    if(t->policy != POL_SIZE){
+ERROR_CODE tabu_dependent_policy(instance* inst, tabu_search* t){
+    if(inst->options_t.policy != POL_SIZE){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
 
     t->tenure = (int)ceil((t->max_tenure + t->min_tenure)/2);
 
-    return OK;
+    return T_OK;
 }
 
-ERROR_CODE tabu_random_policy(tabu_search* t){
-    if(t->policy != POL_RANDOM){
+ERROR_CODE tabu_random_policy(instance* inst, tabu_search* t){
+    if(inst->options_t.policy != POL_RANDOM){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
 
     t->tenure = (int)(rand() / RAND_MAX) * (t->max_tenure - t->min_tenure) + t->min_tenure;
 
-    return OK;
+    return T_OK;
 }
 
-ERROR_CODE tabu_linear_policy(tabu_search* ts){
-    if(ts->policy != POL_LINEAR){
+ERROR_CODE tabu_linear_policy(instance* inst, tabu_search* ts){
+    if(inst->options_t.policy != POL_LINEAR){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
@@ -55,16 +55,16 @@ ERROR_CODE tabu_linear_policy(tabu_search* ts){
         ts->tenure--;
     }
 
-    return OK;
+    return T_OK;
 }
 
 //================================================================================
 // TABU SEARCH
 //================================================================================
 
-ERROR_CODE tabu_init(tabu_search* ts, int nnodes, POLICIES policy){
+ERROR_CODE tabu_init(tabu_search* ts, int nnodes){
 
-    ts->policy = policy;
+    log_info("running Tabu Search");
 
     ts->tabu_list = (int*) calloc(nnodes, sizeof(int));
     for(int i=0; i< nnodes; i++){
@@ -79,19 +79,19 @@ ERROR_CODE tabu_init(tabu_search* ts, int nnodes, POLICIES policy){
     ts->max_tenure = MAX_FRACTION * nnodes;
     ts->min_tenure = MIN_FRACTION * nnodes;
 
-    return OK;
+    return T_OK;
     
 }
 
-ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
+ERROR_CODE mh_TabuSearch(instance* inst){
     // initialize
     tabu_search ts;
-    if(!err_ok(tabu_init(&ts, inst->nnodes, policy))){
+    if(!err_ok(tabu_init(&ts, inst->nnodes))){
         log_fatal("code %d : Error in init tabu search"); 
         tsp_handlefatal(inst);
     }
 
-    ERROR_CODE e = OK;
+    ERROR_CODE e = T_OK;
 
     // file to hold solution value in each iteration
     FILE* f = fopen("results/TabuResults.dat", "w+");
@@ -103,7 +103,7 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
     if(!err_ok(h_greedy_2opt(inst))){
         log_fatal("code %d : Error in greedy solution computation");
         tsp_handlefatal(inst);
-        free(solution.path);
+        utils_safe_free(solution.path);
     }
 
     solution.cost = inst->best_solution.cost;
@@ -122,9 +122,27 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
         }
 
         // update tenure
-        ERROR_CODE e = tabu_linear_policy(&ts);
+        switch (inst->options_t.policy)
+        {
+        case  POL_FIXED:
+            e = tabu_fixed_policy(inst, &ts, 30);
+            break;
+        case POL_LINEAR:
+            e = tabu_linear_policy(inst, &ts);
+            break;
+        case POL_RANDOM:
+            e = tabu_random_policy(inst, &ts);
+            break;
+        case POL_SIZE:
+            e = tabu_dependent_policy(inst, &ts);
+            break;
+        default:
+            e = UNKNOWN;
+            break;
+        }
+        
         if(!err_ok(e)){
-            log_warn("using already set policy %d", ts.policy);
+            log_warn("using already set policy %d", inst->options_t.policy);
         }
 
         // 2opt move
@@ -132,14 +150,14 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
         if(!err_ok(e)){
             log_fatal("code %d : Error in tabu best move", e); 
             tsp_handlefatal(inst);
-            free(solution.path);
+            utils_safe_free(solution.path);
         }
 
         e = tsp_update_best_solution(inst, &solution);
         if(!err_ok(e)){
             log_fatal("code %d : Error in updating best solution", e); 
             tsp_handlefatal(inst);
-            free(solution.path);
+            utils_safe_free(solution.path);
         }
 
         // save current iteration and current solution cost to file for the plot
@@ -158,8 +176,8 @@ ERROR_CODE mh_TabuSearch(instance* inst, POLICIES policy){
     plot_stats(plot, "results/TabuResults.dat");
     plot_free(plot);
 
-    // free resources
-    free(solution.path);
+    // utils_safe_free resources
+    utils_safe_free(solution.path);
     tabu_free(&ts);
 
     return e;
@@ -220,9 +238,9 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
         ts->tabu_list[succ_b] = current_iteration;
     }
 
-    free(prev);
+    utils_safe_free(prev);
 
-    return OK;
+    return T_OK;
 }
 
 //================================================================================
@@ -230,13 +248,16 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
 //================================================================================
 
 ERROR_CODE mh_VNS(instance* inst){
+
+    log_info("running Variable Neighborhood Search");
+
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     ERROR_CODE e = h_Greedy_iterative(inst); // start with a bad solution
     if(!err_ok(e)){
             log_fatal("code %d : Error in greedy", e);
             tsp_handlefatal(inst);
-            free(solution.path);
+            utils_safe_free(solution.path);
         }
     log_info("Greedy done!");
     
@@ -250,7 +271,7 @@ ERROR_CODE mh_VNS(instance* inst){
     // file to hold solution value in each iteration
     FILE* f = fopen("results/VNSResults.dat", "w+");
     
-    e  = OK;
+    e  = T_OK;
     // call 3 opt k times
     for(int i=0; i<inst->options_t.k; i++){
         // check if exceeds time
@@ -267,8 +288,8 @@ ERROR_CODE mh_VNS(instance* inst){
         if(!err_ok(e)){
             log_fatal("code %d : Error in local search", e); 
             tsp_handlefatal(inst);
-            free(solution.path);
-            free(best_vns.path);
+            utils_safe_free(solution.path);
+            utils_safe_free(best_vns.path);
         }
 
         if(solution.cost < best_vns.cost){
@@ -287,8 +308,8 @@ ERROR_CODE mh_VNS(instance* inst){
             if(!err_ok(e)){
                 log_fatal("code %d : Error in kick", e); 
                 tsp_handlefatal(inst);
-                free(solution.path);
-                free(best_vns.path);
+                utils_safe_free(solution.path);
+                utils_safe_free(best_vns.path);
             }
         }
         
@@ -311,8 +332,8 @@ ERROR_CODE mh_VNS(instance* inst){
     plot_stats(plot, "results/VNSResults.dat");
     plot_free(plot);
 
-    free(best_vns.path);
-    free(solution.path);
+    utils_safe_free(best_vns.path);
+    utils_safe_free(solution.path);
     return e;
 }
 
@@ -375,13 +396,13 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
     if(!err_ok(e)){
         log_fatal("code %d : Error in make move", e); 
         tsp_handlefatal(inst);
-        free(prev);
+        utils_safe_free(prev);
     }
 
-    // free resources
-    free(prev);
+    // utils_safe_free resources
+    utils_safe_free(prev);
 
-    return OK;
+    return T_OK;
 }
 
 
@@ -394,12 +415,12 @@ bool is_in_tabu_list(tabu_search* ts, int node, int current_iteration){
 }
 
 void tabu_free(tabu_search* ts){
-    free(ts->tabu_list);
+    utils_safe_free(ts->tabu_list);
 }
 
 // https://tsp-basics.blogspot.com/2017/03/3-opt-move.html
 ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
-    ERROR_CODE e = OK;
+    ERROR_CODE e = T_OK;
     int temp;
     switch (bestCase){
         case 1: 
