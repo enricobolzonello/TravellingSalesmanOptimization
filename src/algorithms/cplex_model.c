@@ -1028,6 +1028,49 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG 
 		}
 	}
 
+
+	// call the modified greedy and post its solution
+
+	// greedy
+	log_debug("computing a heuristic NN solution with xstar-weighted costs to post");
+	// modify costs
+	double* modified_costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
+    for (int i = 0; i < inst->nnodes; i++) {
+        // Initialize each element of the matrix to -1 -> infinite cost
+        for (int j = i+1; j < inst->nnodes; j++) {
+            double cost= inst->costs[i* inst->nnodes + j] * (1 - xstar[cx_xpos(i,j,inst)]);
+			modified_costs[i* inst->nnodes + j] = cost;
+			modified_costs[j* inst->nnodes + i] = cost;
+        }
+    }
+
+	// run all nearest neighbor heuristic with xstar-weighted costs to post solution
+	tsp_solution solution = tsp_init_solution(inst->nnodes);
+	ERROR_CODE error = h_Greedy_iterative_mod_costs(inst, &solution, modified_costs);
+
+	// if it is better than incumbement, build a cplex solution and post it
+	if(solution.cost < inst->best_solution.cost){
+		// build cplex solution
+		double *xheu = (double *) calloc(inst->ncols, sizeof(double));
+		for ( int i = 0; i < inst->nnodes; i++ ) xheu[cx_xpos(i,solution.path[i],inst)] = 1.0;
+		int *ind = (int *) malloc(inst->ncols * sizeof(int));
+		for ( int j = 0; j < inst->ncols; j++ ) ind[j] = j;
+	
+	
+		if( CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, solution.cost, CPXCALLBACKSOLUTION_NOCHECK) ){
+			log_error("CPXcallbackpostheursoln error");
+			error = INTERNAL;
+		}else{
+			log_debug("posted heuristic solution with modified cost: %f", solution.cost);
+		}
+
+		free(xheu);
+	}
+	
+
+	free(modified_costs);
+	free(solution.path);
+	
 	cx_free:
 		utils_safe_free(xstar);
 		utils_safe_free(new_xstar);

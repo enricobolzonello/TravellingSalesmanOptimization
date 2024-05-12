@@ -54,6 +54,14 @@ ERROR_CODE h_greedy_2opt(instance* inst);
  */
 ERROR_CODE h_ExtraMileage(instance* inst);
 
+/**
+ * @brief Runs greedy iteratively on all nodes and picks the best solution. The edge costs are given as an argument so they can be modified as you want.
+ * 
+ * @param inst 
+ * @return ERROR_CODE 
+ */
+ERROR_CODE h_Greedy_iterative_mod_costs(instance* inst, tsp_solution* solution, double* costs);
+
 //================================================================================
 // UTILS
 //================================================================================
@@ -77,5 +85,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
  * @return ERROR_CODE 
  */
 ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA, int nodeB);
+
+ERROR_CODE h_greedyutil_mod_costs(instance* inst, int starting_node, int* solution_path, double* solution_cost, double* costs);
 
 #endif
