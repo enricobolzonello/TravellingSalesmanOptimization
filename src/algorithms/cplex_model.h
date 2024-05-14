@@ -94,6 +94,13 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
  */
 void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution);
 
+/**
+ * @brief Check CPLEX status codes after mip opt and returns an ERROR_CODE corresponding to its status
+ * 
+ * @param env CPXENVptr
+ * @param lp CPXLPptr
+ * @return ERROR_CODE 
+ */
 ERROR_CODE cx_handle_cplex_status(CPXENVptr env, CPXLPptr lp);
 
 
@@ -144,21 +151,19 @@ static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXL
  * @brief Callback function for the candidate solution
  * 
  * @param context CPXCALLBACKCONTEXTptr
- * @param contextid Should be CPX_CALLBACKCONTEXT_CANDIDATE, otherwise it fails
  * @param inst Tsp instance
  * @return int 0 if it is successful, 1 otherwise
  */
-static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst);
+static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, instance* inst);
 
 /**
  * @brief Callback function for the relaxation
  * 
  * @param context CPXCALLBACKCONTEXTptr
- * @param contextid Should be CPX_CALLBACKCONTEXT_RELAXATION, otherwise it fails
  * @param inst Tsp instance
  * @return int 0 if it is successful, 1 otherwise
  */
-static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, instance* inst);
+static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance* inst);
 
 /**
  * @brief Callback function called by Concorde, corresponds to int (*doit_fn) in the documentation. 

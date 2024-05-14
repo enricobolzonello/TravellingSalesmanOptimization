@@ -116,6 +116,8 @@ bool err_dolog(void);
  */
 void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, ...);
 
+void err_printoutput(double cost, double time, int alg);
+
 void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation);
 
 #endif

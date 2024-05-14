@@ -36,7 +36,7 @@ tsp_solution tsp_init_solution(int nnodes){
 ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     if(argc < 2){
         printf("Type %s --help to see the full list of commands\n", argv[0]);
-        exit(1);
+        exit(EXIT_FAILURE);
     }
 
     tsp_init(inst);
@@ -300,8 +300,8 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     if(help){
         printf("tsp - Traveling Salesman Solver\n\n");
         printf(COLOR_BOLD "USAGE:\n" COLOR_OFF);
-        printf("tsp [--help, -help, -h] [-file, -f <path>] [-time, -t <value>] \n");
-        printf("    [-seed <value>] [-alg <option>] [-n <value>]\n\n");
+        printf("tsp [--help, -help, -h] [--all_algs] [-file, -f <path>] [-time, -t <value>] [-seed <value>] [-alg <option>] [-n <value>] [--to_file]\n");
+        printf("    [-k <value>] [-em <option>] [--init_mip] [-skip <option>] [--no_relax] [-q, (DEFAULT), -v, -vv] \n\n");
         printf(COLOR_BOLD "OPTIONS:\n" COLOR_OFF);
         printf("    --help, -help, -h       prints this text\n");
         printf("    -file, -f <path>        input a TSPLIB file format\n");
@@ -309,7 +309,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    -seed <value>           seed for random generation, if not set defaults to user time\n");
         printf("    -alg <option>           selects the algorithm to solve TSP, run --all_algs to see the options\n");
         printf("    -n <value>              number of nodes\n");
-        printf("    -k <value>              number of iterations of some tabu search and vns, defaults to 10'000\n");
+        printf("    -k <value>              number of iterations of some tabu search and vns, defaults to the maximum value possible\n");
         printf("    -em <option>            initialization for Extra Mileage, options: MAX, RANDOM. Defaults to MAX\n");
         printf("    --all_algs              prints all possible algorithms\n");
         printf("    --to_file               if present, plots will be saved in directory /plots\n");
@@ -319,10 +319,11 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    --no_relax              turn off CPLEX relaxation callback function\n");
         printf(COLOR_BOLD "  Verbosity\n" COLOR_OFF);
         printf("    -q                      quiet verbosity level, prints only output\n");
+        printf("    DEFAULT                 if no flag is set, prints warnings, erros or fatal errors\n");
         printf("    -v                      verbose verbosity level, prints info, warnings, errors or fatal errors\n");
         printf("    -vv                     verbose verbosity level, prints also debug and trace\n");
 
-        return ABORTED;
+        exit(EXIT_SUCCESS);
     }
 
     if(algs){
@@ -338,7 +339,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - EXTRA_MILEAGE\n");
         printf("    - CPLEX_BRANCH_CUT\n");
         
-        return ABORTED;
+        exit(EXIT_SUCCESS);
     }
 
     return T_OK;
@@ -626,23 +627,12 @@ double solutionCost(instance *inst, int path[]){
 void tsp_handlefatal(instance *inst){
     log_warn("fatal error detected, shutting down application");
     tsp_free_instance(inst);
-    exit(0);
+    exit(EXIT_FAILURE);
 }
 
 void tsp_free_instance(instance *inst){
-    if(inst->options_t.inputfile){
-        utils_safe_free(inst->options_t.inputfile);
-    }
-
-    if(inst->points){
-        utils_safe_free(inst->points);
-    }
-
-    if(inst->costs){
-        utils_safe_free(inst->costs);
-    }
-
-    if(inst->best_solution.path){
-        utils_safe_free(inst->best_solution.path);
-    }
+    utils_safe_free(inst->options_t.inputfile);
+    utils_safe_free(inst->points);
+    utils_safe_free(inst->costs);
+    utils_safe_free(inst->best_solution.path);
 }

@@ -53,25 +53,30 @@ void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, 
         time_t t = time(NULL);
         buf[strftime(buf, sizeof(buf), "%H:%M:%S", localtime(&t))] = '\0';
 
-        printf("%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ",buf, level_colors[level], level_strings[level], file, line);
-        vprintf(message, arg);
-        printf("\n");
+        fprintf(stderr,"%s %s%-5s\x1b[0m \x1b[90m%s:%d:\x1b[0m ",buf, level_colors[level], level_strings[level], file, line);
+        vfprintf(stderr, message, arg);
+        fprintf(stderr, "\n");
 
         va_end(arg);
     }
 }
 
-void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation){
-  if(!(L.verbosity == QUIET)){
-    struct winsize w;
-    ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
+void err_printline(void){
+  struct winsize w;
+  ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
 
-    printf(COLOR_BOLD "Travelling Salesman Problem Solver v0.1\n" COLOR_OFF);
-    // horizontal line
+  // horizontal line
     for(int i=0; i<w.ws_col; i++){
       printf("\u2500");
     }
-    printf("\n");
+    printf("\n\n");
+}
+
+void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation){
+  if(!(L.verbosity == QUIET)){
+    printf(COLOR_BOLD "Travelling Salesman Problem Solver v0.1\n" COLOR_OFF);
+    // horizontal line
+    err_printline();
 
     printf("Algorithm:               %s\n", algs_string[alg]);
     printf("Number of nodes:         %d\n", nnodes);
@@ -118,13 +123,27 @@ void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timel
       break;
     }
 
-    // horizontal line
-    for(int i=0; i<w.ws_col; i++){
-      printf("\u2500");
-    }
-    printf("\n");
+    err_printline();
 
     printf("Press Enter to continue...\n");
     getchar();
+  }
+}
+
+void err_printoutput(double cost, double time, int alg){
+  if(!(L.verbosity == QUIET)){
+
+    err_printline();
+
+    printf("algorithm: %s\n", algs_string[alg]);
+
+    printf("cost: %.2f\n", cost);
+    printf("execution time: %.2f seconds\n", time);
+
+    err_printline();
+
+    printf("Program finished, shutting down...\n");
+  }else{
+    printf("Cost: %.2f\n", cost);
   }
 }

@@ -101,7 +101,7 @@ void utils_format_title(char *fname, int alg)
 
     // get string of algorithm
     const char* alg_s = NULL;
-    if (alg >= 0 && alg < sizeof(algs_string) / sizeof(char*)) {
+    if (alg >= 0 && alg < (int) (sizeof(algs_string) / sizeof(char*)) ) {
         alg_s = algs_string[alg];
     }
 
