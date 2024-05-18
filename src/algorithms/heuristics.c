@@ -16,7 +16,7 @@ ERROR_CODE h_Greedy(instance* inst){
     tsp_solution solution = tsp_init_solution(inst->nnodes);
 
     log_info("running GREEDY");
-    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, solution.path, &solution.cost);
+    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, &solution, inst->costs);
     if(!err_ok(error)){
         log_error("code %d : greedy did not finish correctly", error);
     }
@@ -47,7 +47,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
         }
 
         log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
+        ERROR_CODE error = h_greedyutil(inst, i, &solution, inst->costs);
         if(!err_ok(error)){
             log_error("code %d : error in iteration %d of greedy iterative", error, i);
             continue;
@@ -86,7 +86,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
         }
 
         log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, solution.path, &solution.cost);
+        ERROR_CODE error = h_greedyutil(inst, i, &solution, inst->costs);
         if(!err_ok(error)){
             log_error("code %d : error in iteration %i of 2opt greedy", error, i);
             break;
@@ -126,7 +126,7 @@ ERROR_CODE h_Greedy_iterative_mod_costs(instance* inst, tsp_solution* solution, 
         }
 
         //log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil_mod_costs(inst, i, solution->path, &solution->cost, costs);
+        ERROR_CODE error = h_greedyutil(inst, i, solution, costs);
         if(!err_ok(error)){
             log_error("code %d : error in iteration %d of greedy iterative", error, i);
             continue;
@@ -199,7 +199,7 @@ ERROR_CODE h_ExtraMileage(instance* inst){
 // UTILS
 //================================================================================
 
-ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, double* solution_cost){
+ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solution, double* costs){
     if(starting_node >= inst->nnodes || starting_node < 0){
         return UNAVAILABLE;
     }
@@ -232,7 +232,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
             // skip iteration if it's already visited
             if(i != curr && visited[i] != 1){
                 // update the minimum cost and its node
-                double temp = tsp_get_cost(inst, curr, i);
+                double temp = costs[curr * inst->nnodes + i];
                 if(temp != NOT_CONNECTED && temp < min_dist){
                     min_dist = temp;
                     min_idx = i;
@@ -241,12 +241,12 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
         }
 
         // save the edge
-        solution_path[curr] = min_idx;
+        solution->path[curr] = min_idx;
 
         if(min_idx == -1){
             // we have visited all nodes
             // close the path
-            solution_path[curr] = starting_node;
+            solution->path[curr] = starting_node;
             done = true;
         }else{
             // mark the node as visited and update the cost of the solution
@@ -258,7 +258,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
 
     // add last edge
     sol_cost += tsp_get_cost(inst, curr, starting_node);
-    *(solution_cost) = sol_cost;
+    solution->cost = sol_cost;
 
     utils_safe_free(visited);
 
@@ -342,70 +342,4 @@ ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA
     }
 
     return error;
-}
-
-ERROR_CODE h_greedyutil_mod_costs(instance* inst, int starting_node, int* solution_path, double* solution_cost, double* costs){
-    if(starting_node >= inst->nnodes || starting_node < 0){
-        return UNAVAILABLE;
-    }
-
-    ERROR_CODE e = T_OK;
-
-    int* visited = (int*)calloc(inst->nnodes, sizeof(int));
-
-    int curr = starting_node;
-    visited[curr] = 1;
-    
-    double sol_cost = 0;
-    bool done = false;
-
-    while(!done){
-        // check that we have not exceed time limit
-        double ex_time = utils_timeelapsed(&inst->c);
-        if(inst->options_t.timelimit != -1.0){
-            if(ex_time > inst->options_t.timelimit){
-                e = DEADLINE_EXCEEDED;
-                break;
-            }
-        }
-
-        // identify minimum distance from the current node
-        int min_idx = -1;
-        double min_dist = __DBL_MAX__;
-
-        for(int i=0; i<inst->nnodes; i++){
-            // skip iteration if it's already visited
-            if(i != curr && visited[i] != 1){
-                // update the minimum cost and its node
-                double temp = costs[curr * inst->nnodes + i];
-                if(temp != NOT_CONNECTED && temp < min_dist){
-                    min_dist = temp;
-                    min_idx = i;
-                }
-            }
-        }
-
-        // save the edge
-        solution_path[curr] = min_idx;
-
-        if(min_idx == -1){
-            // we have visited all nodes
-            // close the path
-            solution_path[curr] = starting_node;
-            done = true;
-        }else{
-            // mark the node as visited and update the cost of the solution
-            visited[min_idx] = 1;
-            curr = min_idx;
-            sol_cost += min_dist;
-        }
-    }
-
-    // add last edge
-    sol_cost += costs[curr * inst->nnodes + starting_node];
-    *(solution_cost) = sol_cost;
-
-    utils_safe_free(visited);
-
-    return e;
 }

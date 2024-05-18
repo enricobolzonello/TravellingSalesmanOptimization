@@ -73,7 +73,7 @@ ERROR_CODE h_Greedy_iterative_mod_costs(instance* inst, tsp_solution* solution, 
  * @param starting_node 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, double* solution_cost);
+ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solution, double* costs);
 
 /**
  * @brief 
@@ -85,7 +85,5 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, int* solution_path, d
  * @return ERROR_CODE 
  */
 ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA, int nodeB);
-
-ERROR_CODE h_greedyutil_mod_costs(instance* inst, int starting_node, int* solution_path, double* solution_cost, double* costs);
 
 #endif
