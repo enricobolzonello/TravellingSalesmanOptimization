@@ -1011,7 +1011,7 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 
 
 	// call the modified greedy and post its solution
-
+	// TODO: capire se eseguire ogni volta che esegue la callback o abbassare ancora probabiità
 	unsigned int seed = inst->threads_seeds[threadid];
 	inst->threads_seeds[threadid] = seed+1;
 
@@ -1022,7 +1022,6 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 		// modify costs
 		double* modified_costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
 		for (int i = 0; i < inst->nnodes; i++) {
-			// Initialize each element of the matrix to -1 -> infinite cost
 			for (int j = i+1; j < inst->nnodes; j++) {
 				double cost= inst->costs[i* inst->nnodes + j] * (1 - xstar[cx_xpos(i,j,inst)]);
 				modified_costs[i* inst->nnodes + j] = cost;
@@ -1032,6 +1031,7 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 
 		// run all nearest neighbor heuristic with xstar-weighted costs to post solution
 		tsp_solution solution = tsp_init_solution(inst->nnodes);
+		// TODO: aggiungere 2opt con timelimit ridotto
 		ERROR_CODE error = h_Greedy_iterative_mod_costs(inst, &solution, modified_costs);
 		if(!err_ok(error)){
 			log_error("error in greedy for posting solution");
@@ -1052,6 +1052,7 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 		}
 
 		// if it is better than incumbement, build a cplex solution and post it
+		// TODO: non ha senso il check sul costo modificato (costo fittizio)
 		if(solution.cost < inst->best_solution.cost){
 			// build cplex solution
 			double *xheu = (double *) calloc(inst->ncols, sizeof(double));
