@@ -375,7 +375,7 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 		inst->options_t.timelimit = old_timelimit / 10.0;
 
 		// run all nearest neighbor heuristic
-		error = h_Greedy_iterative(inst);
+		error = h_greedy_2opt(inst);
 
 		// change the timelimit back to the original one
 		inst->options_t.timelimit = old_timelimit;
@@ -1030,21 +1030,20 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 		}
 
 		// run all nearest neighbor heuristic with xstar-weighted costs to post solution
-		tsp_solution solution = tsp_init_solution(inst->nnodes);
-		// TODO: aggiungere 2opt con timelimit ridotto
-		ERROR_CODE error = h_Greedy_iterative_mod_costs(inst, &solution, modified_costs);
+		tsp_solution solution = tsp_init_solution(inst->nnodes);		
+
+		double old_timelimit = inst->options_t.timelimit;
+		// set the new timelimit to 1/10 of the total time, to make it so the heuristic doesnt consume all of the available time
+		inst->options_t.timelimit = old_timelimit / 10.0;
+
+		// run all nearest neighbor heuristic
+		ERROR_CODE error = h_Greedy_2opt_mod_costs(inst, &solution, modified_costs);
+
+		// change the timelimit back to the original one
+		inst->options_t.timelimit = old_timelimit;
+
 		if(!err_ok(error)){
 			log_error("error in greedy for posting solution");
-			utils_safe_free(modified_costs);
-			utils_safe_free(solution.path);
-			ret_value = 1;
-			goto cx_free;
-		}
-
-		// 2opt to the best solution to improve the solution
-		error = ref_2opt(inst, &solution);
-		if(!err_ok(error)){
-			log_error("error in 2opt for posting solution");
 			utils_safe_free(modified_costs);
 			utils_safe_free(solution.path);
 			ret_value = 1;

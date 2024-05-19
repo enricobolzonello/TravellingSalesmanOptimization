@@ -60,7 +60,7 @@ ERROR_CODE h_ExtraMileage(instance* inst);
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_Greedy_iterative_mod_costs(instance* inst, tsp_solution* solution, double* costs);
+ERROR_CODE h_Greedy_2opt_mod_costs(instance* inst, tsp_solution* solution, double* costs);
 
 //================================================================================
 // UTILS

@@ -94,7 +94,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
 
         log_debug("greedy solution: cost: %f", solution.cost);
 
-        error = ref_2opt(inst, &solution);
+        error = ref_2opt(inst, &solution, inst->costs, true);
         if(!err_ok(error)){
             log_error("code %d : error in 2opt", error);
             break;
@@ -111,7 +111,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
     return e;
 }
 
-ERROR_CODE h_Greedy_iterative_mod_costs(instance* inst, tsp_solution* solution, double* costs){
+ERROR_CODE h_Greedy_2opt_mod_costs(instance* inst, tsp_solution* solution, double* costs){
 
     ERROR_CODE e = T_OK;
     //tsp_solution solution = tsp_init_solution(inst->nnodes);
@@ -130,7 +130,15 @@ ERROR_CODE h_Greedy_iterative_mod_costs(instance* inst, tsp_solution* solution, 
         if(!err_ok(error)){
             log_error("code %d : error in iteration %d of greedy iterative", error, i);
             continue;
+        }
+
+        error = ref_2opt(inst, &solution, costs, false);
+        if(!err_ok(error)){
+            log_error("code %d : error in 2opt", error);
+            continue;
         }        
+
+
     }
 
     return e;

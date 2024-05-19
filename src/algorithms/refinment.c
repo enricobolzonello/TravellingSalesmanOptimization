@@ -1,11 +1,11 @@
 #include "refinment.h"
 
-ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
+ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution, double* costs, bool update_incumbent){
 
     // re-initialize cost for VNS
     solution->cost = 0;
     for(int i=0; i<inst->nnodes; i++){
-        solution->cost += tsp_get_cost(inst, i, solution->path[i]);
+        solution->cost += costs[i * inst->nnodes + solution->path[i]];
     }
 
     ERROR_CODE e = T_OK;
@@ -22,18 +22,20 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution){
             }
         }
 
-        delta = ref_2opt_once(inst, solution);
+        delta = ref_2opt_once(inst, solution, costs);
     }while(delta < EPSILON);
     
-    ERROR_CODE error = tsp_update_best_solution(inst, solution);
-    if(!err_ok(error)){
-        log_error("code %d : Error in 2opt solution update", error);
+    if(update_incumbent){
+        ERROR_CODE error = tsp_update_best_solution(inst, solution);
+        if(!err_ok(error)){
+            log_error("code %d : Error in 2opt solution update", error);
+        }
     }
     
     return e;
 }
 
-double ref_2opt_once(instance* inst, tsp_solution* solution){
+double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs){
     double best_delta = 0;
     int best_swap[2] = {-1, -1};
 
@@ -54,8 +56,8 @@ double ref_2opt_once(instance* inst, tsp_solution* solution){
             }
 
             // Compute the delta. If < 0 it means there is a crossing
-            double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
-            double swapped_cost = tsp_get_cost(inst, a, b) + tsp_get_cost(inst, succ_a, succ_b);
+            double current_cost = costs[a * inst->nnodes + succ_a] + costs[b * inst->nnodes + succ_b];
+            double swapped_cost = costs[a * inst->nnodes + b] + costs[succ_a * inst->nnodes + succ_b];
             double delta = swapped_cost - current_cost;
             if (delta < best_delta) {
                 best_delta = delta;
