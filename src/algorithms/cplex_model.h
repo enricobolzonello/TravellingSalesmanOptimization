@@ -133,6 +133,8 @@ void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);
  */
 ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, double* rhs, char* sense, int* matbeg, int* matind, double* matval);
 
+ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int ncols, double* xstar);
+
 //================================================================================
 // CALLBACKS
 //================================================================================

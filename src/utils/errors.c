@@ -12,8 +12,8 @@ static const char *level_colors[] = {
   "\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
 };
 
-static char* algs_string[10] = {
-    "Nearest Neighbour", "All Nearest Neighbour", "Nearest Neighbour + 2OPT", "Tabu Search", "Variable Neighborhood Search", "CPLEX No SECs", "CPLEX Benders Loop", "Extra Mileage", "Cplex BendersLoop + Patching", "CPLEX Branch&Cut"
+static char* algs_string[11] = {
+    "Nearest Neighbour", "All Nearest Neighbour", "Nearest Neighbour + 2OPT", "Tabu Search", "Variable Neighborhood Search", "CPLEX No SECs", "CPLEX Benders Loop", "Extra Mileage", "Cplex BendersLoop + Patching", "CPLEX Branch&Cut", "Hard Fixing"
 };
 
 static char* tenure_policy_string[4] = {

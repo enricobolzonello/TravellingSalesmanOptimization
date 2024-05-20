@@ -284,7 +284,7 @@ ERROR_CODE mh_VNS(instance* inst){
         }
 
         // local search
-        e = ref_2opt(inst, &solution);
+        e = ref_2opt(inst, &solution, inst->costs, true);
         if(!err_ok(e)){
             log_fatal("code %d : Error in local search", e); 
             tsp_handlefatal(inst);

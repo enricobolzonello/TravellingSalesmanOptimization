@@ -49,7 +49,8 @@ typedef enum {
     ALG_CX_BENDERS = 6,
     ALG_EXTRAMILEAGE = 7,
     ALG_CX_BENDERS_PAT = 8,
-    ALG_CX_BRANCH_AND_CUT = 9
+    ALG_CX_BRANCH_AND_CUT = 9,
+    ALG_HARD_FIXING = 10
 } algorithms;
 
 typedef struct {

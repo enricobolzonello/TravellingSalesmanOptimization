@@ -132,7 +132,7 @@ ERROR_CODE h_Greedy_2opt_mod_costs(instance* inst, tsp_solution* solution, doubl
             continue;
         }
 
-        error = ref_2opt(inst, &solution, costs, false);
+        error = ref_2opt(inst, solution, costs, false);
         if(!err_ok(error)){
             log_error("code %d : error in 2opt", error);
             continue;

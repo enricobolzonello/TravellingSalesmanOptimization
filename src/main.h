@@ -1,7 +1,7 @@
 #include "tsp.h"
 #include "algorithms/heuristics.h"
 #include "algorithms/metaheuristic.h"
-#include "algorithms/cplex_model.h"
+#include "algorithms/matheuristics.h"
 
 typedef struct {
     double cost;

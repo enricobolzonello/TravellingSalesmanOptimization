@@ -142,7 +142,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		}
 
 		int ncols = CPXgetnumcols(env, lp);
-
+		
 		// get the optimal value
 		double* xstar = (double *) calloc(ncols, sizeof(double));
 
@@ -243,63 +243,14 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 
 	log_info("CPLEX initialized correctly");
 
-	// initialize seeds for different threads
-	// https://selkie.macalester.edu/csinparallel/modules/MonteCarloSimulationExemplar/build/html/SeedingThreads/SeedEachThread.html
-	int threads = -1;
-	if(CPXgetintparam(env, CPXPARAM_Threads, &threads)){
-		log_error("CPXgetintparam error in threads");
-		e = ABORTED;
-		goto cx_free;
-	}
-	inst->threads_seeds = (int*) calloc(threads, sizeof(int));
-
-	for(int i=0; i<threads; i++){
-		unsigned int seed = (inst->options_t.seed == -1) ? (unsigned) time(NULL) : (unsigned) inst->options_t.seed;
-
-		// clears the last 5 bits of seed and replace them with i+1
-		// has place for 32 threads (cplex defaults to at most 32 threads or the number of cores, whetever is smaller)
- 		inst->threads_seeds[i] = (seed & 0xFFFFFFE0) | (i + 1);
-	}
-
 	int ncols = CPXgetnumcols(env, lp);
 	double* xstar = (double *) calloc(ncols, sizeof(double));
 
-	CPXLONG contextid = CPX_CALLBACKCONTEXT_CANDIDATE;
-	if(inst->options_t.callback_relaxation){
-		contextid |= CPX_CALLBACKCONTEXT_RELAXATION;
-	}
-
-	if ( CPXcallbacksetfunc(env, lp, contextid, callback_branch_and_cut, inst) ) {
-		log_fatal("CPXcallbacksetfunc() error");
-		e = INTERNAL;
-		goto cx_free;
-	}
-
-	// solve with cplex
-	error = CPXmipopt(env,lp);
-	log_debug("cpx opt end");
-	if ( error ) 
-	{
-		log_fatal("CPX code %d : CPXmipopt() error", error); 
-		e = INTERNAL;
-		goto cx_free;
-	}
-
-	// check that cplex solved it right
-	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
-		log_fatal("CPX : CPXgetx() error");	
-		CPXcloseCPLEX(&env); 
-		tsp_handlefatal(inst);
-	} 
-
-	// check cplex status code on exit
-	e = cx_handle_cplex_status(env, lp);
+	e = cx_branchcut_util(env, lp, inst, ncols, xstar);
 	if(!err_ok(e)){
-		log_error("cplex did not finish correctly, error code %d", e);
+		log_error("error in b&c util");
 		goto cx_free;
 	}
-
-	log_info("Optimal found");
 
 	int ncomp = 0;
 	int* comp = (int*) calloc(ncols, sizeof(int));
@@ -732,6 +683,69 @@ void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution){
 		(*ncomp) = (*ncomp)-1;
     }
 	
+}
+
+ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int ncols, double* xstar) {
+
+	int error;
+	ERROR_CODE e = T_OK;
+	// initialize seeds for different threads
+	// https://selkie.macalester.edu/csinparallel/modules/MonteCarloSimulationExemplar/build/html/SeedingThreads/SeedEachThread.html
+	int threads = -1;
+	if(CPXgetintparam(env, CPXPARAM_Threads, &threads)){
+		log_error("CPXgetintparam error in threads");
+		e = ABORTED;
+		goto cx_free;
+	}
+	inst->threads_seeds = (int*) calloc(threads, sizeof(int));
+
+	for(int i=0; i<threads; i++){
+		unsigned int seed = (inst->options_t.seed == -1) ? (unsigned) time(NULL) : (unsigned) inst->options_t.seed;
+
+		// clears the last 5 bits of seed and replace them with i+1
+		// has place for 32 threads (cplex defaults to at most 32 threads or the number of cores, whetever is smaller)
+ 		inst->threads_seeds[i] = (seed & 0xFFFFFFE0) | (i + 1);
+	}
+
+	CPXLONG contextid = CPX_CALLBACKCONTEXT_CANDIDATE;
+	if(inst->options_t.callback_relaxation){
+		contextid |= CPX_CALLBACKCONTEXT_RELAXATION;
+	}
+
+	if ( CPXcallbacksetfunc(env, lp, contextid, callback_branch_and_cut, inst) ) {
+		log_fatal("CPXcallbacksetfunc() error");
+		e = INTERNAL;
+		goto cx_free;
+	}
+
+	// solve with cplex
+	error = CPXmipopt(env,lp);
+	log_debug("cpx opt end");
+	if ( error ) 
+	{
+		log_fatal("CPX code %d : CPXmipopt() error", error); 
+		e = INTERNAL;
+		goto cx_free;
+	}
+
+	// check that cplex solved it right
+	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
+		log_fatal("CPX : CPXgetx() error");	
+		CPXcloseCPLEX(&env); 
+		tsp_handlefatal(inst);
+	} 
+
+	// check cplex status code on exit
+	e = cx_handle_cplex_status(env, lp);
+	if(!err_ok(e)){
+		log_error("cplex did not finish correctly, error code %d", e);
+		goto cx_free;
+	}
+
+	log_info("Optimal found");
+
+	cx_free:
+		return e;
 }
 
 static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle){
