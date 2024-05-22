@@ -12,9 +12,12 @@ void tsp_init(instance* inst){
 
     inst->options_t.mileage_init = EM_MAX;
 
-    inst->options_t.init_mip = false;
+    inst->options_t.init_mip = true;
     inst->options_t.skip_policy = 0;
     inst->options_t.callback_relaxation = true;
+    inst->options_t.modified_costs = false;
+
+    inst->options_t.hf_prob = 0.7;
     
     inst->nnodes = -1;
     inst->best_solution.cost = __DBL_MAX__;
@@ -236,6 +239,35 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             continue;
         }
 
+        if(strcmp("--modify_costs", argv[i]) == 0){
+            log_info("no callback on branch and bound relaxation");
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            inst->options_t.modified_costs = true;
+            continue;
+        }
+
+        if (strcmp("-hf_prob", argv[i]) == 0){
+            log_info("parsing hf_prob argument");
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            const double p = atof(argv[++i]);
+            if(p <= 0.0 || p > 1.0){
+                log_warn("hf_prob must be (0,1]");
+                continue;
+            }
+            inst->options_t.hf_prob = p;
+            continue;
+        }
+
         if(strcmp("-k", argv[i]) == 0){
             log_info("parsing k");
 
@@ -320,6 +352,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    --init_mip              use a custom heuristic to be set as MIP start\n");
         printf("    -skip                   skip policy for branch&cut. Either 0 (thread seeds), 1 (number of cplex nodes), 2 (if depth>3)\n");
         printf("    --no_relax              turn off CPLEX relaxation callback function\n");
+        printf("    --modify_costs          in the relaxation callback, post to CPLEX an heuristic solution with modified costs\n");
+        printf(COLOR_BOLD "  Hard Fixing\n" COLOR_OFF);
+        printf("    -hf_prob <value>        probability of setting an edge. Must be in range [0,1)\n");
         printf(COLOR_BOLD "  Verbosity\n" COLOR_OFF);
         printf("    -q                      quiet verbosity level, prints only output\n");
         printf("    DEFAULT                 if no flag is set, prints warnings, erros or fatal errors\n");
@@ -564,7 +599,7 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_soluti
         if(current_solution->cost < inst->best_solution.cost){
             memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int));
             inst->best_solution.cost = current_solution->cost;
-            log_debug("new best solution: %f", current_solution->cost);
+            log_info("new best solution: %f", current_solution->cost);
             return T_OK;
         }
 

@@ -80,6 +80,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
         if(inst->options_t.timelimit != -1.0){
             double ex_time = utils_timeelapsed(&inst->c);
             if(ex_time > inst->options_t.timelimit){
+                log_warn("time limit exceeded in greedy 2opt");
                 e = DEADLINE_EXCEEDED;
                 break;
             }
@@ -100,7 +101,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
             break;
         }else if (error == T_OK)
         {
-            log_info("found new best solution: starting node %d, cost %f", i, inst->best_solution.cost);
+            log_debug("found new best solution: starting node %d, cost %f", i, inst->best_solution.cost);
             inst->starting_node = i;
         }
         

@@ -315,9 +315,6 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 	}
 
 	if(inst->options_t.init_mip){
-
-		log_info("computing heuristic for MIP Start");
-
 		// Run one of our heurstics to be added to the MIP starts
 		// Can be faster than CPLEX heuristics since ours are specific for TSP
 
@@ -327,43 +324,21 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 
 		// run all nearest neighbor heuristic
 		error = h_greedy_2opt(inst);
+		if(!err_ok(error)){
+			log_error("error %d in greedy 2opt mip start");
+			goto cx_free;
+		}
 
 		// change the timelimit back to the original one
 		inst->options_t.timelimit = old_timelimit;
 
-		int* varindices = (int*) calloc(inst->nnodes, sizeof(int));
-		double* values = (double*) calloc(inst->nnodes, sizeof(double));
-
-		// initialize values for CPLEX
-		// An entry values[j] greater than or equal to CPX_INFBOUND specifies that no value is set for the variable varindices[j]
-		for(int i=0; i<inst->nnodes; i++){
-			values[i] = CPX_INFBOUND;
+		error = cx_add_mip_starts(env, lp, inst, &inst->best_solution);
+		if(!err_ok(error)){
+			log_error("error %d in add_mip_starts", error);
 		}
-
-		int k = 0;
-		for(int i=0; i<inst->nnodes; i++){
-			int j = inst->best_solution.path[i];
-
-			varindices[k] = cx_xpos(i,j,inst);
-			values[k] = 1.0;
-
-			k++;
-		}
-
-		const int beg = 0;
-		const int effortlevel = CPX_MIPSTART_NOCHECK;
-		if( CPXaddmipstarts(env, lp, 1, inst->nnodes, &beg, varindices, values, &effortlevel, NULL) ){
-			log_error("CPXaddmipstarts error");
-			error = INTERNAL;
-		}
-
-		log_info("heuristic solution added to MIP start");
-
-		utils_safe_free(varindices);
-		utils_safe_free(values);
 	}
-
-	return error;
+	cx_free:
+		return error;
 }
 
 int cx_xpos(int i, int j, instance *inst){ 
@@ -561,6 +536,7 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
 
 void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution) 
 {   
+	log_info("building solution");
 	// initialize number of components and array of components
 	*ncomp = 0;
 	for ( int i = 0; i < inst->nnodes; i++ )
@@ -746,6 +722,52 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 
 	cx_free:
 		return e;
+}
+
+ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution) {
+		ERROR_CODE error = T_OK;
+
+		log_info("adding mip start");
+
+		int* varindices = (int*) calloc(inst->nnodes, sizeof(int));
+		double* values = (double*) calloc(inst->nnodes, sizeof(double));
+
+		// initialize values for CPLEX
+		// An entry values[j] greater than or equal to CPX_INFBOUND specifies that no value is set for the variable varindices[j]
+		for(int i=0; i<inst->nnodes; i++){
+			values[i] = CPX_INFBOUND;
+		}
+
+		int k = 0;
+		for(int i=0; i<inst->nnodes; i++){
+			int j = solution->path[i];
+
+			varindices[k] = cx_xpos(i,j,inst);
+			values[k] = 1.0;
+
+			k++;
+		}
+
+		const int beg = 0;
+		const int effortlevel = CPX_MIPSTART_NOCHECK;
+		if( CPXaddmipstarts(env, lp, 1, inst->nnodes, &beg, varindices, values, &effortlevel, NULL) ){
+			log_error("CPXaddmipstarts error");
+			error = INTERNAL;
+			goto cx_free;
+		}
+
+		// TODO: if it works, move it somewhere else
+		fprintf(stderr, "\033[1A");
+		fprintf(stderr, "\033[K");
+		log_info("adding mip start: DONE");
+		fprintf(stderr, "\033[1B"); // Move cursor back down one line to the new line
+        fflush(stdout);    // Flush the output buffer to ensure the line is printed immediately
+
+		cx_free:
+			utils_safe_free(varindices);
+			utils_safe_free(values);
+
+			return error;
 }
 
 static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle){
@@ -1026,68 +1048,71 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 
 	// call the modified greedy and post its solution
 	// TODO: capire se eseguire ogni volta che esegue la callback o abbassare ancora probabiità
-	unsigned int seed = inst->threads_seeds[threadid];
-	inst->threads_seeds[threadid] = seed+1;
 
-	double prob = ( (double) rand_r(&seed) ) / RAND_MAX;
-	if(prob <= 0.1){
-		// greedy
-		log_info("computing a heuristic NN solution with xstar-weighted costs to post");
-		// modify costs
-		double* modified_costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
-		for (int i = 0; i < inst->nnodes; i++) {
-			for (int j = i+1; j < inst->nnodes; j++) {
-				double cost= inst->costs[i* inst->nnodes + j] * (1 - xstar[cx_xpos(i,j,inst)]);
-				modified_costs[i* inst->nnodes + j] = cost;
-				modified_costs[j* inst->nnodes + i] = cost;
+	if(inst->options_t.modified_costs){
+		unsigned int seed = inst->threads_seeds[threadid];
+		inst->threads_seeds[threadid] = seed+1;
+
+		double prob = ( (double) rand_r(&seed) ) / RAND_MAX;
+		if(prob <= 0.1){
+			// greedy
+			log_info("computing a heuristic NN solution with xstar-weighted costs to post");
+			// modify costs
+			double* modified_costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
+			for (int i = 0; i < inst->nnodes; i++) {
+				for (int j = i+1; j < inst->nnodes; j++) {
+					double cost= inst->costs[i* inst->nnodes + j] * (1 - xstar[cx_xpos(i,j,inst)]);
+					modified_costs[i* inst->nnodes + j] = cost;
+					modified_costs[j* inst->nnodes + i] = cost;
+				}
 			}
-		}
 
-		// run all nearest neighbor heuristic with xstar-weighted costs to post solution
-		tsp_solution solution = tsp_init_solution(inst->nnodes);		
+			// run all nearest neighbor heuristic with xstar-weighted costs to post solution
+			tsp_solution solution = tsp_init_solution(inst->nnodes);		
 
-		double old_timelimit = inst->options_t.timelimit;
-		// set the new timelimit to 1/10 of the total time, to make it so the heuristic doesnt consume all of the available time
-		inst->options_t.timelimit = old_timelimit / 10.0;
+			double old_timelimit = inst->options_t.timelimit;
+			// set the new timelimit to 1/10 of the total time, to make it so the heuristic doesnt consume all of the available time
+			inst->options_t.timelimit = old_timelimit / 10.0;
 
-		// run all nearest neighbor heuristic
-		ERROR_CODE error = h_Greedy_2opt_mod_costs(inst, &solution, modified_costs);
+			// run all nearest neighbor heuristic
+			ERROR_CODE error = h_Greedy_2opt_mod_costs(inst, &solution, modified_costs);
 
-		// change the timelimit back to the original one
-		inst->options_t.timelimit = old_timelimit;
+			// change the timelimit back to the original one
+			inst->options_t.timelimit = old_timelimit;
 
-		if(!err_ok(error)){
-			log_error("error in greedy for posting solution");
+			if(!err_ok(error)){
+				log_error("error in greedy for posting solution");
+				utils_safe_free(modified_costs);
+				utils_safe_free(solution.path);
+				ret_value = 1;
+				goto cx_free;
+			}
+
+			// if it is better than incumbement, build a cplex solution and post it
+			// TODO: non ha senso il check sul costo modificato (costo fittizio)
+			if(solution.cost < inst->best_solution.cost){
+				// build cplex solution
+				double *xheu = (double *) calloc(inst->ncols, sizeof(double));
+				for ( int i = 0; i < inst->nnodes; i++ ) xheu[cx_xpos(i,solution.path[i],inst)] = 1.0;
+				int *ind = (int *) malloc(inst->ncols * sizeof(int));
+				for ( int j = 0; j < inst->ncols; j++ ) ind[j] = j;
+			
+			
+				if( CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, solution.cost, CPXCALLBACKSOLUTION_NOCHECK) ){
+					log_error("CPXcallbackpostheursoln error");
+					error = INTERNAL;
+				}else{
+					log_debug("posted heuristic solution with modified cost: %f", solution.cost);
+				}
+
+				utils_safe_free(xheu);
+				utils_safe_free(ind);
+			}
+			
+
 			utils_safe_free(modified_costs);
-			utils_safe_free(solution.path);
-			ret_value = 1;
-			goto cx_free;
+			utils_safe_free(solution.path);	
 		}
-
-		// if it is better than incumbement, build a cplex solution and post it
-		// TODO: non ha senso il check sul costo modificato (costo fittizio)
-		if(solution.cost < inst->best_solution.cost){
-			// build cplex solution
-			double *xheu = (double *) calloc(inst->ncols, sizeof(double));
-			for ( int i = 0; i < inst->nnodes; i++ ) xheu[cx_xpos(i,solution.path[i],inst)] = 1.0;
-			int *ind = (int *) malloc(inst->ncols * sizeof(int));
-			for ( int j = 0; j < inst->ncols; j++ ) ind[j] = j;
-		
-		
-			if( CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, solution.cost, CPXCALLBACKSOLUTION_NOCHECK) ){
-				log_error("CPXcallbackpostheursoln error");
-				error = INTERNAL;
-			}else{
-				log_debug("posted heuristic solution with modified cost: %f", solution.cost);
-			}
-
-			utils_safe_free(xheu);
-			utils_safe_free(ind);
-		}
-		
-
-		utils_safe_free(modified_costs);
-		utils_safe_free(solution.path);	
 	}
 	
 	cx_free:

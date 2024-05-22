@@ -3,7 +3,7 @@
 ERROR_CODE mh_HardFixing(instance* inst){
     ERROR_CODE e = T_OK;
 
-    log_info("running CPLEX without SECs");
+    log_info("running Hard Fixing");
 
 	// open CPLEX model
 	int error;
@@ -30,10 +30,6 @@ ERROR_CODE mh_HardFixing(instance* inst){
 
 	log_info("CPLEX initialized correctly");
 
-    // WARM START
-    // run all nearest neighbor heuristic
-	e = h_Greedy_iterative(inst);
-
     // initialize the current solution as the best solution found by heuristic
     tsp_solution solution = tsp_init_solution(inst->nnodes);
     memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
@@ -44,13 +40,14 @@ ERROR_CODE mh_HardFixing(instance* inst){
         double ex_time = utils_timeelapsed(&inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
+               log_warn("deadline exceeded in hard fixing");
                e = DEADLINE_EXCEEDED;
                break;
             }
         }
 
         // add solution as a MIP start
-        e = hf_addMIPstart(env, lp, inst, &solution);
+        e = cx_add_mip_starts(env, lp, inst, &solution);
         if(!err_ok(e)){
             log_error("error add mip start");
             goto mh_free;
@@ -80,6 +77,13 @@ ERROR_CODE mh_HardFixing(instance* inst){
             goto mh_free;
         }
 
+        log_info("MIP SOLVER DONE");
+
+        e = tsp_update_best_solution(inst, &solution);
+        if(!err_ok(e)){
+            log_error("code %d : error in updating best solution of Hard Fixing");
+        }
+
         // FIXING UNDO 
 		e = hf_undofixing(env, lp, inst);
         if(!err_ok(e)){
@@ -89,52 +93,10 @@ ERROR_CODE mh_HardFixing(instance* inst){
 
     }
 
-    e = tsp_update_best_solution(inst, &solution);
-    if(!err_ok(e)){
-        log_error("code %d : error in updating best solution of VNS");
-    }
-
     mh_free:
         utils_safe_free(solution.path);
 
     return e;
-}
-
-ERROR_CODE hf_addMIPstart(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution) {
-    ERROR_CODE e = T_OK;
-    int* varindices = (int*) calloc(inst->nnodes, sizeof(int));
-	double* values = (double*) calloc(inst->nnodes, sizeof(double));
-
-	// initialize values for CPLEX
-	// An entry values[j] greater than or equal to CPX_INFBOUND specifies that no value is set for the variable varindices[j]
-	for(int i=0; i<inst->nnodes; i++){
-		values[i] = CPX_INFBOUND;
-	}
-
-	int k = 0;
-	for(int i=0; i<inst->nnodes; i++){
-		int j = solution->path[i];
-
-		varindices[k] = cx_xpos(i,j,inst);
-		values[k] = 1.0;
-
-		k++;
-	}
-
-	const int beg = 0;
-	const int effortlevel = CPX_MIPSTART_NOCHECK;
-	if( CPXaddmipstarts(env, lp, 1, inst->nnodes, &beg, varindices, values, &effortlevel, NULL) ){
-		log_error("CPXaddmipstarts error");
-		e = INTERNAL;
-        goto mh_free;
-	}
-
-	log_info("heuristic solution added to MIP start");
-
-    mh_free:
-        utils_safe_free(values);
-        utils_safe_free(varindices);
-        return e;
 }
 
 ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution) {
@@ -142,14 +104,16 @@ ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* s
     // choose E^tilde and set lb 
 
     ERROR_CODE e = T_OK;
+    int k = 0;
 
     double one = 1.0;
     const char lb = 'L';
     for(int i = 0; i < inst->nnodes; i++){
-        unsigned int seed = (unsigned) inst->options_t.seed;
-        double prob = ( (double) rand_r(&seed) ) / RAND_MAX;
+        //unsigned int seed = (unsigned) inst->options_t.seed;
+        double prob = ( (double) rand() ) / RAND_MAX;
 
-        if (prob > 0.7){
+        if (prob < inst->options_t.hf_prob){
+            k++;
             log_debug("add edge (%d,%d) to E^tilde", i, solution->path[i]);
             int index = cx_xpos(i, solution->path[i], inst);
 
@@ -160,6 +124,8 @@ ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* s
             }
         }
     }
+
+    log_info("EDGES ADDED: %d\n", k);
 
     hf_free:
         return e;
@@ -196,7 +162,7 @@ ERROR_CODE hf_mipsolver(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution
         goto hf_free;
     }
 
-	// with the optimal found by CPLEX, build the corresponding solution
+	// with the solution found by CPLEX, build the corresponding solution
 	cx_build_sol(xstar, inst, comp, &ncomp, solution);
 
     hf_free:

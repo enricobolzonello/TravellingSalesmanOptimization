@@ -17,8 +17,9 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution, double* costs, bool 
         if(inst->options_t.timelimit != -1.0){
             double ex_time = utils_timeelapsed(&inst->c);
             if(ex_time > inst->options_t.timelimit){
-                log_debug("time limit exceeded");
+                log_debug("time limit exceeded in 2opt");
                 e = DEADLINE_EXCEEDED;
+                break;
             }
         }
 
@@ -82,7 +83,7 @@ double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs){
 
         // update solution cost
         solution->cost += best_delta;
-        log_info("2-opt improved solution: new cost: %f", solution->cost);
+        log_debug("2-opt improved solution: new cost: %f", solution->cost);
     }
 
     utils_safe_free(prev);

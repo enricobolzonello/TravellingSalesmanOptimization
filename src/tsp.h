@@ -76,8 +76,12 @@ typedef struct {
 
     // Branch and Cut options
     bool init_mip;              // set MIP start for CPLEX branch & cut
-    bc_skip skip_policy;            // skip policy for branch & cut fractional callback
+    bc_skip skip_policy;        // skip policy for branch & cut fractional callback
     bool callback_relaxation;   // if true, it also calls callback for relaxation
+    bool modified_costs;        // if true, post to CPLEX an heuristic solution with modified costs    
+
+    // Hard Fixing options
+    double hf_prob;             // probability to set an edge
 
 } options;
 

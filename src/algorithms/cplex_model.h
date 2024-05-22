@@ -135,6 +135,8 @@ ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, doubl
 
 ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int ncols, double* xstar);
 
+ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution);
+
 //================================================================================
 // CALLBACKS
 //================================================================================
