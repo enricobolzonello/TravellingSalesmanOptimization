@@ -170,3 +170,139 @@ ERROR_CODE hf_mipsolver(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution
         utils_safe_free(comp);
         return e;
 }
+
+ERROR_CODE mh_LocalBranching(instance* inst){
+    ERROR_CODE e = T_OK;
+
+    log_info("running Local Branching");
+
+	// open CPLEX model
+	int error;
+	CPXENVptr env = CPXopenCPLEX(&error);
+	if ( error ){
+		log_fatal("CPX code %d : CPXopenCPLEX() error", error);
+		e = FAILED_PRECONDITION;
+		goto mh_free;
+	} 
+	CPXLPptr lp = CPXcreateprob(env, &error, "TSP model version 1"); 
+	if ( error ) {
+		log_fatal("CPX code %d : CPXcreateprob() error", error);
+		e = FAILED_PRECONDITION;
+		goto mh_free;
+	}
+
+	// initialize CPLEX model
+	e = cx_initialize(inst, env, lp);
+	if(!err_ok(e)){
+		log_error("error in initializing cplex model");
+		e = FAILED_PRECONDITION;
+		goto mh_free;
+	}
+
+	log_info("CPLEX initialized correctly");
+
+    // initialize the current solution as the best solution found by heuristic
+    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
+    solution.cost = inst->best_solution.cost;
+
+    while(1){
+        // check if exceeds time
+        double ex_time = utils_timeelapsed(&inst->c);
+        if(inst->options_t.timelimit != -1.0){
+            if(ex_time > inst->options_t.timelimit){
+               log_warn("deadline exceeded in local branching");
+               e = DEADLINE_EXCEEDED;
+               break;
+            }
+        }
+
+        int k = 20;
+
+        // add solution as a MIP start
+        e = cx_add_mip_starts(env, lp, inst, &solution);
+        if(!err_ok(e)){
+            log_error("error add mip start");
+            goto mh_free;
+        }
+
+        // Add LB constraint
+        e = lb_add_constraint(env, lp, inst, &solution, k);
+        if(!err_ok(e)){
+            log_error("error in adding local braching constraint");
+            goto mh_free;
+        }
+
+        // set remaining time limit for cplex
+        // 1/10 of the total remaining time
+        double time_remain = (inst->options_t.timelimit - ex_time) / 10;
+        if(CPXsetdblparam(env, CPXPARAM_TimeLimit, time_remain)){
+            log_error("error setting cplex time limit");
+            goto mh_free;
+        }
+        
+        log_debug("time assigned to mip solver : %.4f", time_remain);
+
+        // MIP SOLVER
+        e = hf_mipsolver(env, lp, inst, &solution);
+        if(!err_ok(e)){
+            log_error("error in mip solver");
+            goto mh_free;
+        }
+
+        log_info("MIP SOLVER DONE");
+
+        e = tsp_update_best_solution(inst, &solution);
+        if(!err_ok(e)){
+            log_error("code %d : error in updating best solution of Hard Fixing");
+        }
+
+        // Remove LB constraint
+        e = lb_remove_constraint(env, lp);
+        if(!err_ok(e)){
+            log_error("error in removing local braching constraint");
+            goto mh_free;
+        }
+    }
+
+    mh_free:
+        utils_safe_free(solution.path);
+
+    return e;
+}
+
+ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solution *solution, int k){
+    ERROR_CODE e = T_OK;
+    int ncols = CPXgetnumcols(env, lp);
+
+    int* index = (int*) calloc(ncols, sizeof(int));
+    double* value = (double*) calloc(ncols, sizeof(double));
+    int nnz = 0;
+    for(int i=0; i<inst->nnodes; i++){
+		index[nnz] = cx_xpos(i,solution->path[i],inst);
+		value[nnz] = 1.0;
+		nnz++;
+	}
+    double rhs = inst->nnodes - k;
+    int izero = 0;
+    const char sense='G';
+
+    int CPXerror = CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, NULL);
+    if (CPXerror) e = INTERNAL;
+
+
+    utils_safe_free(index);
+    utils_safe_free(value);
+
+    return e;
+}
+
+
+ERROR_CODE lb_remove_constraint(CPXENVptr env, CPXLPptr lp){
+    ERROR_CODE e = T_OK;
+    int num_rows = CPXgetnumrows(env, lp);
+    int CPXerror = CPXdelrows(env, lp, num_rows-1, num_rows-1);
+    if (CPXerror) e = INTERNAL;
+
+    return e;
+}

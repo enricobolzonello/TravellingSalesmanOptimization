@@ -73,14 +73,20 @@ ERROR_CODE runAlg(instance* inst){
             log_fatal("Hard Fixing did not finish correctly");
         }
         break;
+    case ALG_LOCAL_BRANCHING:
+        e = mh_LocalBranching(inst);
+        if(!err_ok(e)){
+            log_fatal("Local branching did not finish correctly");
+        }
+        break;
     default:
         log_error("cannot run any algorithm");
         break;
     }
 
-    if(err_ok(e)){
-        tsp_plot_solution(inst);
-    }
+    //if(err_ok(e)){
+    //    tsp_plot_solution(inst);
+    //}
 
     return e;
 }
@@ -179,12 +185,12 @@ int main(int argc, char* argv[]){
     utils_startclock(&inst.c);
 
     e = runAlg(&inst);
-    if(!err_ok(e)){
+    if(!err_ok(e) && e != DEADLINE_EXCEEDED){
         log_warn("error detected, shutting down application");
         tsp_free_instance(&inst);
         return EXIT_FAILURE;
     }
-
+    
     double ex_time = utils_timeelapsed(&inst.c);
     err_printoutput(inst.best_solution.cost, ex_time, inst.alg);
 

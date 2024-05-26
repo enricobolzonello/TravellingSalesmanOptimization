@@ -148,6 +148,9 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             }else if (strcmp("HARD_FIXING", method) == 0){
                 inst->alg = ALG_HARD_FIXING;
                 log_info("selected Hard Fixing");
+            }else if (strcmp("LOCAL_BRANCHING", method) == 0){
+                inst->alg = ALG_LOCAL_BRANCHING;
+                log_info("selected Hard Fixing");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
             }

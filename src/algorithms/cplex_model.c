@@ -581,6 +581,7 @@ void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, ts
 // TODO: handle ctrl+c by user gracefully
 ERROR_CODE cx_handle_cplex_status(CPXENVptr env, CPXLPptr lp){
 	int status = CPXgetstat(env, lp);
+	log_debug("cplex status code %d\n", status);
 
 	switch (status)
 	{
@@ -704,12 +705,8 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 		goto cx_free;
 	}
 
-	// check that cplex solved it right
-	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
-		log_fatal("CPX : CPXgetx() error");	
-		CPXcloseCPLEX(&env); 
-		tsp_handlefatal(inst);
-	} 
+	int s =  CPXgetstat(env, lp);
+	printf("STATUS: %d\n", s);
 
 	// check cplex status code on exit
 	e = cx_handle_cplex_status(env, lp);
@@ -717,6 +714,13 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 		log_error("cplex did not finish correctly, error code %d", e);
 		goto cx_free;
 	}
+
+	// check that cplex solved it right
+	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
+		log_fatal("CPX : CPXgetx() error");	
+		CPXcloseCPLEX(&env); 
+		tsp_handlefatal(inst);
+	} 
 
 	log_info("Optimal found");
 
