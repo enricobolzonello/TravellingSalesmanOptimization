@@ -6,6 +6,7 @@ import sys
 import shlex
 from py_reminder import config
 import tomllib
+from alive_progress import alive_bar
 
 
 import requests
@@ -13,7 +14,7 @@ from logging import Handler, Formatter
 import logging
 import datetime
 import time
-TIME_LIMIT = "300"
+TIME_LIMIT = "200"
  
 # create an .env file to contain telegram token and chat id
 # the file has the following format
@@ -49,37 +50,42 @@ class LogstashFormatter(Formatter):
 #   END TELEGRAM BOT
 # -------------------------------------------------------------------------------------------------------------
 
+
 def runTSP(paths, csv_filename, data, logger, start_time):
-    for i,tsp in enumerate(paths):
-        row = [os.path.basename(tsp)]
-        for m in data:
-            try:
-                if 'algorithm' not in m:
-                    raise ValueError("Missing 'algorithm' key in dictionary, skipping this iteration")
-                algorithm = m['algorithm']
-                flags = m.get('flags', '')
-                str_exec = f"make/bin/tsp -f {tsp} -q -alg {algorithm} -t {TIME_LIMIT} -seed 123 --to_file {flags}"
-                print("Running " + algorithm + " on dataset " + tsp)
-                output = subprocess.run(shlex.split(str_exec), capture_output=True, text=True).stdout
+    with alive_bar(total=len(paths) * len(data), calibrate=50) as pbar:
+        for i,tsp in enumerate(paths):
+            row = [os.path.basename(tsp)]
+            for m in data:
+                try:
+                    if 'algorithm' not in m:
+                        raise ValueError("Missing 'algorithm' key in dictionary, skipping this iteration")
+                    algorithm = m['algorithm']
+                    flags = m.get('flags', '')
+                    str_exec = f"make/bin/tsp -f {tsp} -q -alg {algorithm} -t {TIME_LIMIT} -seed 123 --to_file {flags}"
+                    print("Running " + algorithm + " on dataset " + tsp)
 
-                cost = output.split(":")[1].strip()
-                print("Cost: " + cost)
-                row.append(cost)
-            except subprocess.CalledProcessError as e:
-                logger.error(f"Error executing {m} on dataset {tsp}: {e}")
-                continue
-            except IndexError as e:
-                logger.error(f"Skipping dataset {tsp}")
-                continue
-    
-        if len(row) > 1: # to not write files not done
-            with open(csv_filename, 'a', newline='') as csvfile:
-                writer = csv.writer(csvfile)
-                writer.writerow(row)
+                    output = subprocess.run(shlex.split(str_exec), capture_output=True, text=True).stdout
 
-        # log every 30 documents done
-        if i%20 == 0:
-            logger.info(f"Done {i} documents")
+                    cost = output.split(":")[1].strip()
+                    print("Cost: " + cost)
+                    row.append(cost)
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Error executing {m} on dataset {tsp}: {e}")
+                    continue
+                except IndexError as e:
+                    logger.error(f"Skipping dataset {tsp}")
+                    continue
+                finally:
+                    pbar()
+        
+            if len(row) > 1: # to not write files not done
+                with open(csv_filename, 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(row)
+
+            # log every 30 documents done
+            if i%20 == 0:
+                logger.info(f"Done {i} documents")
     
     logger.warning(f"Program finished in {(time.time() - start_time):.4f} seconds")
 
@@ -112,7 +118,7 @@ if __name__ == '__main__':
         start_time = time.time()
 
         paths = []
-        for root, _, files in os.walk("data/test"):
+        for root, _, files in os.walk("data/matheuristic"):
             # Append file paths to the list
             for file in files:
                 paths.append(os.path.join(root, file))

@@ -1,0 +1,6 @@
+[NoKStar]
+algorithm = "LOCAL_BRANCHING"
+
+[KStar]
+algorithm = "LOCAL_BRANCHING"
+flags = "--lb_kstar"

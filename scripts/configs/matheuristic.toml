@@ -1,0 +1,5 @@
+[LocalBranching]
+algorithm = "LOCAL_BRANCHING"
+
+[HardFixing]
+algorithm = "HARD_FIXING"
