@@ -81,6 +81,8 @@ typedef enum{
 #define log_error(...) err_logging(LOG_ERROR, __FILE__, __LINE__, __VA_ARGS__)
 #define log_fatal(...) err_logging(LOG_FATAL, __FILE__, __LINE__, __VA_ARGS__)
 
+#define log_status(message) err_status(message, __FILE__, __LINE__);
+
 /**
  * @brief returns true if the error\_code is OK
  * 
@@ -116,8 +118,10 @@ bool err_dolog(void);
  */
 void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, ...);
 
+void err_status(char* message, const char *file, int line);
+
 void err_printoutput(double cost, double time, int alg);
 
-void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation);
+void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation,  double lb_improv, int lb_delta, bool lb_kstar);
 
 #endif

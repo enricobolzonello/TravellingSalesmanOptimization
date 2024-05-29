@@ -61,20 +61,19 @@ else
     UNAME_S := $(shell uname -s)
     ifeq ($(UNAME_S),Linux)
         CPLEXDIR := /opt/ibm/ILOG/CPLEX_Studio2211/cplex
+		CC := gcc
+		CFLAGS := -O3 $(STD) $(STACK) $(WARNS) -Wno-gnu-statement-expression 
     endif
     ifeq ($(UNAME_S),Darwin)
         CPLEXDIR := /Applications/CPLEX_Studio2211/cplex
+		CC := clang
+		CFLAGS := -O0 $(STD) $(STACK) $(WARNS) -Wno-gnu-statement-expression 
     endif
 endif
 
 
 # Source code file extension
 SRCEXT := c
-
-
-# Defines the C Compiler
-CC := gcc
-
 
 # Defines the language standards for GCC
 STD := -std=gnu99 # See man gcc for more options
@@ -85,11 +84,8 @@ STACK := -fstack-protector-all -Wstack-protector
 # Specifies to GCC the required warnings
 WARNS := -Wall -Wextra -pedantic # -pedantic warns on language standards
 
-# Flags for compiling
-CFLAGS := -O3 $(STD) $(STACK) $(WARNS)
-
 # Debug options
-DEBUG := -g3 -DDEBUG=1 -gdwarf-5
+DEBUG := -g3 -DDEBUG=1 -gdwarf-4
 
 # Dependency libraries
 
@@ -108,14 +104,14 @@ else
     UNAME_S := $(shell uname -s)
 	UNAME_P := $(shell uname -p)
     ifeq ($(UNAME_S),Linux)
-        LIBS := -L${CPLEXDIR}/lib/x86-64_linux/static_pic -L/home/ricky/concorde -L. -lcplex -lm -lpthread -ldl -lconcorde
+        LIBS := -L${CPLEXDIR}/lib/x86-64_linux/static_pic -L. -lcplex -lm -lpthread -ldl
     endif
     ifeq ($(UNAME_S),Darwin)
 		ifeq ($(UNAME_P),x86_64)
-        	LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L/Users/enricobolzonello/concorde -L. -lcplex -lm -lpthread -ldl -lconcorde
+        	LIBS := -L${CPLEXDIR}/lib/x86_64_osx/static_pic -L. -lcplex -lm -lpthread -ldl
     	endif
 		ifneq ($(filter arm%,$(UNAME_P)),)
-        	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L/Users/enricobolzonello/concorde -L. -lcplex -lpthread -ldl -lconcorde
+        	LIBS := -L${CPLEXDIR}/lib/arm64_osx/static_pic -L. -lcplex -lpthread -ldl
     	endif
     endif
 endif

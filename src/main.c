@@ -178,7 +178,7 @@ int main(int argc, char* argv[]){
         tsp_generate_randompoints(&inst);
     }
 
-    err_setinfo(inst.alg, inst.nnodes, inst.options_t.graph_random, inst.options_t.inputfile, inst.options_t.timelimit, inst.options_t.seed, inst.options_t.policy, inst.options_t.mileage_init, inst.options_t.init_mip, inst.options_t.skip_policy, inst.options_t.callback_relaxation);
+    err_setinfo(inst.alg, inst.nnodes, inst.options_t.graph_random, inst.options_t.inputfile, inst.options_t.timelimit, inst.options_t.seed, inst.options_t.policy, inst.options_t.mileage_init, inst.options_t.init_mip, inst.options_t.skip_policy, inst.options_t.callback_relaxation, inst.options_t.lb_improv, inst.options_t.lb_delta, inst.options_t.lb_kstar);
 
 
     // start the clock (measures only algorithm time)

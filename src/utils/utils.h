@@ -25,8 +25,12 @@
 
 #define TSP_RAND() ( ((double)rand() / RAND_MAX) * (MAX_COORDINATE - MIN_COORDINATE) + MIN_COORDINATE )
 
-#define utils_safe_free(pointer) utils_safe_memory_free((void **) &(pointer))
+#define max(a,b) \
+   ({ __typeof__ (a) _a = (a); \
+       __typeof__ (b) _b = (b); \
+     _a > _b ? _a : _b; })
 
+#define utils_safe_free(pointer) utils_safe_memory_free((void **) &(pointer))
 
 #define NOT_CONNECTED -1.0f
 

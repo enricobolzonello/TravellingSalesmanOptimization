@@ -12,8 +12,8 @@ static const char *level_colors[] = {
   "\x1b[94m", "\x1b[36m", "\x1b[32m", "\x1b[33m", "\x1b[31m", "\x1b[35m"
 };
 
-static char* algs_string[11] = {
-    "Nearest Neighbour", "All Nearest Neighbour", "Nearest Neighbour + 2OPT", "Tabu Search", "Variable Neighborhood Search", "CPLEX No SECs", "CPLEX Benders Loop", "Extra Mileage", "Cplex BendersLoop + Patching", "CPLEX Branch&Cut", "Hard Fixing"
+static char* algs_string[12] = {
+    "Nearest Neighbour", "All Nearest Neighbour", "Nearest Neighbour + 2OPT", "Tabu Search", "Variable Neighborhood Search", "CPLEX No SECs", "CPLEX Benders Loop", "Extra Mileage", "Cplex BendersLoop + Patching", "CPLEX Branch&Cut", "Hard Fixing", "Local Branching"
 };
 
 static char* tenure_policy_string[4] = {
@@ -61,6 +61,14 @@ void err_logging(LOGGING_TYPE level, const char *file, int line, char* message, 
     }
 }
 
+void err_status(char* message, const char *file, int line) {
+  fprintf(stderr, "\033[1A");
+	fprintf(stderr, "\033[K");
+	err_logging(LOG_INFO, file, line, "%s\t%s", message, "✅");
+	fprintf(stderr, "\033[1B"); // Move cursor back down one line to the new line
+  fflush(stdout);    // Flush the output buffer to ensure the line is printed immediately
+}
+
 void err_printline(void){
   struct winsize w;
   ioctl(STDOUT_FILENO, TIOCGWINSZ, &w);
@@ -72,7 +80,7 @@ void err_printline(void){
     printf("\n\n");
 }
 
-void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation){
+void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timelimit, int seed, int tabu_policy, int em_init, bool init_mip, int bc_policy, bool callback_relaxation, double lb_improv, int lb_delta, bool lb_kstar){
   if(!(L.verbosity == QUIET)){
     printf(COLOR_BOLD "Travelling Salesman Problem Solver v0.1\n" COLOR_OFF);
     // horizontal line
@@ -112,13 +120,17 @@ void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timel
       printf("Tenure Policy:           %s\n", tenure_policy_string[tabu_policy]);
       break;
     case 7:
-    printf("EM initialization:       %s\n", em_init_string[em_init]);
+      printf("EM initialization:       %s\n", em_init_string[em_init]);
       break;
     case 9:
       printf("Use MIP start?           %s\n", init_mip ? "yes" : "no");
       printf("Skip Policy:             %s\n", bc_policy_string[bc_policy]);
       printf("Relaxation callback?     %s\n", callback_relaxation ? "yes" : "no");
       break;
+    case 11:
+      printf("Impr. to change k        %.2f\n", lb_improv * 100);
+      printf("DeltaK                   %d\n", lb_delta);
+      printf("Use KStar approach?      %s\n", lb_kstar ? "yes" : "no");
     default:
       break;
     }
@@ -126,7 +138,7 @@ void err_setinfo(int alg, int nnodes, bool random, char* inputfile, double timel
     err_printline();
 
     printf("Press Enter to continue...\n");
-    getchar();
+    //getchar();
   }
 }
 
