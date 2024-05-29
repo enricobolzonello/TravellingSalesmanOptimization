@@ -2,6 +2,8 @@
 #include "cplex_model.h" 
 #include "../tsp.h"
 
+#define STAGNATION_THRESHOLD 5
+
 ERROR_CODE mh_HardFixing(instance* inst);
 
 ERROR_CODE mh_LocalBranching(instance* inst);

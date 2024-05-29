@@ -84,6 +84,11 @@ typedef struct {
     // Hard Fixing options
     double hf_prob;             // probability to set an edge
 
+    // Local Branching options
+    double lb_improv;           // improvement needed to update k
+    int lb_delta;               // deltaK
+    bool lb_kstar;              // calculate Kstar and pick the average between 0 and Kstar as K starting point
+
 } options;
 
 typedef struct {

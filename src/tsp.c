@@ -18,6 +18,10 @@ void tsp_init(instance* inst){
     inst->options_t.modified_costs = false;
 
     inst->options_t.hf_prob = 0.7;
+
+    inst->options_t.lb_improv = 0.02;
+    inst->options_t.lb_delta = 10;
+    inst->options_t.lb_kstar = false;
     
     inst->nnodes = -1;
     inst->best_solution.cost = __DBL_MAX__;
@@ -50,7 +54,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     for(int i=1; i<argc; i++){
 
         if (strcmp("-f", argv[i]) == 0 || strcmp("-file", argv[i]) == 0){
-            log_info("parsing input file argument");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -77,7 +80,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-t", argv[i]) == 0 || strcmp("-time", argv[i]) == 0){
-            log_info("parsing time limit argument");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -94,7 +96,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-seed", argv[i]) == 0){
-            log_info("parsing seed argument");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -106,7 +107,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-alg", argv[i]) == 0){
-            log_info("parsing algorithm argument");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -159,7 +159,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-n", argv[i]) == 0){
-            log_info("parsing number of nodes argument");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -201,7 +200,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if(strcmp("--init_mip", argv[i]) == 0){
-            log_info("cplex will be initialized with a custom mip");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -213,7 +211,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if(strcmp("-skip", argv[i]) == 0){
-            log_info("parsing skip policy");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -231,7 +228,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if(strcmp("--no_relax", argv[i]) == 0){
-            log_info("no callback on branch and bound relaxation");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -243,7 +239,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if(strcmp("--modify_costs", argv[i]) == 0){
-            log_info("no callback on branch and bound relaxation");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -255,7 +250,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if (strcmp("-hf_prob", argv[i]) == 0){
-            log_info("parsing hf_prob argument");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -271,8 +265,50 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             continue;
         }
 
+        if (strcmp("-lb_delta", argv[i]) == 0){
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            const double p = atoi(argv[++i]);
+            if(p < 5){
+                log_warn("lb_delta must be >5");
+                continue;
+            }
+            inst->options_t.lb_delta = p;
+            continue;
+        }
+
+        if (strcmp("-lb_improv", argv[i]) == 0){
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            const double p = atof(argv[++i]);
+            if(p <= 0.0 || p > 1.0){
+                log_warn("lb_improv must be (0,1]");
+                continue;
+            }
+            inst->options_t.lb_improv = p;
+            continue;
+        }
+
+        if(strcmp("--lb_kstar", argv[i]) == 0){
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            inst->options_t.lb_kstar = true;
+            continue;
+        }
+
         if(strcmp("-k", argv[i]) == 0){
-            log_info("parsing k");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -284,7 +320,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         }
 
         if(strcmp("-em", argv[i]) == 0){
-            log_info("parsing em");
 
             if(utils_invalid_input(i, argc, &help)){
                 log_warn("invalid input");
@@ -358,6 +393,10 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    --modify_costs          in the relaxation callback, post to CPLEX an heuristic solution with modified costs\n");
         printf(COLOR_BOLD "  Hard Fixing\n" COLOR_OFF);
         printf("    -hf_prob <value>        probability of setting an edge. Must be in range [0,1)\n");
+        printf(COLOR_BOLD "  Local Branching\n" COLOR_OFF);
+        printf("    -lb_improv <value>      improvement w.r.t. last iteration objective value needed to increase K. Must be in range (0,1)\n");
+        printf("    -lb_delta <value>       corresponds to %lcK, represents the amount by which K is changed\n", 0x0394);
+        printf("    --lb_kstar              flag to turn on dynamic K\n");
         printf(COLOR_BOLD "  Verbosity\n" COLOR_OFF);
         printf("    -q                      quiet verbosity level, prints only output\n");
         printf("    DEFAULT                 if no flag is set, prints warnings, erros or fatal errors\n");
@@ -379,6 +418,8 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
         printf("    - CPLEX_BENDERS_PAT\n");
         printf("    - EXTRA_MILEAGE\n");
         printf("    - CPLEX_BRANCH_CUT\n");
+        printf("    - HARD_FIXING\n");
+        printf("    - LOCAL_BRANCHING\n");
         
         exit(EXIT_SUCCESS);
     }
@@ -606,6 +647,7 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_soluti
             return T_OK;
         }
 
+        log_debug("discarded cost: %.2f", current_solution->cost);
         return CANCELLED;
     }else{
         log_error("You tried to update best_solution with an unvalid solution");

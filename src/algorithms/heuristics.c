@@ -209,7 +209,14 @@ ERROR_CODE h_ExtraMileage(instance* inst){
 //================================================================================
 
 ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solution, double* costs){
+
+    if(costs == NULL){
+        log_error("matrix of costs not found");
+        return INTERNAL;
+    }
+
     if(starting_node >= inst->nnodes || starting_node < 0){
+        log_error("starting node not correct");
         return UNAVAILABLE;
     }
 
@@ -228,6 +235,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solutio
         double ex_time = utils_timeelapsed(&inst->c);
         if(inst->options_t.timelimit != -1.0){
             if(ex_time > inst->options_t.timelimit){
+                log_warn("time limit exceeded in greedy util");
                 e = DEADLINE_EXCEEDED;
                 break;
             }
@@ -266,7 +274,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solutio
     }
 
     // add last edge
-    sol_cost += tsp_get_cost(inst, curr, starting_node);
+    sol_cost += costs[curr * inst->nnodes + starting_node];
     solution->cost = sol_cost;
 
     utils_safe_free(visited);

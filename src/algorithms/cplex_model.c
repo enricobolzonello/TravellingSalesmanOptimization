@@ -70,7 +70,7 @@ ERROR_CODE cx_Nosec(instance *inst){
 	// update best solution (not with tsp_update_solution since it is not a cycle)
 	memcpy(inst->best_solution.path, solution.path, inst->nnodes * sizeof(int));
     inst->best_solution.cost = solution.cost;
-    log_debug("new best solution: %f", solution.cost);
+    log_info("new best solution: %f", solution.cost);
 
 	log_info("Number of independent components: %d", ncomp);
 
@@ -243,20 +243,20 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 
 	log_info("CPLEX initialized correctly");
 
-	int ncols = CPXgetnumcols(env, lp);
-	double* xstar = (double *) calloc(ncols, sizeof(double));
+	double* xstar = (double *) calloc(inst->ncols, sizeof(double));
 
-	e = cx_branchcut_util(env, lp, inst, ncols, xstar);
+	int ncomp = 0;
+	int* comp = (int*) calloc(inst->ncols, sizeof(int));
+
+	tsp_solution solution = tsp_init_solution(inst->nnodes);
+
+	e = cx_branchcut_util(env, lp, inst, inst->ncols, xstar);
 	if(!err_ok(e)){
 		log_error("error in b&c util");
 		goto cx_free;
 	}
 
-	int ncomp = 0;
-	int* comp = (int*) calloc(ncols, sizeof(int));
-
 	// with the optimal found by CPLEX, build the corresponding solution
-	tsp_solution solution = tsp_init_solution(inst->nnodes);
 	cx_build_sol(xstar, inst, comp, &ncomp, &solution);
 
 	// update best solution
@@ -265,13 +265,13 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	log_info("number of independent components: %d", ncomp);
 	log_info("is solution a tour? %s", isTour(solution.path, inst->nnodes) ? "yes" : "no");
 
-	utils_safe_free(comp);
-
 	cx_free:
+		utils_safe_free(solution.path);
+		utils_safe_free(comp);
 		utils_safe_free(xstar);
 	
 		// free and close cplex model   
-		//CPXfreeprob(env, &lp);
+		CPXfreeprob(env, &lp);
 		CPXcloseCPLEX(&env); 
 
 	return e; 
@@ -318,9 +318,13 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 		// Run one of our heurstics to be added to the MIP starts
 		// Can be faster than CPLEX heuristics since ours are specific for TSP
 
+		log_info("beginning warm start computation");
+
 		double old_timelimit = inst->options_t.timelimit;
 		// set the new timelimit to 1/10 of the total time, to make it so the heuristic doesnt consume all of the available time
 		inst->options_t.timelimit = old_timelimit / 10.0;
+
+		log_debug("assigned timelimit: %.2f", inst->options_t.timelimit);
 
 		// run all nearest neighbor heuristic
 		error = h_greedy_2opt(inst);
@@ -329,7 +333,7 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 			goto cx_free;
 		}
 
-		// change the timelimit back to the original one
+		// change the timelimit back to the original one minus the time spent computing
 		inst->options_t.timelimit = old_timelimit;
 
 		error = cx_add_mip_starts(env, lp, inst, &inst->best_solution);
@@ -536,7 +540,7 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
 
 void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution) 
 {   
-	log_info("building solution");
+	log_debug("building solution");
 	// initialize number of components and array of components
 	*ncomp = 0;
 	for ( int i = 0; i < inst->nnodes; i++ )
@@ -705,8 +709,12 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 		goto cx_free;
 	}
 
-	int s =  CPXgetstat(env, lp);
-	printf("STATUS: %d\n", s);
+	// check that cplex solved it right
+	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
+		log_fatal("CPX : CPXgetx() error");	
+		CPXcloseCPLEX(&env); 
+		tsp_handlefatal(inst);
+	} 
 
 	// check cplex status code on exit
 	e = cx_handle_cplex_status(env, lp);
@@ -715,14 +723,7 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 		goto cx_free;
 	}
 
-	// check that cplex solved it right
-	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
-		log_fatal("CPX : CPXgetx() error");	
-		CPXcloseCPLEX(&env); 
-		tsp_handlefatal(inst);
-	} 
-
-	log_info("Optimal found");
+	log_info("Branch&Cut done");
 
 	cx_free:
 		return e;
@@ -731,7 +732,8 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution) {
 		ERROR_CODE error = T_OK;
 
-		log_info("adding mip start");
+		char* message = "adding mip start";
+		log_info(message);
 
 		int* varindices = (int*) calloc(inst->nnodes, sizeof(int));
 		double* values = (double*) calloc(inst->nnodes, sizeof(double));
@@ -760,12 +762,7 @@ ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_sol
 			goto cx_free;
 		}
 
-		// TODO: if it works, move it somewhere else
-		fprintf(stderr, "\033[1A");
-		fprintf(stderr, "\033[K");
-		log_info("adding mip start: DONE");
-		fprintf(stderr, "\033[1B"); // Move cursor back down one line to the new line
-        fflush(stdout);    // Flush the output buffer to ensure the line is printed immediately
+		log_status(message);
 
 		cx_free:
 			utils_safe_free(varindices);
