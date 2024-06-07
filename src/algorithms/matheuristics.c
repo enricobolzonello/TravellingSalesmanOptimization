@@ -455,7 +455,7 @@ ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solutio
 		cx_patching(inst, solution);
 		log_debug("number of components: %d", solution->ncomp);
 		log_debug("current solution cost: %f", solution->cost);
-		log_debug("is solution a tour? %d", isTour(solution->path, inst->nnodes));
+		log_debug("is solution a tour? %d", tsp_is_tour(solution->path, inst->nnodes));
 	}
 
     log_info("applied Patching, updated cost: %.0f", solution->cost);

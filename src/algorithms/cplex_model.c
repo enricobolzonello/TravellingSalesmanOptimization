@@ -164,8 +164,8 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 
 		log_info("number of components: %d", solution.ncomp);
 		log_info("current solution cost: %f", solution.cost);
-		log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
-		log_info("cost re-computed: %f", solutionCost(inst, solution.path));
+		log_info("is solution a tour? %d", tsp_is_tour(solution.path, inst->nnodes));
+		log_info("cost re-computed: %f", tsp_solution_cost(inst, solution.path));
 
 		// only one component it means that we have found an Hamiltonian cycle
 		if(solution.ncomp == 1){
@@ -184,8 +184,8 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 				cx_patching(inst, &solution);
 				log_info("number of components: %d", solution.ncomp);
 				log_info("current solution cost: %f", solution.cost);
-				log_info("is solution a tour? %d", isTour(solution.path, inst->nnodes));
-				log_info("cost re-computed: %f", solutionCost(inst, solution.path));
+				log_info("is solution a tour? %d", tsp_is_tour(solution.path, inst->nnodes));
+				log_info("cost re-computed: %f", tsp_solution_cost(inst, solution.path));
 			}
 		}
 
@@ -257,7 +257,7 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	tsp_update_best_solution(inst, &solution);
 
 	log_info("number of independent components: %d", solution.ncomp);
-	log_info("is solution a tour? %s", isTour(solution.path, inst->nnodes) ? "yes" : "no");
+	log_info("is solution a tour? %s", tsp_is_tour(solution.path, inst->nnodes) ? "yes" : "no");
 
 	cx_free:
 		utils_safe_free(solution.path);
@@ -304,8 +304,16 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 	// disable clone log in parallel optimization
 	CPXsetintparam(env, CPX_PARAM_CLONELOG, -1);
 
+	// set timelimit
 	if(inst->options_t.timelimit > 0.0){
 		CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit); 
+	}
+
+	// give cplex terminate condition
+    if (CPXsetterminate(env, &(inst->cplex_terminate))){ 
+		log_error("Error in CPXsetterminate");
+		error = INTERNAL;
+		goto cx_free;
 	}
 
 	if(inst->options_t.init_mip){

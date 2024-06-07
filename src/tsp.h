@@ -69,7 +69,7 @@ typedef struct {
     bool graph_input;           // flag to indicate wheter the graph is from the input file
     char* inputfile;            // input file path
     bool tofile;                // if true, plots will be saved in directory /plots
-    int k;
+    int k;                      // number of iterations of VNS and Tabu Search, by default sets to the maximum integer
 
     // Tabu Search options
     ts_policies policy;            // how to update tenure
@@ -104,24 +104,28 @@ typedef struct {
 } tabu_search;
 
 typedef struct {
+
     options options_t;
 
-    algorithms alg;            // algorithm chosen 
+    algorithms alg;             // algorithm chosen 
 
     int nnodes;                 // number of nodes
 
-    struct timespec c;       // clock
+    struct timespec c;          // clock
     
     point* points;              // dynamic array of points
        
-    double* costs;             // matrix of costs between pairs of points
+    double* costs;              // matrix of costs between pairs of points
 
-    tsp_solution best_solution;
+    tsp_solution best_solution; // current best solution found
 
     int starting_node;          // save the starting node of the best tour
 
-    int ncols;
-    int* threads_seeds;
+    int* threads_seeds;         // seed for each thread
+
+    int ncols;                  // # of columns of the cplex model
+    int cplex_terminate;        // flag to signal cplex to stop
+
 } instance;
 
 /**
@@ -225,8 +229,8 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* solution);
  */
 double tsp_get_cost(instance* inst, int i, int j);
 
-bool isTour(int path[], int n);
+bool tsp_is_tour(int path[], int n);
 
-double solutionCost(instance *inst, int path[]);
+double tsp_solution_cost(instance *inst, int path[]);
 
 #endif

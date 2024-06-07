@@ -27,6 +27,7 @@ void tsp_init(instance* inst){
     inst->best_solution.cost = __DBL_MAX__;
     inst->starting_node = 0;
     inst->alg = ALG_GREEDY;
+    inst->cplex_terminate = 0;
 
     err_setverbosity(NORMAL);
 
@@ -646,7 +647,7 @@ bool tsp_validate_solution(int nnodes, int* current_solution_path) {
     }
 
     utils_safe_free(node_visit_counter);
-    return isTour(current_solution_path, nnodes);
+    return tsp_is_tour(current_solution_path, nnodes);
 }
 
 ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
@@ -667,7 +668,7 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_soluti
 }
 
 
-bool isTour(int path[], int n) {
+bool tsp_is_tour(int path[], int n) {
     // Check if the path has at least one node
     if (n == 0)
         return false;
@@ -710,7 +711,7 @@ bool isTour(int path[], int n) {
     return true;
 }
 
-double solutionCost(instance *inst, int path[]){
+double tsp_solution_cost(instance *inst, int path[]){
     double cost = 0;
     for(int i =0; i< inst->nnodes; i++){
         cost += tsp_get_cost(inst, i, path[i]);
