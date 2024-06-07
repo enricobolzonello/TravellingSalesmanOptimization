@@ -39,6 +39,12 @@ typedef struct {
     double y;
 } point;
 
+typedef struct {
+    double cost;
+    int* path;
+    int ncomp;
+    int* comp;
+}tsp_solution;
 
 void utils_safe_memory_free (void ** pointer_address);
 bool utils_file_exists(const char *filename);
@@ -48,5 +54,13 @@ double utils_timeelapsed(struct timespec* c);
 void utils_plotname(char* buffer, int buffersize);
 void utils_format_title(char *fname, int alg);
 void swap(int* a, int* b);
+
+/**
+ * @brief Initialize solution struct
+ * 
+ * @param nnodes number of nodes of the instance
+ * @return tsp_solution 
+ */
+ERROR_CODE tsp_init_solution(int nnodes, tsp_solution* solution);
 
 #endif

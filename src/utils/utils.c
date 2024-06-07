@@ -121,3 +121,22 @@ void swap(int* a, int* b){
 	*a = *b;
 	*b = tmp;
 }
+
+ERROR_CODE tsp_init_solution(int nnodes, tsp_solution* solution){
+    ERROR_CODE e = T_OK;
+    solution->path = (int*) calloc(nnodes, sizeof(int));
+    if(solution->path == NULL){
+        log_fatal("solution.path allocation failed");
+        e = UNAVAILABLE;
+        exit(0);
+    }
+
+    solution->cost = __DBL_MAX__;
+    solution->ncomp = 0;
+    solution->comp = (int*) calloc(nnodes, sizeof(int));
+    if(solution->comp == NULL){
+        log_fatal("solution.comp allocation failed");
+        e = UNAVAILABLE;
+    }
+    return e;
+}

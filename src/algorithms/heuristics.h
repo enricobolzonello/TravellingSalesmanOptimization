@@ -24,7 +24,7 @@
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_Greedy(instance *inst);
+ERROR_CODE h_Greedy(void);
 
 /**
  * @brief Runs greedy iteratively on all nodes and picks the best solution
@@ -32,7 +32,7 @@ ERROR_CODE h_Greedy(instance *inst);
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_Greedy_iterative(instance* inst);
+ERROR_CODE h_Greedy_iterative(void);
 
 /**
  * @brief Runs greedy iteratively on all nodes and perform 2-opt on each solution until no improvement
@@ -40,7 +40,7 @@ ERROR_CODE h_Greedy_iterative(instance* inst);
  * @param inst tsp instance
  * @return ERROR_CODE 
  */
-ERROR_CODE h_greedy_2opt(instance* inst);
+ERROR_CODE h_greedy_2opt(void);
 
 //================================================================================
 // EXTRA MILEAGE HEURISTIC
@@ -52,7 +52,7 @@ ERROR_CODE h_greedy_2opt(instance* inst);
  * @param inst tsp instance
  * @return ERROR_CODE 
  */
-ERROR_CODE h_ExtraMileage(instance* inst);
+ERROR_CODE h_ExtraMileage(void);
 
 /**
  * @brief Runs greedy iteratively on all nodes and picks the best solution. The edge costs are given as an argument so they can be modified as you want.
@@ -60,7 +60,7 @@ ERROR_CODE h_ExtraMileage(instance* inst);
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_Greedy_2opt_mod_costs(instance* inst, tsp_solution* solution, double* costs);
+ERROR_CODE h_Greedy_2opt_mod_costs(tsp_solution* solution, double* costs);
 
 //================================================================================
 // UTILS
@@ -73,7 +73,7 @@ ERROR_CODE h_Greedy_2opt_mod_costs(instance* inst, tsp_solution* solution, doubl
  * @param starting_node 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solution, double* costs);
+ERROR_CODE h_greedyutil(int starting_node, tsp_solution* solution, double* costs);
 
 /**
  * @brief 
@@ -84,6 +84,6 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solutio
  * @param nodeB 
  * @return ERROR_CODE 
  */
-ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA, int nodeB);
+ERROR_CODE h_extramileage_util(tsp_solution* solution, int nodeA, int nodeB);
 
 #endif

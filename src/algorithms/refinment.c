@@ -1,11 +1,11 @@
 #include "refinment.h"
 
-ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution, double* costs, bool update_incumbent){
+ERROR_CODE ref_2opt(tsp_solution* solution, double* costs, bool update_incumbent){
 
     // re-initialize cost for VNS
     solution->cost = 0;
-    for(int i=0; i<inst->nnodes; i++){
-        solution->cost += costs[i * inst->nnodes + solution->path[i]];
+    for(int i=0; i<tsp_inst.nnodes; i++){
+        solution->cost += costs[i * tsp_inst.nnodes + solution->path[i]];
     }
 
     ERROR_CODE e = T_OK;
@@ -14,20 +14,20 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution, double* costs, bool 
 
     do {
         // see if it exceeds the time limit
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(&inst->c);
-            if(ex_time > inst->options_t.timelimit){
+        if(tsp_env.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(&tsp_inst.c);
+            if(ex_time > tsp_env.timelimit){
                 log_debug("time limit exceeded in 2opt");
                 e = DEADLINE_EXCEEDED;
                 break;
             }
         }
 
-        delta = ref_2opt_once(inst, solution, costs);
+        delta = ref_2opt_once( solution, costs);
     }while(delta < EPSILON);
     
     if(update_incumbent){
-        ERROR_CODE error = tsp_update_best_solution(inst, solution);
+        ERROR_CODE error = tsp_update_best_solution( solution);
         if(!err_ok(error)){
             log_error("code %d : Error in 2opt solution update", error);
         }
@@ -36,18 +36,18 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution, double* costs, bool 
     return e;
 }
 
-double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs){
+double ref_2opt_once( tsp_solution* solution, double* costs){
     double best_delta = 0;
     int best_swap[2] = {-1, -1};
 
-    int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
-    for (int i = 0; i < inst->nnodes; i++) {
+    int *prev = calloc(tsp_inst.nnodes, sizeof(int));          // save the path of the solution without 2opt
+    for (int i = 0; i < tsp_inst.nnodes; i++) {
         prev[solution->path[i]] = i;
     }
 
     // scan nodes to find best swap
-    for (int a = 0; a < inst->nnodes - 1; a++) {
-        for (int b = a+1; b < inst->nnodes; b++) {
+    for (int a = 0; a < tsp_inst.nnodes - 1; a++) {
+        for (int b = a+1; b < tsp_inst.nnodes; b++) {
             int succ_a = solution->path[a]; //successor of a
             int succ_b = solution->path[b]; //successor of b
             
@@ -57,8 +57,8 @@ double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs){
             }
 
             // Compute the delta. If < 0 it means there is a crossing
-            double current_cost = costs[a * inst->nnodes + succ_a] + costs[b * inst->nnodes + succ_b];
-            double swapped_cost = costs[a * inst->nnodes + b] + costs[succ_a * inst->nnodes + succ_b];
+            double current_cost = costs[a * tsp_inst.nnodes + succ_a] + costs[b * tsp_inst.nnodes + succ_b];
+            double swapped_cost = costs[a * tsp_inst.nnodes + b] + costs[succ_a * tsp_inst.nnodes + succ_b];
             double delta = swapped_cost - current_cost;
             if (delta < best_delta) {
                 best_delta = delta;
@@ -79,7 +79,7 @@ double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs){
         int succ_b = solution->path[b]; //successor of b
                     
         //Reverse the path from the b to the successor of a
-        ref_reverse_path(inst, a, succ_a, b, succ_b, prev, solution->path);
+        ref_reverse_path(a, succ_a, b, succ_b, prev, solution->path);
 
         // update solution cost
         solution->cost += best_delta;
@@ -92,7 +92,7 @@ double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs){
 
 }
 
-void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int *prev, int* solution_path) {
+void ref_reverse_path(int a, int succ_a, int b, int succ_b, int *prev, int* solution_path) {
     //Swap the 2 edges
     solution_path[a] = b;
     solution_path[succ_a] = succ_b;
@@ -108,7 +108,7 @@ void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int 
         }
     }
 
-    for (int k = 0; k < inst->nnodes; k++) {
+    for (int k = 0; k < tsp_inst.nnodes; k++) {
         prev[solution_path[k]] = k;
     }
 }

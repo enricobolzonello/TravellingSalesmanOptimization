@@ -15,23 +15,23 @@
 //================================================================================
 
 // https://www.scirp.org/journal/paperinformation?paperid=19930
-ERROR_CODE tabu_fixed_policy(instance* inst, tabu_search* t, int value);
-ERROR_CODE tabu_dependent_policy(instance* inst,tabu_search* t);
-ERROR_CODE tabu_random_policy(instance* inst, tabu_search* t);
-ERROR_CODE tabu_linear_policy(instance* inst, tabu_search* ts);
+ERROR_CODE tabu_fixed_policy( tabu_search* t, int value);
+ERROR_CODE tabu_dependent_policy(tabu_search* t);
+ERROR_CODE tabu_random_policy( tabu_search* t);
+ERROR_CODE tabu_linear_policy( tabu_search* ts);
 
-ERROR_CODE mh_TabuSearch(instance* inst);
+ERROR_CODE mh_TabuSearch(void);
 
 ERROR_CODE tabu_init(tabu_search* ts, int nnodes);
-ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_cost, tabu_search* ts, int current_iteration);
+ERROR_CODE tabu_best_move(int* solution_path, double* solution_cost, tabu_search* ts, int current_iteration);
 
 //================================================================================
 // VARIABLE NEIGHBORHOOD SEARCH
 //================================================================================
 
-ERROR_CODE mh_VNS(instance* inst);
+ERROR_CODE mh_VNS(void);
 
-ERROR_CODE vns_kick(instance* inst, tsp_solution* solution);
+ERROR_CODE vns_kick(tsp_solution* solution);
 
 
 //================================================================================
@@ -56,6 +56,6 @@ bool is_in_tabu_list(tabu_search* ts, int b, int current_iteration);
  */
 void tabu_free(tabu_search* ts);
 
-ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k);
+ERROR_CODE tabu_make_move(int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k);
 
 #endif

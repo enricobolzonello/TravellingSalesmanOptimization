@@ -20,7 +20,7 @@
  * @param solution solution struct
  * @return ERROR_CODE 
  */
-ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution, double* costs, bool update_incumbent);
+ERROR_CODE ref_2opt(tsp_solution* solution, double* costs, bool update_incumbent);
 
 //================================================================================
 // UTILS
@@ -33,7 +33,7 @@ ERROR_CODE ref_2opt(instance* inst, tsp_solution* solution, double* costs, bool 
  * @param solution_path solution struct
  * @return double best delta
  */
-double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs);
+double ref_2opt_once(tsp_solution* solution, double* costs);
 
 /**
  * @brief Util to reverse a path from start_node to end_node in solution_path
@@ -44,6 +44,6 @@ double ref_2opt_once(instance* inst, tsp_solution* solution, double* costs);
  * @param prev array path before the 2opt move
  * @param solution_path path that will be modified
  */
-void ref_reverse_path(instance *inst, int a, int succ_a, int b, int succ_b, int *prev, int* solution_path);
+void ref_reverse_path(int a, int succ_a, int b, int succ_b, int *prev, int* solution_path);
 
 #endif

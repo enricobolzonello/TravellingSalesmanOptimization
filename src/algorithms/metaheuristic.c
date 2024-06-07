@@ -4,8 +4,8 @@
 // POLICIES
 //================================================================================
 
-ERROR_CODE tabu_fixed_policy(instance* inst, tabu_search* t, int value){
-    if(inst->options_t.policy != POL_FIXED){
+ERROR_CODE tabu_fixed_policy(tabu_search* t, int value){
+    if(tsp_env.policy != POL_FIXED){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
@@ -15,8 +15,8 @@ ERROR_CODE tabu_fixed_policy(instance* inst, tabu_search* t, int value){
     return T_OK;
 }
 
-ERROR_CODE tabu_dependent_policy(instance* inst, tabu_search* t){
-    if(inst->options_t.policy != POL_SIZE){
+ERROR_CODE tabu_dependent_policy(tabu_search* t){
+    if(tsp_env.policy != POL_SIZE){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
@@ -26,8 +26,8 @@ ERROR_CODE tabu_dependent_policy(instance* inst, tabu_search* t){
     return T_OK;
 }
 
-ERROR_CODE tabu_random_policy(instance* inst, tabu_search* t){
-    if(inst->options_t.policy != POL_RANDOM){
+ERROR_CODE tabu_random_policy(tabu_search* t){
+    if(tsp_env.policy != POL_RANDOM){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
@@ -37,8 +37,8 @@ ERROR_CODE tabu_random_policy(instance* inst, tabu_search* t){
     return T_OK;
 }
 
-ERROR_CODE tabu_linear_policy(instance* inst, tabu_search* ts){
-    if(inst->options_t.policy != POL_LINEAR){
+ERROR_CODE tabu_linear_policy(tabu_search* ts){
+    if(tsp_env.policy != POL_LINEAR){
         log_warn("policy has already been set");
         return ALREADY_EXISTS;
     }
@@ -83,12 +83,12 @@ ERROR_CODE tabu_init(tabu_search* ts, int nnodes){
     
 }
 
-ERROR_CODE mh_TabuSearch(instance* inst){
+ERROR_CODE mh_TabuSearch(){
     // initialize
     tabu_search ts;
-    if(!err_ok(tabu_init(&ts, inst->nnodes))){
+    if(!err_ok(tabu_init(&ts, tsp_inst.nnodes))){
         log_fatal("code %d : Error in init tabu search"); 
-        tsp_handlefatal(inst);
+        tsp_handlefatal();
     }
 
     ERROR_CODE e = T_OK;
@@ -96,45 +96,46 @@ ERROR_CODE mh_TabuSearch(instance* inst){
     // file to hold solution value in each iteration
     FILE* f = fopen("results/TabuResults.dat", "w+");
 
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
 
     // get a solution with an heuristic algorithm
 
-    if(!err_ok(h_greedy_2opt(inst))){
+    if(!err_ok(h_greedy_2opt())){
         log_fatal("code %d : Error in greedy solution computation");
-        tsp_handlefatal(inst);
+        tsp_handlefatal();
         utils_safe_free(solution.path);
     }
 
-    solution.cost = inst->best_solution.cost;
-    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
+    solution.cost = tsp_inst.best_solution.cost;
+    memcpy(solution.path, tsp_inst.best_solution.path, tsp_inst.nnodes * sizeof(int));
     log_debug("2opt greedy sol cost: %f", solution.cost);
 
     // tabu search with 2opt moves
-    for(int k=0; k < inst->options_t.k; k++){
+    for(int k=0; k < tsp_env.k; k++){
 
         // check if exceeds time
-        double ex_time = utils_timeelapsed(&inst->c);
-        if(inst->options_t.timelimit != -1.0){
-            if(ex_time > inst->options_t.timelimit){
+        double ex_time = utils_timeelapsed(&tsp_inst.c);
+        if(tsp_env.timelimit != -1.0){
+            if(ex_time > tsp_env.timelimit){
                 e = DEADLINE_EXCEEDED;
             }
         }
 
         // update tenure
-        switch (inst->options_t.policy)
+        switch (tsp_env.policy)
         {
         case  POL_FIXED:
-            e = tabu_fixed_policy(inst, &ts, 30);
+            e = tabu_fixed_policy( &ts, 30);
             break;
         case POL_LINEAR:
-            e = tabu_linear_policy(inst, &ts);
+            e = tabu_linear_policy( &ts);
             break;
         case POL_RANDOM:
-            e = tabu_random_policy(inst, &ts);
+            e = tabu_random_policy( &ts);
             break;
         case POL_SIZE:
-            e = tabu_dependent_policy(inst, &ts);
+            e = tabu_dependent_policy( &ts);
             break;
         default:
             e = UNKNOWN;
@@ -142,21 +143,21 @@ ERROR_CODE mh_TabuSearch(instance* inst){
         }
         
         if(!err_ok(e)){
-            log_warn("using already set policy %d", inst->options_t.policy);
+            log_warn("using already set policy %d", tsp_env.policy);
         }
 
         // 2opt move
-        e = tabu_best_move(inst, solution.path, &solution.cost, &ts, k);
+        e = tabu_best_move( solution.path, &solution.cost, &ts, k);
         if(!err_ok(e)){
             log_fatal("code %d : Error in tabu best move", e); 
-            tsp_handlefatal(inst);
+            tsp_handlefatal();
             utils_safe_free(solution.path);
         }
 
-        e = tsp_update_best_solution(inst, &solution);
+        e = tsp_update_best_solution( &solution);
         if(!err_ok(e)){
             log_fatal("code %d : Error in updating best solution", e); 
-            tsp_handlefatal(inst);
+            tsp_handlefatal();
             utils_safe_free(solution.path);
         }
 
@@ -169,7 +170,7 @@ ERROR_CODE mh_TabuSearch(instance* inst){
     // plot the solution progression during iterations
     PLOT plot = plot_open("TabuIterationsPlot");
     
-    if(inst->options_t.tofile){
+    if(tsp_env.tofile){
         plot_tofile(plot, "TabuIterationsPlot");
     }
 
@@ -184,18 +185,18 @@ ERROR_CODE mh_TabuSearch(instance* inst){
 
 }
 
-ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_cost, tabu_search* ts, int current_iteration){
+ERROR_CODE tabu_best_move( int* solution_path, double* solution_cost, tabu_search* ts, int current_iteration){
     double best_delta = __DBL_MAX__;
     int best_swap[2] = {-1, -1};
 
-    int *prev = (int*)calloc(inst->nnodes, sizeof(int));          // save the path of the solution without 2opt
-    for (int i = 0; i < inst->nnodes; i++) {
+    int *prev = (int*)calloc(tsp_inst.nnodes, sizeof(int));          // save the path of the solution without 2opt
+    for (int i = 0; i < tsp_inst.nnodes; i++) {
         prev[solution_path[i]] = i;
     }
 
     // scan nodes to find best swap
-    for (int a = 0; a < inst->nnodes - 1; a++) {
-        for (int b = a+1; b < inst->nnodes; b++) {
+    for (int a = 0; a < tsp_inst.nnodes - 1; a++) {
+        for (int b = a+1; b < tsp_inst.nnodes; b++) {
             int succ_a = solution_path[a]; //successor of a
             int succ_b = solution_path[b]; //successor of b
             
@@ -209,8 +210,8 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
             }
 
             // Compute the delta
-            double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
-            double swapped_cost = tsp_get_cost(inst, a, b) + tsp_get_cost(inst, succ_a, succ_b);
+            double current_cost = tsp_get_cost( a, succ_a) + tsp_get_cost( b, succ_b);
+            double swapped_cost = tsp_get_cost( a, b) + tsp_get_cost( succ_a, succ_b);
             double delta = swapped_cost - current_cost;
             if (delta < best_delta) {
                 best_delta = delta;
@@ -228,7 +229,7 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
         int succ_a = solution_path[a]; //successor of a
         int succ_b = solution_path[b]; //successor of b
 
-        ref_reverse_path(inst, a, succ_a, b, succ_b, prev, solution_path);
+        ref_reverse_path(a, succ_a, b, succ_b, prev, solution_path);
         *solution_cost += best_delta;
 
         // update tabu list
@@ -247,25 +248,27 @@ ERROR_CODE tabu_best_move(instance* inst, int* solution_path, double* solution_c
 // VARIABLE NEIGHBORHOOD SEARCH
 //================================================================================
 
-ERROR_CODE mh_VNS(instance* inst){
+ERROR_CODE mh_VNS(){
 
     log_info("running Variable Neighborhood Search");
 
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
 
-    ERROR_CODE e = h_Greedy_iterative(inst); // start with a bad solution
+    ERROR_CODE e = h_Greedy_iterative(); // start with a bad solution
     if(!err_ok(e)){
             log_fatal("code %d : Error in greedy", e);
-            tsp_handlefatal(inst);
+            tsp_handlefatal();
             utils_safe_free(solution.path);
         }
     log_info("Greedy done!");
     
     // copy the best solution found by greedy
-    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
-    solution.cost = inst->best_solution.cost;
+    memcpy(solution.path, tsp_inst.best_solution.path, tsp_inst.nnodes * sizeof(int));
+    solution.cost = tsp_inst.best_solution.cost;
 
-    tsp_solution best_vns = tsp_init_solution(inst->nnodes);
+    tsp_solution best_vns;
+	tsp_init_solution(tsp_inst.nnodes, &best_vns);
     best_vns.cost = solution.cost;
 
     // file to hold solution value in each iteration
@@ -273,21 +276,21 @@ ERROR_CODE mh_VNS(instance* inst){
     
     e  = T_OK;
     // call 3 opt k times
-    for(int i=0; i<inst->options_t.k; i++){
+    for(int i=0; i<tsp_env.k; i++){
         // check if exceeds time
-        double ex_time = utils_timeelapsed(&inst->c);
-        if(inst->options_t.timelimit != -1.0){
-            if(ex_time > inst->options_t.timelimit){
+        double ex_time = utils_timeelapsed(&tsp_inst.c);
+        if(tsp_env.timelimit != -1.0){
+            if(ex_time > tsp_env.timelimit){
                e = DEADLINE_EXCEEDED;
                break;
             }
         }
 
         // local search
-        e = ref_2opt(inst, &solution, inst->costs, true);
+        e = ref_2opt( &solution, tsp_inst.costs, true);
         if(!err_ok(e)){
             log_fatal("code %d : Error in local search", e); 
-            tsp_handlefatal(inst);
+            tsp_handlefatal();
             utils_safe_free(solution.path);
             utils_safe_free(best_vns.path);
         }
@@ -295,7 +298,7 @@ ERROR_CODE mh_VNS(instance* inst){
         if(solution.cost < best_vns.cost){
             log_info("found new best: %f ", solution.cost);
             best_vns.cost = solution.cost;
-            memcpy(best_vns.path, solution.path, inst->nnodes * sizeof(int));
+            memcpy(best_vns.path, solution.path, tsp_inst.nnodes * sizeof(int));
         }
 
         // save current iteration and current solution cost to file for the plot
@@ -304,10 +307,10 @@ ERROR_CODE mh_VNS(instance* inst){
         // kick
         int r = rand() % (UPPER - LOWER + 1) - LOWER;
         for(int j=0; j<r; j++){
-            e = vns_kick(inst, &solution);
+            e = vns_kick( &solution);
             if(!err_ok(e)){
                 log_fatal("code %d : Error in kick", e); 
-                tsp_handlefatal(inst);
+                tsp_handlefatal();
                 utils_safe_free(solution.path);
                 utils_safe_free(best_vns.path);
             }
@@ -317,7 +320,7 @@ ERROR_CODE mh_VNS(instance* inst){
 
     fclose(f);
 
-    e = tsp_update_best_solution(inst, &best_vns);
+    e = tsp_update_best_solution( &best_vns);
     if(!err_ok(e)){
         log_error("code %d : error in updating best solution of VNS");
     }
@@ -325,7 +328,7 @@ ERROR_CODE mh_VNS(instance* inst){
     // plot the solution progression during iterations
     PLOT plot = plot_open("VNSIterationsPlot");
     
-    if(inst->options_t.tofile){
+    if(tsp_env.tofile){
         plot_tofile(plot, "VNSIterationsPlot");
     }
 
@@ -338,20 +341,20 @@ ERROR_CODE mh_VNS(instance* inst){
 }
 
 // 3 opt kick
-ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
+ERROR_CODE vns_kick( tsp_solution* solution){
 
     log_debug("KICK");
 
-    int *prev = calloc(inst->nnodes, sizeof(int));          // save the path of the solution without kick
-    for (int i = 0; i < inst->nnodes; i++) {
+    int *prev = calloc(tsp_inst.nnodes, sizeof(int));          // save the path of the solution without kick
+    for (int i = 0; i < tsp_inst.nnodes; i++) {
         prev[solution->path[i]] = i;
     }
 
     //From list of successor to Tour
-    int* tour = (int*)calloc(inst->nnodes, sizeof(int));
+    int* tour = (int*)calloc(tsp_inst.nnodes, sizeof(int));
     int node=0;
     int idx=0;
-    while(idx<inst->nnodes){
+    while(idx<tsp_inst.nnodes){
         tour[idx]=node;
         idx+=1;
         node=solution->path[node];
@@ -362,7 +365,7 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
     for (i = 0; i < 3; i++) {
         int random_number;
         do {
-            random_number = rand() % (inst->nnodes);
+            random_number = rand() % (tsp_inst.nnodes);
             // Check if the number is already generated
             for (j = 0; j < i; j++) {
                 // no same number or predecessor/successor
@@ -384,18 +387,18 @@ ERROR_CODE vns_kick(instance* inst, tsp_solution* solution){
     log_debug("random number: %d %d %d", indexes[0], indexes[1], indexes[2]);
 
     int nodeA = tour[indexes[0]];
-    int nodeSuccA = tour[(indexes[0]+1) % inst->nnodes];
+    int nodeSuccA = tour[(indexes[0]+1) % tsp_inst.nnodes];
     int nodeB = tour[indexes[1]];
-    int nodeSuccB = tour[(indexes[1]+1) % inst->nnodes];
+    int nodeSuccB = tour[(indexes[1]+1) % tsp_inst.nnodes];
     int nodeC = tour[indexes[2]];
-    int nodeSuccC = tour[(indexes[2]+1) % inst->nnodes];
+    int nodeSuccC = tour[(indexes[2]+1) % tsp_inst.nnodes];
 
     log_debug("A:(%d,%d)\t B:(%d,%d)\t C:(%d,%d)\n", nodeA, nodeSuccA, nodeB, nodeSuccB, nodeC, nodeSuccC);
 
-    ERROR_CODE e = makeMove(inst, prev, solution, 7, nodeA, nodeSuccA, nodeB, nodeSuccB, nodeC, nodeSuccC);
+    ERROR_CODE e = tabu_make_move( prev, solution, 7, nodeA, nodeSuccA, nodeB, nodeSuccB, nodeC, nodeSuccC);
     if(!err_ok(e)){
         log_fatal("code %d : Error in make move", e); 
-        tsp_handlefatal(inst);
+        tsp_handlefatal();
         utils_safe_free(prev);
     }
 
@@ -419,7 +422,7 @@ void tabu_free(tabu_search* ts){
 }
 
 // https://tsp-basics.blogspot.com/2017/03/3-opt-move.html
-ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
+ERROR_CODE tabu_make_move(int *prev, tsp_solution* solution, int bestCase, int i, int succ_i, int j, int succ_j, int k, int succ_k) {
     ERROR_CODE e = T_OK;
     int temp;
     switch (bestCase){
@@ -427,31 +430,31 @@ ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestC
             log_debug("case 1");
 
             // invert segment a
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
+            ref_reverse_path( k, succ_k, i, succ_i, prev, solution->path);
 
             break;
         case 2:
             log_debug("case 2");
             
             // invert segment c
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
+            ref_reverse_path( j, succ_j, k, succ_k, prev, solution->path);
 
             break;
         case 3:
             log_debug("case 3");
             
             // invert segment b
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
+            ref_reverse_path( i, succ_i, j, succ_j, prev, solution->path);
 
             break;
         case 4:
             // inverts segments b and c
             log_debug("case 4");
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
+            ref_reverse_path( i, succ_i, j, succ_j, prev, solution->path);
             temp = j;
             j = succ_i;
             succ_i = j;
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
+            ref_reverse_path( j, succ_j, k, succ_k, prev, solution->path);
 
             /*solution->path[i] = j;
             solution->path[succ_i] = k;
@@ -460,11 +463,11 @@ ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestC
         case 5:
             // inverts segments a and b
             log_debug("invert segment a and b");
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
+            ref_reverse_path( k, succ_k, i, succ_i, prev, solution->path);
             temp = i;
             i = succ_k;
             succ_k = temp;
-            ref_reverse_path(inst, i, succ_i, j, succ_j, prev, solution->path);
+            ref_reverse_path( i, succ_i, j, succ_j, prev, solution->path);
 
             /*solution->path[i] = k;
             solution->path[succ_j] = succ_i;
@@ -473,11 +476,11 @@ ERROR_CODE makeMove(instance *inst, int *prev, tsp_solution* solution, int bestC
         case 6:
             // inverts segments a and c
             log_debug("invert segment a and c");
-            ref_reverse_path(inst, j, succ_j, k, succ_k, prev, solution->path);
+            ref_reverse_path( j, succ_j, k, succ_k, prev, solution->path);
             temp = k;
             k = succ_j;
             succ_j = temp;
-            ref_reverse_path(inst, k, succ_k, i, succ_i, prev, solution->path);
+            ref_reverse_path( k, succ_k, i, succ_i, prev, solution->path);
 
             /*solution->path[i] = succ_j;
             solution->path[k] = j;

@@ -10,7 +10,7 @@
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE mh_HardFixing(instance* inst);
+ERROR_CODE mh_HardFixing(void);
 
 /**
  * @brief runs Local Branching algorithm
@@ -18,7 +18,7 @@ ERROR_CODE mh_HardFixing(instance* inst);
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE mh_LocalBranching(instance* inst);
+ERROR_CODE mh_LocalBranching(void);
 
 //================================================================================
 // GENERAL UTILS
@@ -33,7 +33,7 @@ ERROR_CODE mh_LocalBranching(instance* inst);
  * @param solution pointer to solution struct to hold the result found
  * @return ERROR_CODE 
  */
-ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution);
+ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution);
 
 /**
  * @brief util for running mip solver with mipopt and patching
@@ -45,7 +45,7 @@ ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution
  * @param time_available time assigned to the mip solver
  * @return ERROR_CODE 
  */
-ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution, double time_available);
+ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution, double time_available);
 
 //================================================================================
 // HARD FIXING UTILS
@@ -60,7 +60,7 @@ ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solutio
  * @param solution pointer to solution struct to know what variables to fix
  * @return ERROR_CODE 
  */
-ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution);
+ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, tsp_solution* solution);
 
 /**
  * @brief util for unfixing all previously fixed variables
@@ -70,7 +70,7 @@ ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* s
  * @param inst Tsp instance
  * @return ERROR_CODE 
  */
-ERROR_CODE hf_undofixing(CPXENVptr env, CPXLPptr lp, instance* inst);
+ERROR_CODE hf_undofixing(CPXENVptr env, CPXLPptr lp);
 
 //================================================================================
 // LOCAL BRANCHING UTILS
@@ -86,7 +86,7 @@ ERROR_CODE hf_undofixing(CPXENVptr env, CPXLPptr lp, instance* inst);
  * @param k degree of freedom 
  * @return ERROR_CODE 
  */
-ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution, int k);
+ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution, int k);
 
 /**
  * @brief util to remove the last constraint added which corresponds to the local branching constraint

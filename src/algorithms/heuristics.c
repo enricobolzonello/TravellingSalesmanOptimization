@@ -9,19 +9,20 @@ struct edge{
 // NEAREST NEIGHBOUR HEURISTIC
 //================================================================================
 
-ERROR_CODE h_Greedy(instance* inst){
+ERROR_CODE h_Greedy(){
 
     log_info("running Nearest Neighbour");
 
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
 
     log_info("running GREEDY");
-    ERROR_CODE error = h_greedyutil(inst, inst->starting_node, &solution, inst->costs);
+    ERROR_CODE error = h_greedyutil( tsp_inst.starting_node, &solution, tsp_inst.costs);
     if(!err_ok(error)){
         log_error("code %d : greedy did not finish correctly", error);
     }
 
-    error = tsp_update_best_solution(inst, &solution);
+    error = tsp_update_best_solution( &solution);
     if(!err_ok(error)){
         log_error("code %d : error in updating solution for greedy", error);
     }
@@ -30,33 +31,34 @@ ERROR_CODE h_Greedy(instance* inst){
     return error;
 }
 
-ERROR_CODE h_Greedy_iterative(instance* inst){
+ERROR_CODE h_Greedy_iterative(){
 
     log_info("running All Nearest Neighbour");
 
     ERROR_CODE e = T_OK;
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
 
-    for(int i=0; i<inst->nnodes; i++){
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(&inst->c);
-            if(ex_time > inst->options_t.timelimit){
+    for(int i=0; i<tsp_inst.nnodes; i++){
+        if(tsp_env.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(&tsp_inst.c);
+            if(ex_time > tsp_env.timelimit){
                 e = DEADLINE_EXCEEDED;
                 break;
             }
         }
 
         log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, &solution, inst->costs);
+        ERROR_CODE error = h_greedyutil( i, &solution, tsp_inst.costs);
         if(!err_ok(error)){
             log_error("code %d : error in iteration %d of greedy iterative", error, i);
             continue;
         }
 
-        if(solution.cost < inst->best_solution.cost){
+        if(solution.cost < tsp_inst.best_solution.cost){
             log_info("found new best, node %d", i);
-            inst->starting_node = i;
-            error = tsp_update_best_solution(inst, &solution);
+            tsp_inst.starting_node = i;
+            error = tsp_update_best_solution( &solution);
             if(!err_ok(error)){
                 log_error("code %d : error in updating best solution of greedy iterative in iteration %d", error, i);
                 continue;
@@ -69,17 +71,18 @@ ERROR_CODE h_Greedy_iterative(instance* inst){
     return e;
 }
 
-ERROR_CODE h_greedy_2opt(instance* inst){
+ERROR_CODE h_greedy_2opt(){
 
     log_info("running All Nearest Neighbour + 2OPT");
 
     ERROR_CODE e = T_OK;
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
 
-    for(int i=0; i<inst->nnodes; i++){
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(&inst->c);
-            if(ex_time > inst->options_t.timelimit){
+    for(int i=0; i<tsp_inst.nnodes; i++){
+        if(tsp_env.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(&tsp_inst.c);
+            if(ex_time > tsp_env.timelimit){
                 log_warn("time limit exceeded in greedy 2opt");
                 e = DEADLINE_EXCEEDED;
                 break;
@@ -87,7 +90,7 @@ ERROR_CODE h_greedy_2opt(instance* inst){
         }
 
         log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, &solution, inst->costs);
+        ERROR_CODE error = h_greedyutil(i, &solution, tsp_inst.costs);
         if(!err_ok(error)){
             log_error("code %d : error in iteration %i of 2opt greedy", error, i);
             break;
@@ -95,14 +98,14 @@ ERROR_CODE h_greedy_2opt(instance* inst){
 
         log_debug("greedy solution: cost: %f", solution.cost);
 
-        error = ref_2opt(inst, &solution, inst->costs, true);
+        error = ref_2opt( &solution, tsp_inst.costs, true);
         if(!err_ok(error)){
             log_error("code %d : error in 2opt", error);
             break;
         }else if (error == T_OK)
         {
-            log_debug("found new best solution: starting node %d, cost %f", i, inst->best_solution.cost);
-            inst->starting_node = i;
+            log_debug("found new best solution: starting node %d, cost %f", i, tsp_inst.best_solution.cost);
+            tsp_inst.starting_node = i;
         }
         
     }
@@ -112,28 +115,28 @@ ERROR_CODE h_greedy_2opt(instance* inst){
     return e;
 }
 
-ERROR_CODE h_Greedy_2opt_mod_costs(instance* inst, tsp_solution* solution, double* costs){
+ERROR_CODE h_Greedy_2opt_mod_costs( tsp_solution* solution, double* costs){
 
     ERROR_CODE e = T_OK;
-    //tsp_solution solution = tsp_init_solution(inst->nnodes);
+    //tsp_solution solution = tsp_init_solution(tsp_inst.nnodes);
 
-    for(int i=0; i<inst->nnodes; i++){
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(&inst->c);
-            if(ex_time > inst->options_t.timelimit){
+    for(int i=0; i<tsp_inst.nnodes; i++){
+        if(tsp_env.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(&tsp_inst.c);
+            if(ex_time > tsp_env.timelimit){
                 e = DEADLINE_EXCEEDED;
                 break;
             }
         }
 
         //log_debug("starting greedy with node %d", i);
-        ERROR_CODE error = h_greedyutil(inst, i, solution, costs);
+        ERROR_CODE error = h_greedyutil( i, solution, costs);
         if(!err_ok(error)){
             log_error("code %d : error in iteration %d of greedy iterative", error, i);
             continue;
         }
 
-        error = ref_2opt(inst, solution, costs, false);
+        error = ref_2opt( solution, costs, false);
         if(!err_ok(error)){
             log_error("code %d : error in 2opt", error);
             continue;
@@ -150,7 +153,7 @@ ERROR_CODE h_Greedy_2opt_mod_costs(instance* inst, tsp_solution* solution, doubl
 // EXTRA MILEAGE HEURISTIC
 //================================================================================
 
-ERROR_CODE h_ExtraMileage(instance* inst){
+ERROR_CODE h_ExtraMileage(){
 
     log_info("running Extra Mileage");
 
@@ -160,12 +163,12 @@ ERROR_CODE h_ExtraMileage(instance* inst){
     int nodeA = 0; 
     int nodeB = 1;
 
-    switch (inst->options_t.mileage_init)
+    switch (tsp_env.mileage_init)
     {
     case EM_MAX:
-        for(int i=0; i<inst->nnodes; i++){
-            for(int j=i+1; j<inst->nnodes; j++){
-                double distance = tsp_get_cost(inst, i, j);
+        for(int i=0; i<tsp_inst.nnodes; i++){
+            for(int j=i+1; j<tsp_inst.nnodes; j++){
+                double distance = tsp_get_cost( i, j);
                 if(distance > max_distance){
                     nodeA = i;
                     nodeB = j;
@@ -176,8 +179,8 @@ ERROR_CODE h_ExtraMileage(instance* inst){
 
         break;
     case EM_RANDOM:
-        nodeA = rand() % (inst->nnodes + 1);
-        nodeB = rand() % (inst->nnodes - nodeA + 1) + nodeA;
+        nodeA = rand() % (tsp_inst.nnodes + 1);
+        nodeB = rand() % (tsp_inst.nnodes - nodeA + 1) + nodeA;
         break;
     default:
         log_warn("aborted");
@@ -187,8 +190,10 @@ ERROR_CODE h_ExtraMileage(instance* inst){
     log_debug("max edge : (%d, %d) with distance %f", nodeA, nodeB, max_distance);
 
     // initialize partial solution
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
-    solution.cost = 2 * tsp_get_cost(inst, nodeA, nodeB);
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
+    
+    solution.cost = 2 * tsp_get_cost( nodeA, nodeB);
 
     solution.path[nodeA] = nodeB;
     solution.path[nodeB] = nodeA;
@@ -196,10 +201,10 @@ ERROR_CODE h_ExtraMileage(instance* inst){
     log_debug("initial cost: %f", solution.cost);
 
     // execute extra mileage algorithm
-    error = h_extramileage_util(inst, &solution, nodeA, nodeB);
+    error = h_extramileage_util( &solution, nodeA, nodeB);
 
     // save solution
-    tsp_update_best_solution(inst, &solution);
+    tsp_update_best_solution( &solution);
 
     return error;
 }
@@ -208,21 +213,21 @@ ERROR_CODE h_ExtraMileage(instance* inst){
 // UTILS
 //================================================================================
 
-ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solution, double* costs){
+ERROR_CODE h_greedyutil( int starting_node, tsp_solution* solution, double* costs){
 
     if(costs == NULL){
         log_error("matrix of costs not found");
         return INTERNAL;
     }
 
-    if(starting_node >= inst->nnodes || starting_node < 0){
+    if(starting_node >= tsp_inst.nnodes || starting_node < 0){
         log_error("starting node not correct");
         return UNAVAILABLE;
     }
 
     ERROR_CODE e = T_OK;
 
-    int* visited = (int*)calloc(inst->nnodes, sizeof(int));
+    int* visited = (int*)calloc(tsp_inst.nnodes, sizeof(int));
 
     int curr = starting_node;
     visited[curr] = 1;
@@ -232,9 +237,9 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solutio
 
     while(!done){
         // check that we have not exceed time limit
-        double ex_time = utils_timeelapsed(&inst->c);
-        if(inst->options_t.timelimit != -1.0){
-            if(ex_time > inst->options_t.timelimit){
+        double ex_time = utils_timeelapsed(&tsp_inst.c);
+        if(tsp_env.timelimit != -1.0){
+            if(ex_time > tsp_env.timelimit){
                 log_warn("time limit exceeded in greedy util");
                 e = DEADLINE_EXCEEDED;
                 break;
@@ -245,11 +250,11 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solutio
         int min_idx = -1;
         double min_dist = __DBL_MAX__;
 
-        for(int i=0; i<inst->nnodes; i++){
+        for(int i=0; i<tsp_inst.nnodes; i++){
             // skip iteration if it's already visited
             if(i != curr && visited[i] != 1){
                 // update the minimum cost and its node
-                double temp = costs[curr * inst->nnodes + i];
+                double temp = costs[curr * tsp_inst.nnodes + i];
                 if(temp != NOT_CONNECTED && temp < min_dist){
                     min_dist = temp;
                     min_idx = i;
@@ -274,7 +279,7 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solutio
     }
 
     // add last edge
-    sol_cost += costs[curr * inst->nnodes + starting_node];
+    sol_cost += costs[curr * tsp_inst.nnodes + starting_node];
     solution->cost = sol_cost;
 
     utils_safe_free(visited);
@@ -282,27 +287,27 @@ ERROR_CODE h_greedyutil(instance* inst, int starting_node, tsp_solution* solutio
     return e;
 }
 
-ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA, int nodeB){
+ERROR_CODE h_extramileage_util( tsp_solution* solution, int nodeA, int nodeB){
     ERROR_CODE error = T_OK;    
 
     // initalize visited array
-    bool* visited = (bool*) calloc(inst->nnodes, sizeof(int));
+    bool* visited = (bool*) calloc(tsp_inst.nnodes, sizeof(int));
     visited[nodeA] = true;
     visited[nodeB] = true;
 
     int num_visited = 0;
-    struct edge edges[inst->nnodes];
+    struct edge edges[tsp_inst.nnodes];
 
     struct edge e1 = {.i = nodeA, .j = nodeB};
     struct edge e2 = {.i = nodeB, .j = nodeA};
     edges[num_visited++] = e1;
     edges[num_visited++] = e2;
 
-    while(num_visited < inst->nnodes){
+    while(num_visited < tsp_inst.nnodes){
         // time limit check
-        if(inst->options_t.timelimit != -1.0){
-            double ex_time = utils_timeelapsed(&inst->c);
-            if(ex_time > inst->options_t.timelimit){
+        if(tsp_env.timelimit != -1.0){
+            double ex_time = utils_timeelapsed(&tsp_inst.c);
+            if(ex_time > tsp_env.timelimit){
                 error = DEADLINE_EXCEEDED;
                 break;
             }
@@ -313,7 +318,7 @@ ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA
         int best_new_node = -1;
         struct edge best_edge;
 
-        for(int i=0; i<inst->nnodes; i++){
+        for(int i=0; i<tsp_inst.nnodes; i++){
             if(visited[i]){
                 continue;
             }
@@ -323,7 +328,7 @@ ERROR_CODE h_extramileage_util(instance* inst, tsp_solution* solution, int nodeA
                 int u = edges[j].i;
                 int v = edges[j].j;
 
-                double delta = tsp_get_cost(inst, u, i) + tsp_get_cost(inst, i, v) - tsp_get_cost(inst, u, v);
+                double delta = tsp_get_cost( u, i) + tsp_get_cost( i, v) - tsp_get_cost( u, v);
 
                 if(delta < mileage){
                     mileage = delta;

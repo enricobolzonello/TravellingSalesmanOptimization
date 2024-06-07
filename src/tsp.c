@@ -1,64 +1,51 @@
 #include "tsp.h"
 
-void tsp_init(instance* inst){
-    inst->options_t.graph_random = false;
-    inst->options_t.graph_input = false;
-    inst->options_t.timelimit = -1;
-    inst->options_t.seed = -1;
-    inst->options_t.tofile = false;
-    inst->options_t.k = __INT_MAX__;
+instance tsp_inst;
+options tsp_env;
 
-    inst->options_t.policy = POL_LINEAR;
+void tsp_init(){
+    // enviornment initialization
+    tsp_env.graph_random = false;
+    tsp_env.graph_input = false;
+    tsp_env.timelimit = -1;
+    tsp_env.seed = -1;
+    tsp_env.tofile = false;
+    tsp_env.k = __INT_MAX__;
 
-    inst->options_t.mileage_init = EM_MAX;
+    tsp_env.policy = POL_LINEAR;
 
-    inst->options_t.init_mip = true;
-    inst->options_t.skip_policy = 0;
-    inst->options_t.callback_relaxation = true;
-    inst->options_t.modified_costs = false;
+    tsp_env.mileage_init = EM_MAX;
 
-    inst->options_t.hf_prob = 0.7;
+    tsp_env.init_mip = true;
+    tsp_env.skip_policy = 0;
+    tsp_env.callback_relaxation = true;
+    tsp_env.modified_costs = false;
 
-    inst->options_t.lb_improv = 0.02;
-    inst->options_t.lb_delta = 10;
-    inst->options_t.lb_kstar = false;
-    
-    inst->nnodes = -1;
-    inst->best_solution.cost = __DBL_MAX__;
-    inst->starting_node = 0;
-    inst->alg = ALG_GREEDY;
-    inst->cplex_terminate = 0;
+    tsp_env.hf_prob = 0.7;
+
+    tsp_env.lb_improv = 0.02;
+    tsp_env.lb_delta = 10;
+    tsp_env.lb_kstar = false;
+
+
+    // instance initialization
+    tsp_inst.nnodes = -1;
+    tsp_inst.best_solution.cost = __DBL_MAX__;
+    tsp_inst.starting_node = 0;
+    tsp_inst.alg = ALG_GREEDY;
+    tsp_inst.cplex_terminate = 0;
+    tsp_inst.ncols = -1;
 
     err_setverbosity(NORMAL);
-
-    inst->ncols = -1;
 }
 
-tsp_solution tsp_init_solution(int nnodes){
-    tsp_solution solution;
-    solution.path = (int*) calloc(nnodes, sizeof(int));
-    if(solution.path == NULL){
-        log_fatal("solution.path allocation failed");
-        exit(0);
-    }
-
-    solution.cost = __DBL_MAX__;
-    solution.ncomp = 0;
-    solution.comp = (int*) calloc(nnodes, sizeof(int));
-    if(solution.path == NULL){
-        log_fatal("solution.comp allocation failed");
-        exit(0);
-    }
-    return solution;
-}
-
-ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
+ERROR_CODE tsp_parse_commandline(int argc, char** argv){
     if(argc < 2){
         printf("Type %s --help to see the full list of commands\n", argv[0]);
         exit(EXIT_FAILURE);
     }
 
-    tsp_init(inst);
+    tsp_init();
 
     bool help = false;
     bool algs = false;
@@ -74,19 +61,19 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
 
             const char* path = argv[++i];
 
-            if(inst->options_t.graph_random){
+            if(tsp_env.graph_random){
                 log_error("ignoring input file, random graphs will be used");
                 continue;
             }
 
             if(!utils_file_exists(path)){
                 log_fatal("file does not exist");
-                tsp_handlefatal(inst);
+                tsp_handlefatal();
             }
 
-            inst->options_t.inputfile = strdup(path);
+            tsp_env.inputfile = strdup(path);
 
-            inst->options_t.graph_input = true;
+            tsp_env.graph_input = true;
 
             continue;
         }
@@ -103,7 +90,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 log_warn("time cannot be negative, ignoring time limit");
                 continue;
             }
-            inst->options_t.timelimit = t;
+            tsp_env.timelimit = t;
             continue;
         }
 
@@ -114,7 +101,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.seed = atoi(argv[++i]);
+            tsp_env.seed = atoi(argv[++i]);
             continue;
         }
 
@@ -128,40 +115,40 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             const char* method = argv[++i];
 
             if (strcmp("GREEDY", method) == 0){
-                inst->alg = ALG_GREEDY;
+                tsp_inst.alg = ALG_GREEDY;
                 log_info("selected greedy algorithm");
             }else if (strcmp("GREEDY_ITER", method) == 0){
-                inst->alg = ALG_GREEDY_ITER;
+                tsp_inst.alg = ALG_GREEDY_ITER;
                 log_info("selected iterative greedy algorithm");
             }else if (strcmp("2OPT_GREEDY", method) == 0){
-                inst->alg = ALG_2OPT_GREEDY;
+                tsp_inst.alg = ALG_2OPT_GREEDY;
                 log_info("selected 2opt-greedy algorithm");
             }else if (strcmp("TABU_SEARCH", method) == 0){
-                inst->alg = ALG_TABU_SEARCH;
+                tsp_inst.alg = ALG_TABU_SEARCH;
                 log_info("selected tabu search algorithm");
             }else if (strcmp("VNS", method) == 0){
-                inst->alg = ALG_VNS;
+                tsp_inst.alg = ALG_VNS;
                 log_info("selected VNS algorithm");
             }else if (strcmp("CPLEX_NOSEC", method) == 0){
-                inst->alg = ALG_CX_NOSEC;
+                tsp_inst.alg = ALG_CX_NOSEC;
                 log_info("selected NOSEC");
             }else if (strcmp("CPLEX_BENDERS", method) == 0){
-                inst->alg = ALG_CX_BENDERS;
+                tsp_inst.alg = ALG_CX_BENDERS;
                 log_info("selected BENDERS LOOP");
             }else if (strcmp("EXTRA_MILEAGE", method) == 0){
-                inst->alg = ALG_EXTRAMILEAGE;
+                tsp_inst.alg = ALG_EXTRAMILEAGE;
                 log_info("selected EXTRA MILEAGE");
             }else if (strcmp("CPLEX_BENDERS_PAT", method) == 0){
-                inst->alg = ALG_CX_BENDERS_PAT;
+                tsp_inst.alg = ALG_CX_BENDERS_PAT;
                 log_info("selected BENDERS LOOP with PATCHING");
             }else if (strcmp("CPLEX_BRANCH_CUT", method) == 0){
-                inst->alg = ALG_CX_BRANCH_AND_CUT;
+                tsp_inst.alg = ALG_CX_BRANCH_AND_CUT;
                 log_info("selected CPLEX BRANCH AND CUT");
             }else if (strcmp("HARD_FIXING", method) == 0){
-                inst->alg = ALG_HARD_FIXING;
+                tsp_inst.alg = ALG_HARD_FIXING;
                 log_info("selected Hard Fixing");
             }else if (strcmp("LOCAL_BRANCHING", method) == 0){
-                inst->alg = ALG_LOCAL_BRANCHING;
+                tsp_inst.alg = ALG_LOCAL_BRANCHING;
                 log_info("selected Hard Fixing");
             }else{
                 log_warn("algorithm not recognized, using greedy as default");
@@ -180,21 +167,21 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             int n = atoi(argv[++i]);
             if(n <= 0){
                 log_fatal("number of nodes should be greater than 0");
-                tsp_handlefatal(inst);
+                tsp_handlefatal();
             }
 
-            if(inst->options_t.graph_input){
+            if(tsp_env.graph_input){
                 log_warn("ignoring number of nodes, graph from input file will be used");
                 continue;
             }
 
-            inst->nnodes = n;
+            tsp_inst.nnodes = n;
 
             char buffer[40];
             utils_plotname(buffer, 40);
-            inst->options_t.inputfile = strdup(buffer);
+            tsp_env.inputfile = strdup(buffer);
 
-            inst->options_t.graph_random = true;
+            tsp_env.graph_random = true;
 
             continue;
         }
@@ -207,7 +194,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.tofile = true;
+            tsp_env.tofile = true;
             continue;
         }
 
@@ -218,7 +205,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.init_mip = true;
+            tsp_env.init_mip = true;
             continue;
         }
 
@@ -235,7 +222,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.k = value;
+            tsp_env.k = value;
             continue;
         }
 
@@ -246,7 +233,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.callback_relaxation = false;
+            tsp_env.callback_relaxation = false;
             continue;
         }
 
@@ -257,7 +244,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.modified_costs = true;
+            tsp_env.modified_costs = true;
             continue;
         }
 
@@ -273,7 +260,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 log_warn("hf_prob must be (0,1]");
                 continue;
             }
-            inst->options_t.hf_prob = p;
+            tsp_env.hf_prob = p;
             continue;
         }
 
@@ -289,7 +276,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 log_warn("lb_delta must be >5");
                 continue;
             }
-            inst->options_t.lb_delta = p;
+            tsp_env.lb_delta = p;
             continue;
         }
 
@@ -305,7 +292,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 log_warn("lb_improv must be (0,1]");
                 continue;
             }
-            inst->options_t.lb_improv = p;
+            tsp_env.lb_improv = p;
             continue;
         }
 
@@ -316,7 +303,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.lb_kstar = true;
+            tsp_env.lb_kstar = true;
             continue;
         }
 
@@ -327,7 +314,7 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
                 continue;
             }
 
-            inst->options_t.k = atoi(argv[++i]);
+            tsp_env.k = atoi(argv[++i]);
             continue;
         }
 
@@ -341,14 +328,14 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
             const char* method = argv[++i];
 
             if (strcmp("MAX", method) == 0){
-                inst->options_t.mileage_init = EM_MAX;
+                tsp_env.mileage_init = EM_MAX;
                 log_info("selected max initialization for em");
             }else if (strcmp("RANDOM", method) == 0){
-                inst->options_t.mileage_init = EM_RANDOM;
+                tsp_env.mileage_init = EM_RANDOM;
                 log_info("selected random initialization for em");
             }else{
                 log_warn("initialization method not recognized, using MAX as default");
-                inst->options_t.mileage_init = EM_MAX;
+                tsp_env.mileage_init = EM_MAX;
             }
 
             continue;
@@ -439,37 +426,37 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst){
     return T_OK;
 }
 
-ERROR_CODE tsp_generate_randompoints(instance* inst){
-    srand(inst->options_t.seed);
+ERROR_CODE tsp_generate_randompoints(){
+    srand(tsp_env.seed);
 
-    inst->points = (point*) calloc(inst->nnodes, sizeof(point));
+    tsp_inst.points = (point*) calloc(tsp_inst.nnodes, sizeof(point));
 
-    for(int i=0; i<inst->nnodes; i++){
-        inst->points[i].x = TSP_RAND();
-        inst->points[i].y = TSP_RAND();
+    for(int i=0; i<tsp_inst.nnodes; i++){
+        tsp_inst.points[i].x = TSP_RAND();
+        tsp_inst.points[i].y = TSP_RAND();
     }
 
-    tsp_compute_costs(inst);
+    tsp_compute_costs();
 
     return T_OK;
 }
 
 // TODO: better naming of files
-ERROR_CODE tsp_plot_points(instance* inst){
+ERROR_CODE tsp_plot_points(){
     int i;
     char* plotfile;
-    plotfile = basename(inst->options_t.inputfile);
-    utils_format_title(plotfile, inst->alg);
+    plotfile = basename(tsp_env.inputfile);
+    utils_format_title(plotfile, tsp_inst.alg);
     PLOT plot = plot_open(plotfile);
 
-    if(inst->options_t.tofile){
+    if(tsp_env.tofile){
         plot_tofile(plot, plotfile);
     }
 
     fprintf(plot, "plot '-' with points pointtype 7\n");
 
-    for(i=0; i<inst->nnodes; i++){
-        plot_point(plot, &inst->points[i]);
+    for(i=0; i<tsp_inst.nnodes; i++){
+        plot_point(plot, &tsp_inst.points[i]);
     }
 
     plot_free(plot);
@@ -477,21 +464,21 @@ ERROR_CODE tsp_plot_points(instance* inst){
     return T_OK;
 }
 
-ERROR_CODE tsp_plot_solution(instance* inst){
+ERROR_CODE tsp_plot_solution(){
     char* plotfile;
-    plotfile = basename(inst->options_t.inputfile);
-    utils_format_title(plotfile, inst->alg);
+    plotfile = basename(tsp_env.inputfile);
+    utils_format_title(plotfile, tsp_inst.alg);
 
     PLOT plot = plot_open(plotfile);
-    if(inst->options_t.tofile){
+    if(tsp_env.tofile){
         plot_tofile(plot, plotfile);
     }
 
     plot_args(plot, "plot '-' using 1:2 w lines");
 
-    for(int i=0; i<inst->nnodes; i++){
-        int v = inst->best_solution.path[i];
-        plot_edge(plot, inst->points[i], inst->points[v]);
+    for(int i=0; i<tsp_inst.nnodes; i++){
+        int v = tsp_inst.best_solution.path[i];
+        plot_edge(plot, tsp_inst.points[i], tsp_inst.points[v]);
     }
 
     plot_free(plot);
@@ -499,14 +486,14 @@ ERROR_CODE tsp_plot_solution(instance* inst){
     return T_OK;
 }
 
-void tsp_read_input(instance* inst){
-    FILE *input_file = fopen(inst->options_t.inputfile, "r");
+void tsp_read_input(){
+    FILE *input_file = fopen(tsp_env.inputfile, "r");
 	if ( input_file == NULL ){
         log_fatal(" input file not found!");
-        tsp_handlefatal(inst);
+        tsp_handlefatal();
     }
 
-    inst->nnodes = -1;
+    tsp_inst.nnodes = -1;
 
     char line[300];
 	char *token2, *token1, *parameter;
@@ -518,21 +505,21 @@ void tsp_read_input(instance* inst){
 	    parameter = strtok(line, " :");
 
         if ( strncmp(parameter, "DIMENSION", 9) == 0 ) {
-			if ( inst->nnodes >= 0 ) {
+			if ( tsp_inst.nnodes >= 0 ) {
                 log_fatal("two DIMENSION parameters in the file");
-                tsp_handlefatal(inst);
+                tsp_handlefatal();
             }
 			token1 = strtok(NULL, " :");
-			inst->nnodes = atoi(token1);	 
-			inst->points = (point *) calloc(inst->nnodes, sizeof(point));
+			tsp_inst.nnodes = atoi(token1);	 
+			tsp_inst.points = (point *) calloc(tsp_inst.nnodes, sizeof(point));
 			continue;
 		}
 
         if ( strncmp(parameter, "NODE_COORD_SECTION", 18) == 0 ) 
 		{
-			if ( inst->nnodes <= 0 ){
+			if ( tsp_inst.nnodes <= 0 ){
                 log_fatal("DIMENSION not found");
-                tsp_handlefatal(inst);
+                tsp_handlefatal();
             } 
 			node_section = 1;   
 			continue;
@@ -543,7 +530,7 @@ void tsp_read_input(instance* inst){
 			token1 = strtok(NULL, " :");  
 			if ( strncmp(token1, "TSP",3) != 0 ){
                 log_fatal(" format error:  only TSP file type accepted");
-                tsp_handlefatal(inst);
+                tsp_handlefatal();
             } 
 			continue;
 		}
@@ -553,7 +540,7 @@ void tsp_read_input(instance* inst){
 			token1 = strtok(NULL, " :");
 			if ( strncmp(token1, "EUC_2D", 6) != 0 ){
                 log_fatal(" format error:  only EDGE_WEIGHT_TYPE == EUC_2D managed");
-                tsp_handlefatal(inst);
+                tsp_handlefatal();
             }
 			continue;
 		}
@@ -569,58 +556,49 @@ void tsp_read_input(instance* inst){
             point new_point;
             new_point.x = atof(token1);
             new_point.y = atof(token2);
-			inst->points[i] = new_point;
+			tsp_inst.points[i] = new_point;
 			continue;
 		}
     }
 
-    ERROR_CODE error = tsp_compute_costs(inst);
+    ERROR_CODE error = tsp_compute_costs();
     if(!err_ok(error)){
         log_error("code error: %d", error);
     }
 }
 
-ERROR_CODE tsp_compute_costs(instance* inst){
-    if(inst->nnodes <= 0) {
+ERROR_CODE tsp_compute_costs(){
+    if(tsp_inst.nnodes <= 0) {
         log_fatal("computing costs of empty graph");
-        tsp_handlefatal(inst);
+        tsp_handlefatal();
     }
 
-    inst->costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
+    tsp_inst.costs = (double *) calloc(tsp_inst.nnodes * tsp_inst.nnodes, sizeof(double));
 
-    for (int i = 0; i < inst->nnodes; i++) {
+    for (int i = 0; i < tsp_inst.nnodes; i++) {
         // Initialize each element of the matrix to -1 -> infinite cost
-        for (int j = 0; j < inst->nnodes; j++) {
-            inst->costs[i* inst->nnodes + j] = -1.0f;
+        for (int j = 0; j < tsp_inst.nnodes; j++) {
+            tsp_inst.costs[i* tsp_inst.nnodes + j] = -1.0f;
         }
     }
 
     // computation of costs of edges with euclidean distance
-    for (int i = 0; i < inst->nnodes; i++) {
-        for (int j = 0; j < inst->nnodes; j++) {
-
-            // check that we have not exceed time limit
-            double ex_time = utils_timeelapsed(&inst->c);
-            if(inst->options_t.timelimit != -1.0){
-                if(ex_time > inst->options_t.timelimit){
-                    return DEADLINE_EXCEEDED;
-                }
-            }
-
+    for (int i = 0; i < tsp_inst.nnodes; i++) {
+        for (int j = 0; j < tsp_inst.nnodes; j++) {
             if (j == i){
                 continue;
             }
-            double distance = (double) ((int) (sqrtf(pow(inst->points[j].x - inst->points[i].x, 2) + pow(inst->points[j].y - inst->points[i].y, 2)) + 0.5));
-            inst->costs[i* inst->nnodes + j] = distance;
-            inst->costs[j* inst->nnodes + i] = distance;
+            double distance = (double) ((int) (sqrtf(pow(tsp_inst.points[j].x - tsp_inst.points[i].x, 2) + pow(tsp_inst.points[j].y - tsp_inst.points[i].y, 2)) + 0.5));
+            tsp_inst.costs[i* tsp_inst.nnodes + j] = distance;
+            tsp_inst.costs[j* tsp_inst.nnodes + i] = distance;
         }
     }
 
     return T_OK;
 }
 
-double tsp_get_cost(instance* inst, int i, int j){
-    return inst->costs[i * inst->nnodes + j];
+double tsp_get_cost(int i, int j){
+    return tsp_inst.costs[i * tsp_inst.nnodes + j];
 }
 
 bool tsp_validate_solution(int nnodes, int* current_solution_path) {
@@ -650,11 +628,11 @@ bool tsp_validate_solution(int nnodes, int* current_solution_path) {
     return tsp_is_tour(current_solution_path, nnodes);
 }
 
-ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
-    if(tsp_validate_solution(inst->nnodes, current_solution->path)){
-        if(current_solution->cost < inst->best_solution.cost){
-            memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int));
-            inst->best_solution.cost = current_solution->cost;
+ERROR_CODE tsp_update_best_solution(tsp_solution* current_solution){
+    if(tsp_validate_solution(tsp_inst.nnodes, current_solution->path)){
+        if(current_solution->cost < tsp_inst.best_solution.cost){
+            memcpy(tsp_inst.best_solution.path, current_solution->path, tsp_inst.nnodes * sizeof(int));
+            tsp_inst.best_solution.cost = current_solution->cost;
             log_info("new best solution: %f", current_solution->cost);
             return T_OK;
         }
@@ -711,25 +689,25 @@ bool tsp_is_tour(int path[], int n) {
     return true;
 }
 
-double tsp_solution_cost(instance *inst, int path[]){
+double tsp_solution_cost(int path[]){
     double cost = 0;
-    for(int i =0; i< inst->nnodes; i++){
-        cost += tsp_get_cost(inst, i, path[i]);
+    for(int i =0; i< tsp_inst.nnodes; i++){
+        cost += tsp_get_cost(i, path[i]);
     }
     return cost;
 }
 
-void tsp_handlefatal(instance *inst){
+void tsp_handlefatal(){
     log_warn("fatal error detected, shutting down application");
-    tsp_free_instance(inst);
+    tsp_free_instance();
     exit(EXIT_FAILURE);
 }
 
-void tsp_free_instance(instance *inst){
-    utils_safe_free(inst->options_t.inputfile);
-    utils_safe_free(inst->points);
-    utils_safe_free(inst->costs);
-    utils_safe_free(inst->best_solution.path);
-    utils_safe_free(inst->best_solution.comp);
-    utils_safe_free(inst->threads_seeds);
+void tsp_free_instance(){
+    utils_safe_free(tsp_env.inputfile);
+    utils_safe_free(tsp_inst.points);
+    utils_safe_free(tsp_inst.costs);
+    utils_safe_free(tsp_inst.best_solution.path);
+    utils_safe_free(tsp_inst.best_solution.comp);
+    utils_safe_free(tsp_inst.threads_seeds);
 }

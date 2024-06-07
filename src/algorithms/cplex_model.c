@@ -1,6 +1,6 @@
 #include "cplex_model.h"
 
-ERROR_CODE cx_Nosec(instance *inst){  
+ERROR_CODE cx_Nosec(){  
 
 	ERROR_CODE e = T_OK;
 
@@ -22,7 +22,7 @@ ERROR_CODE cx_Nosec(instance *inst){
 	}
 
 	// initialize CPLEX model
-	e = cx_initialize(inst, env, lp);
+	e = cx_initialize(env, lp);
 	if(!err_ok(e)){
 		log_error("error in initializing cplex model");
 		e = FAILED_PRECONDITION;
@@ -64,12 +64,13 @@ ERROR_CODE cx_Nosec(instance *inst){
 	int* comp = (int*) calloc(ncols, sizeof(int));
 
 	// with the optimal found by CPLEX, build the corresponding solution
-	tsp_solution solution = tsp_init_solution(inst->nnodes);
-	cx_build_sol(xstar, inst, &solution);
+	tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
+	cx_build_sol(xstar, &solution);
 
 	// update best solution (not with tsp_update_solution since it is not a cycle)
-	memcpy(inst->best_solution.path, solution.path, inst->nnodes * sizeof(int));
-    inst->best_solution.cost = solution.cost;
+	memcpy(tsp_inst.best_solution.path, solution.path, tsp_inst.nnodes * sizeof(int));
+    tsp_inst.best_solution.cost = solution.cost;
     log_info("new best solution: %f", solution.cost);
 
 	log_info("Number of independent components: %d", ncomp);
@@ -87,7 +88,7 @@ ERROR_CODE cx_Nosec(instance *inst){
 	return e; 
 }
 
-ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
+ERROR_CODE cx_BendersLoop(bool patching){
 
 	ERROR_CODE e = T_OK;
 
@@ -110,7 +111,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 
 	// initialize CPLEX model
 
-	e = cx_initialize(inst, env, lp);
+	e = cx_initialize(env, lp);
 	if(!err_ok(e)){
 		log_fatal("code %d : error in initialize", e);
 		goto cx_free;
@@ -118,15 +119,17 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 
 	log_info("CPLEX initialized correctly");
 
-	tsp_solution solution = tsp_init_solution(inst->nnodes);
+	tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
+
 	int iteration = 0;
 	while(1){
 		log_info("iteration %d", iteration);
-		double ex_time = utils_timeelapsed(&inst->c);
-        if(inst->options_t.timelimit != -1.0){
-			CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit - ex_time); 
+		double ex_time = utils_timeelapsed(&tsp_inst.c);
+        if(tsp_env.timelimit != -1.0){
+			CPXsetdblparam(env, CPX_PARAM_TILIM, tsp_env.timelimit - ex_time); 
 
-            if(ex_time > inst->options_t.timelimit){
+            if(ex_time > tsp_env.timelimit){
 				log_warn("exceeded time, saving best solution found until now");
 				e = DEADLINE_EXCEEDED;
 				break;
@@ -160,19 +163,19 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 			goto cx_free;
 		}
 
-		cx_build_sol(xstar, inst, &solution);
+		cx_build_sol(xstar, &solution);
 
 		log_info("number of components: %d", solution.ncomp);
 		log_info("current solution cost: %f", solution.cost);
-		log_info("is solution a tour? %d", tsp_is_tour(solution.path, inst->nnodes));
-		log_info("cost re-computed: %f", tsp_solution_cost(inst, solution.path));
+		log_info("is solution a tour? %d", tsp_is_tour(solution.path, tsp_inst.nnodes));
+		log_info("cost re-computed: %f", tsp_solution_cost(solution.path));
 
 		// only one component it means that we have found an Hamiltonian cycle
 		if(solution.ncomp == 1){
 			break;
 		}
 
-		error = cx_add_sec(env, lp, solution.comp, solution.ncomp, inst);
+		error = cx_add_sec(env, lp, solution.comp, solution.ncomp);
 		if(!err_ok(error)){
 			log_fatal("code %d : error in add_sec", error);
 			goto cx_free;
@@ -181,11 +184,11 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 		// patch solution
 		if(patching){
 			while(solution.ncomp > 1){
-				cx_patching(inst, &solution);
+				cx_patching(&solution);
 				log_info("number of components: %d", solution.ncomp);
 				log_info("current solution cost: %f", solution.cost);
-				log_info("is solution a tour? %d", tsp_is_tour(solution.path, inst->nnodes));
-				log_info("cost re-computed: %f", tsp_solution_cost(inst, solution.path));
+				log_info("is solution a tour? %d", tsp_is_tour(solution.path, tsp_inst.nnodes));
+				log_info("cost re-computed: %f", tsp_solution_cost(solution.path));
 			}
 		}
 
@@ -197,7 +200,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 	log_info("Optimal found");
 
 	// save the best solution
-	tsp_update_best_solution(inst, &solution);
+	tsp_update_best_solution(&solution);
 
 	cx_free:
 		utils_safe_free(solution.path);
@@ -210,7 +213,7 @@ ERROR_CODE cx_BendersLoop(instance* inst, bool patching){
 }
 
 
-ERROR_CODE cx_BranchAndCut(instance *inst){ 
+ERROR_CODE cx_BranchAndCut(){ 
 
 	ERROR_CODE e = T_OK; 
 
@@ -232,7 +235,7 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 	}
 
 	// initialize CPLEX model
-	e = cx_initialize(inst, env, lp);
+	e = cx_initialize(env, lp);
 	if(!err_ok(e)){
 		log_error("error in initialization");
 		goto cx_free;
@@ -240,24 +243,25 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 
 	log_info("CPLEX initialized correctly");
 
-	double* xstar = (double *) calloc(inst->ncols, sizeof(double));
+	double* xstar = (double *) calloc(tsp_inst.ncols, sizeof(double));
 
-	tsp_solution solution = tsp_init_solution(inst->nnodes);
+	tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
 
-	e = cx_branchcut_util(env, lp, inst, inst->ncols, xstar);
+	e = cx_branchcut_util(env, lp, tsp_inst.ncols, xstar);
 	if(!err_ok(e)){
 		log_error("error in b&c util");
 		goto cx_free;
 	}
 
 	// with the optimal found by CPLEX, build the corresponding solution
-	cx_build_sol(xstar, inst, &solution);
+	cx_build_sol(xstar,  &solution);
 
 	// update best solution
-	tsp_update_best_solution(inst, &solution);
+	tsp_update_best_solution( &solution);
 
 	log_info("number of independent components: %d", solution.ncomp);
-	log_info("is solution a tour? %s", tsp_is_tour(solution.path, inst->nnodes) ? "yes" : "no");
+	log_info("is solution a tour? %s", tsp_is_tour(solution.path, tsp_inst.nnodes) ? "yes" : "no");
 
 	cx_free:
 		utils_safe_free(solution.path);
@@ -275,13 +279,13 @@ ERROR_CODE cx_BranchAndCut(instance *inst){
 // CPLEX UTILS
 //================================================================================	
 
-ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
+ERROR_CODE cx_initialize( CPXENVptr env, CPXLPptr lp){
 
 	log_info("initializing CPLEX parameters");
 
 	ERROR_CODE error = T_OK;
 
-	cx_build_model(inst, env, lp);
+	cx_build_model( env, lp);
 	
 	// Cplex's parameter setting
 	
@@ -305,40 +309,40 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp){
 	CPXsetintparam(env, CPX_PARAM_CLONELOG, -1);
 
 	// set timelimit
-	if(inst->options_t.timelimit > 0.0){
-		CPXsetdblparam(env, CPX_PARAM_TILIM, inst->options_t.timelimit); 
+	if(tsp_env.timelimit > 0.0){
+		CPXsetdblparam(env, CPX_PARAM_TILIM, tsp_env.timelimit); 
 	}
 
 	// give cplex terminate condition
-    if (CPXsetterminate(env, &(inst->cplex_terminate))){ 
+    if (CPXsetterminate(env, &(tsp_inst.cplex_terminate))){ 
 		log_error("Error in CPXsetterminate");
 		error = INTERNAL;
 		goto cx_free;
 	}
 
-	if(inst->options_t.init_mip){
+	if(tsp_env.init_mip){
 		// Run one of our heurstics to be added to the MIP starts
 		// Can be faster than CPLEX heuristics since ours are specific for TSP
 
 		log_info("beginning warm start computation");
 
-		double old_timelimit = inst->options_t.timelimit;
+		double old_timelimit = tsp_env.timelimit;
 		// set the new timelimit to 1/10 of the total time, to make it so the heuristic doesnt consume all of the available time
-		inst->options_t.timelimit = old_timelimit / 10.0;
+		tsp_env.timelimit = old_timelimit / 10.0;
 
-		log_debug("assigned timelimit: %.2f", inst->options_t.timelimit);
+		log_debug("assigned timelimit: %.2f", tsp_env.timelimit);
 
 		// run all nearest neighbor heuristic
-		error = h_greedy_2opt(inst);
+		error = h_greedy_2opt();
 		if(!err_ok(error)){
 			log_error("error %d in greedy 2opt mip start");
 			goto cx_free;
 		}
 
 		// change the timelimit back to the original one minus the time spent computing
-		inst->options_t.timelimit = old_timelimit;
+		tsp_env.timelimit = old_timelimit;
 
-		error = cx_add_mip_starts(env, lp, inst, &inst->best_solution);
+		error = cx_add_mip_starts(env, lp,  &tsp_inst.best_solution);
 		if(!err_ok(error)){
 			log_error("error %d in add_mip_starts", error);
 		}
@@ -364,7 +368,7 @@ int cx_xpos(int i, int j, int nnodes){
 	return pos;
 }
 
-ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance* inst){
+ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp){
 	if(ncomp == 1){
 		return INVALID_ARGUMENT;
 	}
@@ -382,7 +386,7 @@ ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance
 
 		int number_nodes = 0; // |S|
 
-		for(int i=0; i<inst->nnodes; i++){
+		for(int i=0; i<tsp_inst.nnodes; i++){
 
 			// skip iteration if it does belong to the current component k
 			if(comp[i] != k){
@@ -391,13 +395,13 @@ ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance
 
 			number_nodes++;
 
-			for(int j=i+1; j<inst->nnodes; j++){
+			for(int j=i+1; j<tsp_inst.nnodes; j++){
 				// skip iteration if it does belong to the current component k
 				if(comp[j] != k){
 					continue;
 				}
 
-				index[nnz] = cx_xpos(i,j,inst->nnodes);
+				index[nnz] = cx_xpos(i,j,tsp_inst.nnodes);
 				value[nnz] = 1.0;
 
 				nnz++;
@@ -418,11 +422,11 @@ ERROR_CODE cx_add_sec(CPXENVptr env, CPXLPptr lp, int* comp, int ncomp, instance
 }
 
 // construct sec
-ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, double* rhs, char* sense, int* matbeg, int* matind, double* matval){
+ERROR_CODE cx_compute_cuts(int* comp, int ncomp,  int* nnz, double* rhs, char* sense, int* matbeg, int* matind, double* matval){
 
 	log_info("starting sec computing");
 
-	if (ncomp <= 1 || comp == NULL || inst == NULL) {
+	if (ncomp <= 1 || comp == NULL) {
 		log_debug("invalid argument");
         return INVALID_ARGUMENT;
     }
@@ -440,7 +444,7 @@ ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, doubl
 		int cnt = 0;
 		int number_nodes = 0; // |S|
 
-		for(int i=0; i<inst->nnodes; i++){
+		for(int i=0; i<tsp_inst.nnodes; i++){
 
 			// skip iteration if it does belong to the current component k
 			if(comp[i] != k){
@@ -449,13 +453,13 @@ ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, doubl
 
 			number_nodes++;
 
-			for(int j=i+1; j<inst->nnodes; j++){
+			for(int j=i+1; j<tsp_inst.nnodes; j++){
 				// skip iteration if it does belong to the current component k
 				if(comp[j] != k){
 					continue;
 				}
 
-				matind[*nnz + cnt] = cx_xpos(i,j,inst->nnodes);
+				matind[*nnz + cnt] = cx_xpos(i,j,tsp_inst.nnodes);
 				matval[*nnz + cnt] = 1.0;
 
 				cnt++;
@@ -475,7 +479,7 @@ ERROR_CODE cx_compute_cuts(int* comp, int ncomp, instance* inst, int* nnz, doubl
 	return T_OK;
 }
 
-void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){    
+void cx_build_model(CPXENVptr env, CPXLPptr lp){    
 	char binary = 'B'; 
 
 	char **cname = (char **) calloc(1, sizeof(char *));		// (char **) required by cplex...
@@ -483,24 +487,24 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
 	cname[0] = (char *) malloc(nbytes);
 	if(cname[0] == NULL){
 		log_fatal("error in allocating memory for cname[0]");
-		tsp_handlefatal(inst);
+		tsp_handlefatal();
 	}
 
 	// add binary var.s x(i,j) for i < j  
-	for ( int i = 0; i < inst->nnodes; i++ )
+	for ( int i = 0; i < tsp_inst.nnodes; i++ )
 	{
-		for ( int j = i+1; j < inst->nnodes; j++ )
+		for ( int j = i+1; j < tsp_inst.nnodes; j++ )
 		{
 			snprintf(cname[0], nbytes, "x(%d,%d)", i+1,j+1);
 
-			double obj = tsp_get_cost(inst, i, j);
+			double obj = tsp_get_cost( i, j);
 			double lb = 0.0;
 			double ub = 1.0;
 			if ( CPXnewcols(env, lp, 1, &obj, &lb, &ub, &binary, cname) ){
 				log_error(" wrong CPXnewcols on x var.s");
 				goto cx_free;
 			}
-    		if ( CPXgetnumcols(env,lp)-1 != cx_xpos(i,j, inst->nnodes) ){
+    		if ( CPXgetnumcols(env,lp)-1 != cx_xpos(i,j, tsp_inst.nnodes) ){
 				log_error(" wrong position for x var.s");
 				goto cx_free;
 			}
@@ -509,31 +513,31 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
 
 // add the degree constraints 
 
-	int *index = (int *) calloc(inst->nnodes, sizeof(int));
-	double *value = (double *) calloc(inst->nnodes, sizeof(double));
+	int *index = (int *) calloc(tsp_inst.nnodes, sizeof(int));
+	double *value = (double *) calloc(tsp_inst.nnodes, sizeof(double));
 
 	const double rhs = 2.0;
 	const char sense = 'E';                            // 'E' for equality constraint 
-	for ( int h = 0; h < inst->nnodes; h++ )  		// add the degree constraint on node h
+	for ( int h = 0; h < tsp_inst.nnodes; h++ )  		// add the degree constraint on node h
 	{
 		snprintf(cname[0], nbytes, "degree(%d)", h+1); 
 		int nnz = 0;
-		for ( int i = 0; i < inst->nnodes; i++ )
+		for ( int i = 0; i < tsp_inst.nnodes; i++ )
 		{
 			if ( i == h ) continue;
-			index[nnz] = cx_xpos(i,h, inst->nnodes);
+			index[nnz] = cx_xpos(i,h, tsp_inst.nnodes);
 			value[nnz] = 1.0;
 			nnz++;
 		}
 		int izero = 0;
 		if ( CPXaddrows(env, lp, 0, 1, nnz, &rhs, &sense, &izero, index, value, NULL, &cname[0]) ){
 			log_fatal("CPXaddrows(): error 1");
-			tsp_handlefatal(inst);
+			tsp_handlefatal();
 		} 
 	}
 
-	inst->ncols = CPXgetnumcols(env, lp);
-	log_info("build model ncols: %d", inst->ncols);
+	tsp_inst.ncols = CPXgetnumcols(env, lp);
+	log_info("build model ncols: %d", tsp_inst.ncols);
 
 	if(err_dolog()){
 		CPXwriteprob(env, lp, "results/model.lp", NULL);   
@@ -548,12 +552,12 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp){
 
 }
 
-void cx_build_sol(const double *xstar, instance *inst, tsp_solution* solution) 
+void cx_build_sol(const double *xstar, tsp_solution* solution) 
 {   
 	log_debug("building solution");
 	// initialize number of components and array of components
 	solution->ncomp = 0;
-	for ( int i = 0; i < inst->nnodes; i++ )
+	for ( int i = 0; i < tsp_inst.nnodes; i++ )
 	{
 		solution->comp[i] = -1;
 	}
@@ -561,7 +565,7 @@ void cx_build_sol(const double *xstar, instance *inst, tsp_solution* solution)
 	// initialize solution cost
 	solution->cost = 0.0;
 
-	for ( int start = 0; start < inst->nnodes; start++ )
+	for ( int start = 0; start < tsp_inst.nnodes; start++ )
 	{
 		if ( solution->comp[start] >= 0 ) continue;  // node "start" was already visited, just skip it
 
@@ -573,12 +577,12 @@ void cx_build_sol(const double *xstar, instance *inst, tsp_solution* solution)
 		{
 			solution->comp[i] = solution->ncomp;
 			done = 1;
-			for ( int j = 0; j < inst->nnodes; j++ )
+			for ( int j = 0; j < tsp_inst.nnodes; j++ )
 			{
-				if ( i != j && xstar[cx_xpos(i,j,inst->nnodes)] > 0.5 && solution->comp[j] == -1 ) // the edge [i,j] is selected in xstar and j was not visited before 
+				if ( i != j && xstar[cx_xpos(i,j,tsp_inst.nnodes)] > 0.5 && solution->comp[j] == -1 ) // the edge [i,j] is selected in xstar and j was not visited before 
 				{
 					solution->path[i] = j;
-					solution->cost += tsp_get_cost(inst, i, j);
+					solution->cost += tsp_get_cost( i, j);
 					i = j;
 					done = 0;
 					break;
@@ -586,7 +590,7 @@ void cx_build_sol(const double *xstar, instance *inst, tsp_solution* solution)
 			}
 		}	
 		solution->path[i] = start;  // last arc to close the cycle
-		solution->cost += tsp_get_cost(inst, i, start);
+		solution->cost += tsp_get_cost( i, start);
 		
 		// go to the next component...
 	}
@@ -626,21 +630,21 @@ ERROR_CODE cx_handle_cplex_status(CPXENVptr env, CPXLPptr lp){
 	}
 }
 
-void cx_patching(instance *inst, tsp_solution* solution){
+void cx_patching(tsp_solution* solution){
 	double best_delta = __DBL_MAX__;
 	int best_nodes[2] = {-1, -1};
 
 	// compute nodes to patch together
-	for (int a = 0; a < inst->nnodes; a++){
-		for(int b = 0; b < inst->nnodes; b++){
+	for (int a = 0; a < tsp_inst.nnodes; a++){
+		for(int b = 0; b < tsp_inst.nnodes; b++){
 			if(solution->comp[a] == solution->comp[b]){
 				continue;
 			}
 			int succ_a = solution->path[a]; //successor of a
             int succ_b = solution->path[b]; //successor of b
 
-            double current_cost = tsp_get_cost(inst, a, succ_a) + tsp_get_cost(inst, b, succ_b);
-            double swapped_cost = tsp_get_cost(inst, a, succ_b) + tsp_get_cost(inst, b, succ_a);
+            double current_cost = tsp_get_cost( a, succ_a) + tsp_get_cost( b, succ_b);
+            double swapped_cost = tsp_get_cost( a, succ_b) + tsp_get_cost( b, succ_a);
             double delta = swapped_cost - current_cost;
 
 			if(delta < best_delta && delta > 0){
@@ -683,7 +687,7 @@ void cx_patching(instance *inst, tsp_solution* solution){
 	
 }
 
-ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int ncols, double* xstar) {
+ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp,  int ncols, double* xstar) {
 
 	int error;
 	ERROR_CODE e = T_OK;
@@ -695,22 +699,22 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 		e = ABORTED;
 		goto cx_free;
 	}
-	inst->threads_seeds = (int*) calloc(threads, sizeof(int));
+	tsp_inst.threads_seeds = (int*) calloc(threads, sizeof(int));
 
 	for(int i=0; i<threads; i++){
-		unsigned int seed = (inst->options_t.seed == -1) ? (unsigned) time(NULL) : (unsigned) inst->options_t.seed;
+		unsigned int seed = (tsp_env.seed == -1) ? (unsigned) time(NULL) : (unsigned) tsp_env.seed;
 
 		// clears the last 5 bits of seed and replace them with i+1
 		// has place for 32 threads (cplex defaults to at most 32 threads or the number of cores, whetever is smaller)
- 		inst->threads_seeds[i] = (seed & 0xFFFFFFE0) | (i + 1);
+ 		tsp_inst.threads_seeds[i] = (seed & 0xFFFFFFE0) | (i + 1);
 	}
 
 	CPXLONG contextid = CPX_CALLBACKCONTEXT_CANDIDATE;
-	if(inst->options_t.callback_relaxation){
+	if(tsp_env.callback_relaxation){
 		contextid |= CPX_CALLBACKCONTEXT_RELAXATION;
 	}
 
-	if ( CPXcallbacksetfunc(env, lp, contextid, callback_branch_and_cut, inst) ) {
+	if ( CPXcallbacksetfunc(env, lp, contextid, callback_branch_and_cut, NULL) ) {
 		log_fatal("CPXcallbacksetfunc() error");
 		e = INTERNAL;
 		goto cx_free;
@@ -730,7 +734,7 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 	if ( CPXgetx(env, lp, xstar, 0, ncols-1) ){
 		log_fatal("CPX : CPXgetx() error");	
 		CPXcloseCPLEX(&env); 
-		tsp_handlefatal(inst);
+		tsp_handlefatal();
 	} 
 
 	// check cplex status code on exit
@@ -746,26 +750,26 @@ ERROR_CODE cx_branchcut_util(CPXENVptr env, CPXLPptr lp, instance* inst, int nco
 		return e;
 }
 
-ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_solution* solution) {
+ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution) {
 		ERROR_CODE error = T_OK;
 
 		char* message = "adding mip start";
 		log_info(message);
 
-		int* varindices = (int*) calloc(inst->ncols, sizeof(int));
-		double* values = (double*) calloc(inst->ncols, sizeof(double));
+		int* varindices = (int*) calloc(tsp_inst.ncols, sizeof(int));
+		double* values = (double*) calloc(tsp_inst.ncols, sizeof(double));
 
 		// initialize values for CPLEX
 		// An entry values[j] greater than or equal to CPX_INFBOUND specifies that no value is set for the variable varindices[j]
-		for(int i=0; i<inst->ncols; i++){
+		for(int i=0; i<tsp_inst.ncols; i++){
 			values[i] = CPX_INFBOUND;
 		}
 
 		int k = 0;
-		for(int i=0; i<inst->nnodes; i++){
+		for(int i=0; i<tsp_inst.nnodes; i++){
 			int j = solution->path[i];
 
-			varindices[k] = cx_xpos(i,j,inst->nnodes);
+			varindices[k] = cx_xpos(i,j,tsp_inst.nnodes);
 			values[k] = 1.0;
 
 			k++;
@@ -773,7 +777,7 @@ ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_sol
 
 		const int beg = 0;
 		const int effortlevel = CPX_MIPSTART_NOCHECK;
-		if( CPXaddmipstarts(env, lp, 1, inst->nnodes, &beg, varindices, values, &effortlevel, NULL) ){
+		if( CPXaddmipstarts(env, lp, 1, tsp_inst.nnodes, &beg, varindices, values, &effortlevel, NULL) ){
 			log_error("CPXaddmipstarts error");
 			error = INTERNAL;
 			goto cx_free;
@@ -790,21 +794,20 @@ ERROR_CODE cx_add_mip_starts(CPXENVptr env, CPXLPptr lp, instance* inst, tsp_sol
 
 static int CPXPUBLIC callback_branch_and_cut(CPXCALLBACKCONTEXTptr context, CPXLONG contextid, void *userhandle){
 	log_debug("callback called");
-	instance* inst = (instance*) userhandle;
 
 	switch (contextid)
 	{
 	case CPX_CALLBACKCONTEXT_CANDIDATE:
-		return callback_candidate(context, inst);
+		return callback_candidate(context);
 	case CPX_CALLBACKCONTEXT_RELAXATION:
-		return callback_relaxation(context, inst);
+		return callback_relaxation(context);
 	default:
 		log_error("Callback error");
 		return 1;
 	}
 }
 
-static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, instance* inst){
+static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context){
 	log_debug("CANDIDATE CALLBACK");
 
 	// return value, if everything is ok, should be 0, else 1
@@ -821,19 +824,21 @@ static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, instance*
 		goto cx_free;
 	}
 
-	double* xstar = (double *) calloc(inst->ncols, sizeof(double));
+	double* xstar = (double *) calloc(tsp_inst.ncols, sizeof(double));
 	double objval = CPX_INFBOUND; 
 
 	// get the candidate 
-	if ( CPXcallbackgetcandidatepoint(context, xstar, 0, inst->ncols-1, &objval) ){
+	if ( CPXcallbackgetcandidatepoint(context, xstar, 0, tsp_inst.ncols-1, &objval) ){
 		log_error("CPXcallbackgetcandidatepoint error");
 		ret_value = 1;
 		goto cx_free;
 	} 
 
 	// build the solution from xstar
-	tsp_solution solution = tsp_init_solution(inst->nnodes);
-	cx_build_sol(xstar, inst, &solution);
+	tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
+
+	cx_build_sol(xstar,  &solution);
 	
 	// reject the candidate if the solution is not a single tour
 	if(solution.ncomp > 1){
@@ -841,9 +846,9 @@ static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, instance*
 		double* rhs = (double*) calloc(solution.ncomp, sizeof(double));
 		char* sense = (char*) calloc(solution.ncomp, sizeof(char));
 		int* matbeg = (int*) calloc(solution.ncomp, sizeof(int));
-		double* matval = (double*) calloc(solution.ncomp * inst->ncols, sizeof(double));
-		int* matind = (int*) calloc(solution.ncomp * inst->ncols, sizeof(int));
-		cx_compute_cuts(solution.comp, solution.ncomp, inst, &nnz, rhs, sense, matbeg, matind, matval);
+		double* matval = (double*) calloc(solution.ncomp * tsp_inst.ncols, sizeof(double));
+		int* matind = (int*) calloc(solution.ncomp * tsp_inst.ncols, sizeof(int));
+		cx_compute_cuts(solution.comp, solution.ncomp,  &nnz, rhs, sense, matbeg, matind, matval);
 
 		// reject candidate and add new cut
 		int error = CPXcallbackrejectcandidate(context, solution.ncomp, nnz, rhs, sense, matbeg, matind, matval );
@@ -876,7 +881,7 @@ static int CPXPUBLIC callback_candidate(CPXCALLBACKCONTEXTptr context, instance*
 	return ret_value;
 }
 
-static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance* inst){
+static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context){
 
 	log_debug("RELAXATION CALLBACK");
 
@@ -893,14 +898,14 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 	int nodes = -1;
 	int depth = -1;
 
-	switch (inst->options_t.skip_policy){
+	switch (tsp_env.skip_policy){
 	case BC_PROB:
 		// method 1 
 		if(CPXcallbackgetinfoint(context, CPXCALLBACKINFO_THREADID, &threadid)){
 			log_error("CPXcallbackgetinfoint on thread id");
 		};
-		unsigned int seed = inst->threads_seeds[threadid];
-		inst->threads_seeds[threadid] = seed+1;
+		unsigned int seed = tsp_inst.threads_seeds[threadid];
+		tsp_inst.threads_seeds[threadid] = seed+1;
 
 		double prob = ( (double) rand_r(&seed) ) / RAND_MAX;
 		if(prob > 0.1){
@@ -938,10 +943,10 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 	}
 
 	// callback code
-	double* xstar = (double *) calloc(inst->ncols, sizeof(double));
+	double* xstar = (double *) calloc(tsp_inst.ncols, sizeof(double));
 	double objval = CPX_INFBOUND; 
 
-	if ( CPXcallbackgetrelaxationpoint(context, xstar, 0, inst->ncols-1, &objval) ){
+	if ( CPXcallbackgetrelaxationpoint(context, xstar, 0, tsp_inst.ncols-1, &objval) ){
 		log_error("CPXcallbackgetrelaxationpoint error");
 	} 
 
@@ -951,25 +956,25 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 
 	// transform into elist format for Concorde
 	// elist[2*i] contains one node of the i-th edge, and elist[2*i+1] contains the other node
-	int* elist = (int*) calloc(2 * inst->ncols, sizeof(int));
-	double* new_xstar = (double*) calloc(inst->ncols, sizeof(double));
+	int* elist = (int*) calloc(2 * tsp_inst.ncols, sizeof(int));
+	double* new_xstar = (double*) calloc(tsp_inst.ncols, sizeof(double));
 	int num_edges = 0;
 	int k=0;
 
 	int kpos = 0;
 
-	for(int i=0; i<inst->nnodes; i++){
-		for(int j=i+1; j<inst->nnodes; j++){
+	for(int i=0; i<tsp_inst.nnodes; i++){
+		for(int j=i+1; j<tsp_inst.nnodes; j++){
 
 			// take only points that contribute to the solution
-			if(xstar[cx_xpos(i,j, inst->nnodes)] > 0.001){
+			if(xstar[cx_xpos(i,j, tsp_inst.nnodes)] > 0.001){
 				elist[k++] = i;
 				elist[k++] = j;
 
-				new_xstar[num_edges] = xstar[cx_xpos(i,j,inst->nnodes)];
+				new_xstar[num_edges] = xstar[cx_xpos(i,j,tsp_inst.nnodes)];
 
 				// verified correspondence between edges and cplex columns
-				if(cx_xpos(i,j,inst->nnodes) != kpos){
+				if(cx_xpos(i,j,tsp_inst.nnodes) != kpos){
 					log_error("cx_xpos error");
 				}
 
@@ -984,7 +989,7 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 	// ncomp - number of connected components
 	// compscount - array to receive the number of connected components
 	// comps - array to receive the edges pertaining to each component
-	if(CCcut_connect_components(inst->nnodes, num_edges, elist, new_xstar, &ncomp, &compscount, &comps)){
+	if(CCcut_connect_components(tsp_inst.nnodes, num_edges, elist, new_xstar, &ncomp, &compscount, &comps)){
 		log_error("CCcut_connect_components");
 		ret_value = 1;
 		goto cx_free;
@@ -995,10 +1000,10 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 	if(ncomp == 1){
 		// connected graph, but it may not be a tsp solution
 
-		violatedcuts_passparams userhandle = {.context = context, .inst = inst};
+		violatedcuts_passparams userhandle = {.context = context};
 
 		// find the cut that violate the 2.0-EPSILON_BC threshold
-		if(CCcut_violated_cuts(inst->nnodes, num_edges, elist, new_xstar, 2.0-EPSILON_BC, cc_add_violated_sec, &userhandle)){
+		if(CCcut_violated_cuts(tsp_inst.nnodes, num_edges, elist, new_xstar, 2.0-EPSILON_BC, cc_add_violated_sec, &userhandle)){
 			log_error("CCcut_violated_cuts");
 			ret_value = 1;
 			goto cx_free;
@@ -1010,7 +1015,7 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 		// transform components array from concorde format to ours
 		// ours: index is the node, value is the components (starting from 1)
 		
-		int* components = (int*) calloc(inst->nnodes, sizeof(int));
+		int* components = (int*) calloc(tsp_inst.nnodes, sizeof(int));
 
 		int start = 0;
 		for(int sub=0; sub<ncomp; sub++){
@@ -1026,9 +1031,9 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 		double* rhs = (double*) calloc(ncomp, sizeof(double));
 		char* sense = (char*) calloc(ncomp, sizeof(char));
 		int* matbeg = (int*) calloc(ncomp, sizeof(int));
-		double* matval = (double*) calloc(ncomp * inst->ncols, sizeof(double));
-		int* matind = (int*) calloc(ncomp * inst->ncols, sizeof(int));
-		cx_compute_cuts(components, ncomp, inst, &nnz, rhs, sense, matbeg, matind, matval);
+		double* matval = (double*) calloc(ncomp * tsp_inst.ncols, sizeof(double));
+		int* matind = (int*) calloc(ncomp * tsp_inst.ncols, sizeof(int));
+		cx_compute_cuts(components, ncomp,  &nnz, rhs, sense, matbeg, matind, matval);
 
 		int* purgeable = (int*) calloc(ncomp, sizeof(int));
 		int* local = (int*) calloc(ncomp, sizeof(int));
@@ -1065,36 +1070,37 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 	// call the modified greedy and post its solution
 	// TODO: capire se eseguire ogni volta che esegue la callback o abbassare ancora probabiità
 
-	if(inst->options_t.modified_costs){
-		unsigned int seed = inst->threads_seeds[threadid];
-		inst->threads_seeds[threadid] = seed+1;
+	if(tsp_env.modified_costs){
+		unsigned int seed = tsp_inst.threads_seeds[threadid];
+		tsp_inst.threads_seeds[threadid] = seed+1;
 
 		double prob = ( (double) rand_r(&seed) ) / RAND_MAX;
 		if(prob <= 0.1){
 			// greedy
 			log_info("computing a heuristic NN solution with xstar-weighted costs to post");
 			// modify costs
-			double* modified_costs = (double *) calloc(inst->nnodes * inst->nnodes, sizeof(double));
-			for (int i = 0; i < inst->nnodes; i++) {
-				for (int j = i+1; j < inst->nnodes; j++) {
-					double cost= inst->costs[i* inst->nnodes + j] * (1 - xstar[cx_xpos(i,j,inst->nnodes)]);
-					modified_costs[i* inst->nnodes + j] = cost;
-					modified_costs[j* inst->nnodes + i] = cost;
+			double* modified_costs = (double *) calloc(tsp_inst.nnodes * tsp_inst.nnodes, sizeof(double));
+			for (int i = 0; i < tsp_inst.nnodes; i++) {
+				for (int j = i+1; j < tsp_inst.nnodes; j++) {
+					double cost= tsp_inst.costs[i* tsp_inst.nnodes + j] * (1 - xstar[cx_xpos(i,j,tsp_inst.nnodes)]);
+					modified_costs[i* tsp_inst.nnodes + j] = cost;
+					modified_costs[j* tsp_inst.nnodes + i] = cost;
 				}
 			}
 
 			// run all nearest neighbor heuristic with xstar-weighted costs to post solution
-			tsp_solution solution = tsp_init_solution(inst->nnodes);		
+			tsp_solution solution;
+			tsp_init_solution(tsp_inst.nnodes, &solution);
 
-			double old_timelimit = inst->options_t.timelimit;
+			double old_timelimit = tsp_env.timelimit;
 			// set the new timelimit to 1/10 of the total time, to make it so the heuristic doesnt consume all of the available time
-			inst->options_t.timelimit = old_timelimit / 10.0;
+			tsp_env.timelimit = old_timelimit / 10.0;
 
 			// run all nearest neighbor heuristic
-			ERROR_CODE error = h_Greedy_2opt_mod_costs(inst, &solution, modified_costs);
+			ERROR_CODE error = h_Greedy_2opt_mod_costs( &solution, modified_costs);
 
 			// change the timelimit back to the original one
-			inst->options_t.timelimit = old_timelimit;
+			tsp_env.timelimit = old_timelimit;
 
 			if(!err_ok(error)){
 				log_error("error in greedy for posting solution");
@@ -1106,15 +1112,15 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context, instance
 
 			// if it is better than incumbement, build a cplex solution and post it
 			// TODO: non ha senso il check sul costo modificato (costo fittizio)
-			if(solution.cost < inst->best_solution.cost){
+			if(solution.cost < tsp_inst.best_solution.cost){
 				// build cplex solution
-				double *xheu = (double *) calloc(inst->ncols, sizeof(double));
-				for ( int i = 0; i < inst->nnodes; i++ ) xheu[cx_xpos(i,solution.path[i],inst->nnodes)] = 1.0;
-				int *ind = (int *) malloc(inst->ncols * sizeof(int));
-				for ( int j = 0; j < inst->ncols; j++ ) ind[j] = j;
+				double *xheu = (double *) calloc(tsp_inst.ncols, sizeof(double));
+				for ( int i = 0; i < tsp_inst.nnodes; i++ ) xheu[cx_xpos(i,solution.path[i],tsp_inst.nnodes)] = 1.0;
+				int *ind = (int *) malloc(tsp_inst.ncols * sizeof(int));
+				for ( int j = 0; j < tsp_inst.ncols; j++ ) ind[j] = j;
 			
 			
-				if( CPXcallbackpostheursoln(context, inst->ncols, ind, xheu, solution.cost, CPXCALLBACKSOLUTION_NOCHECK) ){
+				if( CPXcallbackpostheursoln(context, tsp_inst.ncols, ind, xheu, solution.cost, CPXCALLBACKSOLUTION_NOCHECK) ){
 					log_error("CPXcallbackpostheursoln error");
 					error = INTERNAL;
 				}else{
@@ -1146,7 +1152,6 @@ int cc_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void
 	log_info("Violated cut found, adding new cut");
 
 	violatedcuts_passparams* uh = (violatedcuts_passparams*) userhandle;
-	instance* inst = uh->inst;
 	CPXCALLBACKCONTEXTptr context = uh->context;
  
 	int num_edges = ( cut_nnodes * (cut_nnodes - 1) ) / 2;
@@ -1158,7 +1163,7 @@ int cc_add_violated_sec(double cut_value, int cut_nnodes, int* cut_indexes, void
 	for(int i=0; i<cut_nnodes; i++){
 		for(int j=i+1; j<cut_nnodes; j++){
 			// concorde assumes it is undirected
-			index[nnz] = cx_xpos(cut_indexes[i], cut_indexes[j], inst->nnodes);
+			index[nnz] = cx_xpos(cut_indexes[i], cut_indexes[j], tsp_inst.nnodes);
 			value[nnz] = 1.0;
 			nnz++;
 		}

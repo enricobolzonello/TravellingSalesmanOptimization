@@ -12,6 +12,7 @@
  * 
  */
 #include "utils/plot.h"
+
 #include <libgen.h>
 #include <math.h>
 
@@ -57,9 +58,10 @@ typedef enum {
 typedef struct {
     double cost;
     int* path;
-    int ncomp;
-    int* comp;
-}tsp_solution;
+    point* points;
+    int nnodes;
+    double execution_time;
+} return_struct;
 
 typedef struct {
     // General options
@@ -105,8 +107,6 @@ typedef struct {
 
 typedef struct {
 
-    options options_t;
-
     algorithms alg;             // algorithm chosen 
 
     int nnodes;                 // number of nodes
@@ -133,39 +133,31 @@ typedef struct {
  * 
  * @param inst 
  */
-void tsp_init(instance* inst);
-
-/**
- * @brief Initialize solution struct
- * 
- * @param nnodes number of nodes of the instance
- * @return tsp_solution 
- */
-tsp_solution tsp_init_solution(int nnodes);
+void tsp_init(void);
 
 /**
  * @brief Parser for the command-line arguments
  * 
  * @param argc, number of arguments on command-line
  * @param argv, arguments on command-line
- * @param inst, pointer to an instance
+ * @param  pointer to an instance
  */
-ERROR_CODE tsp_parse_commandline(int argc, char** argv, instance* inst);
+ERROR_CODE tsp_parse_commandline(int argc, char** argv);
 
 /**
  * @brief Generate random points with given seed and number of nodes
  * 
- * @param inst, pointer to an instance
+ * @param  pointer to an instance
  */
-ERROR_CODE tsp_generate_randompoints(instance* inst);
+ERROR_CODE tsp_generate_randompoints(void);
 
 /**
  * @brief Plots instance points 
  * 
- * @param inst, pointer to an instance
+ * @param  pointer to an instance
  * @return ERROR_CODE
  */
-ERROR_CODE tsp_plot_points(instance* inst);
+ERROR_CODE tsp_plot_points(void);
 
 /**
  * @brief Plots instance solution
@@ -173,35 +165,35 @@ ERROR_CODE tsp_plot_points(instance* inst);
  * @param inst 
  * @return ERROR_CODE 
  */
-ERROR_CODE tsp_plot_solution(instance* inst);
+ERROR_CODE tsp_plot_solution(void);
 
 /**
  * @brief Frees all dynamically allocated resources
  * 
- * @param inst, pointer to an instance
+ * @param  pointer to an instance
  */
-void tsp_free_instance(instance *inst);
+void tsp_free_instance(void);
 
 /**
  * @brief Util to handle fatal errors, frees all allocated resources
  * 
  * @param inst 
  */
-void tsp_handlefatal(instance *inst);
+void tsp_handlefatal(void);
 
 /**
  * @brief Reads a TSPLIB formatted input file
  * 
- * @param inst, pointer to an instance
+ * @param  pointer to an instance
  */
-void tsp_read_input(instance* inst);
+void tsp_read_input(void);
 
 /**
  * @brief Precomputes costs and keeps them in matrix costs of the instance
  * 
  * @param inst 
  */
-ERROR_CODE tsp_compute_costs(instance* inst);
+ERROR_CODE tsp_compute_costs(void);
 
 /**
  * @brief Validates a tsp solution
@@ -217,7 +209,7 @@ bool tsp_validate_solution(int nnodes, int* current_solution_path);
  * 
  * @param inst 
  */
-ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* solution);
+ERROR_CODE tsp_update_best_solution(tsp_solution* solution);
 
 /**
  * @brief Get cost of edge i-j, returns -1 if it does not exist
@@ -227,10 +219,13 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* solution);
  * @param j node j
  * @return double cost of edge i-j
  */
-double tsp_get_cost(instance* inst, int i, int j);
+double tsp_get_cost(int i, int j);
 
 bool tsp_is_tour(int path[], int n);
 
-double tsp_solution_cost(instance *inst, int path[]);
+double tsp_solution_cost(int path[]);
+
+extern instance tsp_inst;
+extern options tsp_env;
 
 #endif

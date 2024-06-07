@@ -1,6 +1,6 @@
 #include "matheuristics.h"
 
-ERROR_CODE mh_HardFixing(instance *inst)
+ERROR_CODE mh_HardFixing()
 {
     ERROR_CODE e = T_OK;
 
@@ -24,7 +24,7 @@ ERROR_CODE mh_HardFixing(instance *inst)
     }
 
     // initialize CPLEX model
-    e = cx_initialize(inst, env, lp);
+    e = cx_initialize( env, lp);
     if (!err_ok(e))
     {
         log_error("error in initializing cplex model");
@@ -35,18 +35,19 @@ ERROR_CODE mh_HardFixing(instance *inst)
     log_info("CPLEX initialized correctly");
 
     // initialize the current solution as the best solution found by heuristic
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
-    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
-    solution.cost = inst->best_solution.cost;
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
+    memcpy(solution.path, tsp_inst.best_solution.path, tsp_inst.nnodes * sizeof(int));
+    solution.cost = tsp_inst.best_solution.cost;
 
     int i = 0;
     while (1)
     {
         // check if exceeds time
-        double ex_time = utils_timeelapsed(&inst->c);
-        if (inst->options_t.timelimit != -1.0)
+        double ex_time = utils_timeelapsed(&tsp_inst.c);
+        if (tsp_env.timelimit != -1.0)
         {
-            if (ex_time > inst->options_t.timelimit)
+            if (ex_time > tsp_env.timelimit)
             {
                 log_warn("deadline exceeded in hard fixing");
                 e = DEADLINE_EXCEEDED;
@@ -57,7 +58,7 @@ ERROR_CODE mh_HardFixing(instance *inst)
         log_info("iteration: %d", i);
 
         // add solution as a MIP start
-        e = cx_add_mip_starts(env, lp, inst, &solution);
+        e = cx_add_mip_starts(env, lp,  &solution);
         if (!err_ok(e))
         {
             log_error("error add mip start");
@@ -66,11 +67,11 @@ ERROR_CODE mh_HardFixing(instance *inst)
 
         // set remaining time limit for cplex
         // 1/10 of the total remaining time
-        double time_remain = (inst->options_t.timelimit - ex_time) / 10;
+        double time_remain = (tsp_env.timelimit - ex_time) / 10;
         log_debug("time assigned to mip solver : %.4f", time_remain);
 
         // FIXING
-        e = hf_fixing(env, lp, inst, &solution);
+        e = hf_fixing(env, lp,  &solution);
         if (!err_ok(e))
         {
             log_error("error in fixing");
@@ -78,7 +79,7 @@ ERROR_CODE mh_HardFixing(instance *inst)
         }
 
         // MIP SOLVER
-        e = mh_mipsolver2(env, lp, inst, &solution, time_remain);
+        e = mh_mipsolver2(env, lp, &solution, time_remain);
         if (!err_ok(e))
         {
             log_error("error in mip solver");
@@ -87,14 +88,14 @@ ERROR_CODE mh_HardFixing(instance *inst)
 
         log_info("MIP SOLVER DONE");
 
-        e = tsp_update_best_solution(inst, &solution);
+        e = tsp_update_best_solution( &solution);
         if (!err_ok(e))
         {
             log_error("code %d : error in updating best solution of Hard Fixing");
         }
 
         // FIXING UNDO
-        e = hf_undofixing(env, lp, inst);
+        e = hf_undofixing(env, lp);
         if (!err_ok(e))
         {
             log_error("error in undo fixing");
@@ -114,7 +115,7 @@ mh_free:
     return e;
 }
 
-ERROR_CODE mh_LocalBranching(instance *inst)
+ERROR_CODE mh_LocalBranching()
 {
     ERROR_CODE e = T_OK;
 
@@ -138,7 +139,7 @@ ERROR_CODE mh_LocalBranching(instance *inst)
     }
 
     // initialize CPLEX model
-    e = cx_initialize(inst, env, lp);
+    e = cx_initialize( env, lp);
     if (!err_ok(e))
     {
         log_error("error in initializing cplex model");
@@ -150,13 +151,14 @@ ERROR_CODE mh_LocalBranching(instance *inst)
 
     int K = 10;
 
-    tsp_solution solution = tsp_init_solution(inst->nnodes);
+    tsp_solution solution;
+	tsp_init_solution(tsp_inst.nnodes, &solution);
     // initialize the current solution as the best solution found by heuristic
-    memcpy(solution.path, inst->best_solution.path, inst->nnodes * sizeof(int));
-    solution.cost = inst->best_solution.cost;
+    memcpy(solution.path, tsp_inst.best_solution.path, tsp_inst.nnodes * sizeof(int));
+    solution.cost = tsp_inst.best_solution.cost;
 
     // TODO: un botto di memory leaks
-    if (inst->options_t.lb_kstar)
+    if (tsp_env.lb_kstar)
     {
 
         int Kstar = 0;
@@ -164,15 +166,15 @@ ERROR_CODE mh_LocalBranching(instance *inst)
         // ESTENSIONE
 
         // 0) get the heuristic solution xh (must be done when the model is MIP)
-        int nzcnt = inst->ncols;
+        int nzcnt = tsp_inst.ncols;
         int beg;
-        int *varindices = (int *)calloc(inst->ncols, sizeof(int));
-        double *values = (double *)calloc(inst->ncols, sizeof(double));
+        int *varindices = (int *)calloc(tsp_inst.ncols, sizeof(int));
+        double *values = (double *)calloc(tsp_inst.ncols, sizeof(double));
         int effortlevel;
-        int startspace = inst->ncols;
+        int startspace = tsp_inst.ncols;
         int surplus;
 
-        int error = CPXgetmipstarts(env, lp, &nzcnt, &beg, varindices, values, &effortlevel, inst->ncols, &surplus, 0, 0);
+        int error = CPXgetmipstarts(env, lp, &nzcnt, &beg, varindices, values, &effortlevel, tsp_inst.ncols, &surplus, 0, 0);
         if (error)
         {
             log_error("error code: %d, surplus: %d", error, surplus);
@@ -183,16 +185,16 @@ ERROR_CODE mh_LocalBranching(instance *inst)
         // 1) LP relaxation
 
         // 1.1) change variable types
-        int *indices = (int *)calloc(inst->ncols, sizeof(int));
-        char *xctype = (char *)calloc(inst->ncols, sizeof(char));
+        int *indices = (int *)calloc(tsp_inst.ncols, sizeof(int));
+        char *xctype = (char *)calloc(tsp_inst.ncols, sizeof(char));
 
-        for (int i = 0; i < inst->ncols; i++)
+        for (int i = 0; i < tsp_inst.ncols; i++)
         {
             indices[i] = i;
             xctype[i] = 'C';
         }
 
-        if (CPXchgctype(env, lp, inst->ncols, indices, xctype))
+        if (CPXchgctype(env, lp, tsp_inst.ncols, indices, xctype))
         {
             log_error("error in chgctype");
             e = INTERNAL;
@@ -217,8 +219,8 @@ ERROR_CODE mh_LocalBranching(instance *inst)
 
         // 3) get xstar
         // check that cplex solved it right
-        double *xstar = (double *)calloc(inst->ncols, sizeof(double));
-        if (CPXgetx(env, lp, xstar, 0, inst->ncols - 1))
+        double *xstar = (double *)calloc(tsp_inst.ncols, sizeof(double));
+        if (CPXgetx(env, lp, xstar, 0, tsp_inst.ncols - 1))
         {
             log_fatal("CPX : CPXgetx() error");
             goto mh_free;
@@ -237,13 +239,13 @@ ERROR_CODE mh_LocalBranching(instance *inst)
         }
 
         // 5) revert to MIP
-        for (int i = 0; i < inst->ncols; i++)
+        for (int i = 0; i < tsp_inst.ncols; i++)
         {
             indices[i] = i;
             xctype[i] = 'B';
         }
 
-        if (CPXchgctype(env, lp, inst->ncols, indices, xctype))
+        if (CPXchgctype(env, lp, tsp_inst.ncols, indices, xctype))
         {
             log_error("error in chgctype");
             e = INTERNAL;
@@ -272,13 +274,17 @@ ERROR_CODE mh_LocalBranching(instance *inst)
 
     int st_counter = 0;
 
+    // file to hold solution value in each iteration
+    FILE* f = fopen("results/LocalBranchingK.dat", "w+");
+    int i=0;
+
     while (1)
     {
         // check if exceeds time
-        double ex_time = utils_timeelapsed(&inst->c);
-        if (inst->options_t.timelimit != -1.0)
+        double ex_time = utils_timeelapsed(&tsp_inst.c);
+        if (tsp_env.timelimit != -1.0)
         {
-            if (ex_time > inst->options_t.timelimit)
+            if (ex_time > tsp_env.timelimit)
             {
                 log_warn("deadline exceeded in local branching");
                 e = DEADLINE_EXCEEDED;
@@ -286,8 +292,13 @@ ERROR_CODE mh_LocalBranching(instance *inst)
             }
         }
 
+        log_info("iteration %d", i);
+
+        // save value of K
+        fprintf(f, "%d,%d\n", i, K);
+
         // add solution as a MIP start
-        e = cx_add_mip_starts(env, lp, inst, &solution);
+        e = cx_add_mip_starts(env, lp,  &solution);
         if (!err_ok(e))
         {
             log_error("error add mip start");
@@ -295,7 +306,7 @@ ERROR_CODE mh_LocalBranching(instance *inst)
         }
 
         // Add LB constraint
-        e = lb_add_constraint(env, lp, inst, &solution, K);
+        e = lb_add_constraint(env, lp, &solution, K);
         if (!err_ok(e))
         {
             log_error("error in adding local braching constraint");
@@ -304,11 +315,11 @@ ERROR_CODE mh_LocalBranching(instance *inst)
 
         // set remaining time limit for cplex
         // 1/10 of the total remaining time
-        double time_remain = (inst->options_t.timelimit - ex_time) / 3;
+        double time_remain = (tsp_env.timelimit - ex_time) / 3;
         log_info("time assigned to mip solver : %.4f", time_remain);
 
         // MIP SOLVER
-        e = mh_mipsolver2(env, lp, inst, &solution, time_remain);
+        e = mh_mipsolver2(env, lp, &solution, time_remain);
         if (!err_ok(e))
         {
             log_error("error in mip solver");
@@ -325,7 +336,7 @@ ERROR_CODE mh_LocalBranching(instance *inst)
         }
 
         // save the best solution
-        e = tsp_update_best_solution(inst, &solution);
+        e = tsp_update_best_solution( &solution);
         if (!err_ok(e))
         {
             log_error("code %d : error in updating best solution of Local Branching");
@@ -344,10 +355,10 @@ ERROR_CODE mh_LocalBranching(instance *inst)
 
             double improvement = 1.0 - objval / objbest;
 
-            if(improvement < inst->options_t.lb_improv){
-                K += inst->options_t.lb_delta;
+            if(improvement < tsp_env.lb_improv){
+                K += tsp_env.lb_delta;
             }else{
-                K = max(K - inst->options_t.lb_delta, 10);
+                K = max(K - tsp_env.lb_delta, 10);
             }
 
         }else{
@@ -355,7 +366,7 @@ ERROR_CODE mh_LocalBranching(instance *inst)
 
             if(st_counter <= STAGNATION_THRESHOLD){
                 st_counter = 0;
-                K += inst->options_t.lb_delta;
+                K += tsp_env.lb_delta;
             }
         }
 
@@ -368,9 +379,12 @@ ERROR_CODE mh_LocalBranching(instance *inst)
             log_error("error in removing local braching constraint");
             goto mh_free;
         }
+
+        i+=1;
     }
 
 mh_free:
+    fclose(f);
     utils_safe_free(solution.path);
     utils_safe_free(solution.comp);
 
@@ -385,15 +399,15 @@ mh_free:
 // GENERAL UTILS
 //================================================================================
 
-ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solution *solution)
+ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, tsp_solution *solution)
 {
     ERROR_CODE e = T_OK;
 
-    double *xstar = (double *)calloc(inst->ncols, sizeof(double));
+    double *xstar = (double *)calloc(tsp_inst.ncols, sizeof(double));
     int ncomp = 0;
-    int *comp = (int *)calloc(inst->ncols, sizeof(int));
+    int *comp = (int *)calloc(tsp_inst.ncols, sizeof(int));
 
-    e = cx_branchcut_util(env, lp, inst, inst->ncols, xstar);
+    e = cx_branchcut_util(env, lp,  tsp_inst.ncols, xstar);
     if (!err_ok(e))
     {
         log_error("error in branch&cut util");
@@ -401,7 +415,7 @@ ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solution
     }
 
     // with the solution found by CPLEX, build the corresponding solution
-    cx_build_sol(xstar, inst, solution);
+    cx_build_sol(xstar,  solution);
 
     log_info("cost: %.2f", solution->cost);
     log_info("ncomp: %d", ncomp);
@@ -412,12 +426,12 @@ hf_free:
     return e;
 }
 
-ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solution *solution, double time_available)
+ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp, tsp_solution *solution, double time_available)
 {
     int e = T_OK;
     int cpxerror;
 
-    double *xstar = (double *)malloc(inst->ncols * sizeof(double));
+    double *xstar = (double *)malloc(tsp_inst.ncols * sizeof(double));
 
     // set the time limit
     cpxerror = CPXsetdblparam(env, CPXPARAM_TimeLimit, time_available);
@@ -446,16 +460,16 @@ ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solutio
         goto mh_free;
     }
 
-    cx_build_sol(xstar, inst, solution);
+    cx_build_sol(xstar,  solution);
 
     log_info("solution found with %d components and cost %.0f", solution->ncomp, solution->cost);
 
     // apply patching to fix the solution
     while(solution->ncomp > 1){
-		cx_patching(inst, solution);
+		cx_patching( solution);
 		log_debug("number of components: %d", solution->ncomp);
 		log_debug("current solution cost: %f", solution->cost);
-		log_debug("is solution a tour? %d", tsp_is_tour(solution->path, inst->nnodes));
+		log_debug("is solution a tour? %d", tsp_is_tour(solution->path, tsp_inst.nnodes));
 	}
 
     log_info("applied Patching, updated cost: %.0f", solution->cost);
@@ -470,7 +484,7 @@ mh_free:
 // HARD FIXING UTILS
 //================================================================================
 
-ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solution *solution)
+ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, tsp_solution *solution)
 {
     // choose E^tilde and set lb
 
@@ -482,16 +496,16 @@ ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solution *s
 
     double one = 1.0;
     const char lb = 'L';
-    for (int i = 0; i < inst->nnodes; i++)
+    for (int i = 0; i < tsp_inst.nnodes; i++)
     {
-        // unsigned int seed = (unsigned) inst->options_t.seed;
+        // unsigned int seed = (unsigned) tsp_env.seed;
         double prob = ((double)rand()) / RAND_MAX;
 
-        if (prob < inst->options_t.hf_prob)
+        if (prob < tsp_env.hf_prob)
         {
             k++;
             log_debug("add edge (%d,%d) to E^tilde", i, solution->path[i]);
-            int index = cx_xpos(i, solution->path[i], inst->nnodes);
+            int index = cx_xpos(i, solution->path[i], tsp_inst.nnodes);
 
             if (CPXchgbds(env, lp, 1, &index, &lb, &one))
             {
@@ -510,13 +524,13 @@ hf_free:
     return e;
 }
 
-ERROR_CODE hf_undofixing(CPXENVptr env, CPXLPptr lp, instance *inst)
+ERROR_CODE hf_undofixing(CPXENVptr env, CPXLPptr lp)
 {
     ERROR_CODE e = T_OK;
 
     double zero = 0.0;
     const char lb = 'L';
-    for (int i = 0; i < inst->ncols; i++)
+    for (int i = 0; i < tsp_inst.ncols; i++)
     {
         int pos = i;
         if (CPXchgbds(env, lp, 1, &pos, &lb, &zero))
@@ -535,14 +549,14 @@ hf_free:
 // LOCAL BRANCHING UTILS
 //================================================================================
 
-ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_solution *solution, int k)
+ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp, tsp_solution *solution, int k)
 {
     ERROR_CODE e = T_OK;
 
-    int *index = (int *)calloc(inst->ncols, sizeof(int));
-    double *value = (double *)calloc(inst->ncols, sizeof(double));
+    int *index = (int *)calloc(tsp_inst.ncols, sizeof(int));
+    double *value = (double *)calloc(tsp_inst.ncols, sizeof(double));
 
-    double rhs = inst->nnodes - k;
+    double rhs = tsp_inst.nnodes - k;
     char sense = 'G';
     char **cname = (char **)malloc(1 * sizeof(char *)); // (char **) required by cplex...
 
@@ -553,24 +567,24 @@ ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_sol
     int izero = 0;
 
     int nnz = 0;
-    for (int i = 0; i < inst->nnodes; i++)
+    for (int i = 0; i < tsp_inst.nnodes; i++)
     {
-        index[nnz] = cx_xpos(i, solution->path[i], inst->nnodes);
+        index[nnz] = cx_xpos(i, solution->path[i], tsp_inst.nnodes);
         value[nnz] = 1.0;
         nnz++;
     }
 
     // Integrity check
-    if (nnz != inst->nnodes)
+    if (nnz != tsp_inst.nnodes)
     {
-        log_error("INTEGRITY CHECK: Error in tsp_convert_path_to_indval: k != nnodes (%d != %d).", nnz, inst->nnodes);
+        log_error("INTEGRITY CHECK: Error in tsp_convert_path_to_indval: k != nnodes (%d != %d).", nnz, tsp_inst.nnodes);
         e = DATA_LOSS;
         goto mh_free;
     }
 
     for (int e = 0; e < nnz; e++)
     {
-        if (index[e] < 0 || index[e] >= inst->ncols || value[e] != 1.0)
+        if (index[e] < 0 || index[e] >= tsp_inst.ncols || value[e] != 1.0)
         {
             log_error("INTEGRITY CHECK: Error in tsp_convert_path_to_indval: filling ind or val (%d - %f).", index[e], value[e]);
             e = INVALID_ARGUMENT;
@@ -578,7 +592,7 @@ ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp, instance *inst, tsp_sol
         }
     }
 
-    if (CPXaddrows(env, lp, 0, 1, inst->nnodes, &rhs, &sense, &izero, index, value, NULL, &cname[0]))
+    if (CPXaddrows(env, lp, 0, 1, tsp_inst.nnodes, &rhs, &sense, &izero, index, value, NULL, &cname[0]))
     {
         log_error("error in CPXaddrows for local branching constraints");
         e = INTERNAL;
