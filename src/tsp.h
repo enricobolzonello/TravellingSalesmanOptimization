@@ -57,6 +57,8 @@ typedef enum {
 typedef struct {
     double cost;
     int* path;
+    int ncomp;
+    int* comp;
 }tsp_solution;
 
 typedef struct {
@@ -204,7 +206,7 @@ ERROR_CODE tsp_compute_costs(instance* inst);
  * @return true if the solution is valid
  * @return false if the solution is not valid
  */
-bool tsp_validate_solution(instance* inst, int* current_solution_path);
+bool tsp_validate_solution(int nnodes, int* current_solution_path);
 
 /**
  * @brief Updates the best solution iff it is valid and it is better than the current best solution
@@ -222,8 +224,6 @@ ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* solution);
  * @return double cost of edge i-j
  */
 double tsp_get_cost(instance* inst, int i, int j);
-
-tsp_solution tsp_init_solution(int nnodes);
 
 bool isTour(int path[], int n);
 

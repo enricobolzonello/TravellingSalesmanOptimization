@@ -35,8 +35,19 @@ void tsp_init(instance* inst){
 
 tsp_solution tsp_init_solution(int nnodes){
     tsp_solution solution;
-    solution.path = calloc(nnodes, sizeof(int));
+    solution.path = (int*) calloc(nnodes, sizeof(int));
+    if(solution.path == NULL){
+        log_fatal("solution.path allocation failed");
+        exit(0);
+    }
+
     solution.cost = __DBL_MAX__;
+    solution.ncomp = 0;
+    solution.comp = (int*) calloc(nnodes, sizeof(int));
+    if(solution.path == NULL){
+        log_fatal("solution.comp allocation failed");
+        exit(0);
+    }
     return solution;
 }
 
@@ -611,13 +622,13 @@ double tsp_get_cost(instance* inst, int i, int j){
     return inst->costs[i * inst->nnodes + j];
 }
 
-bool tsp_validate_solution(instance* inst, int* current_solution_path) {
-    int* node_visit_counter = (int*)calloc(inst->nnodes, sizeof(int));
+bool tsp_validate_solution(int nnodes, int* current_solution_path) {
+    int* node_visit_counter = (int*)calloc(nnodes, sizeof(int));
 
     // count how many times each node is visited
-    for(int i=0; i<inst->nnodes; i++){
+    for(int i=0; i<nnodes; i++){
         int node = current_solution_path[i];
-        if(node < 0 || node > inst->nnodes - 1){
+        if(node < 0 || node > nnodes - 1){
             // node index outside range
             utils_safe_free(node_visit_counter);
             return false;
@@ -626,7 +637,7 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     }
 
     // check that each node is visited once
-    for(int i=0; i<inst->nnodes; i++){
+    for(int i=0; i<nnodes; i++){
         if(node_visit_counter[i] != 1){
             // at least one node visted zero or more than one time
             utils_safe_free(node_visit_counter);
@@ -635,11 +646,11 @@ bool tsp_validate_solution(instance* inst, int* current_solution_path) {
     }
 
     utils_safe_free(node_visit_counter);
-    return isTour(current_solution_path, inst->nnodes);
+    return isTour(current_solution_path, nnodes);
 }
 
 ERROR_CODE tsp_update_best_solution(instance* inst, tsp_solution* current_solution){
-    if(tsp_validate_solution(inst, current_solution->path)){
+    if(tsp_validate_solution(inst->nnodes, current_solution->path)){
         if(current_solution->cost < inst->best_solution.cost){
             memcpy(inst->best_solution.path, current_solution->path, inst->nnodes * sizeof(int));
             inst->best_solution.cost = current_solution->cost;
@@ -718,4 +729,6 @@ void tsp_free_instance(instance *inst){
     utils_safe_free(inst->points);
     utils_safe_free(inst->costs);
     utils_safe_free(inst->best_solution.path);
+    utils_safe_free(inst->best_solution.comp);
+    utils_safe_free(inst->threads_seeds);
 }

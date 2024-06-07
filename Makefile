@@ -67,7 +67,7 @@ else
     ifeq ($(UNAME_S),Darwin)
         CPLEXDIR := /Applications/CPLEX_Studio2211/cplex
 		CC := clang
-		CFLAGS := -O0 $(STD) $(STACK) $(WARNS) -Wno-gnu-statement-expression 
+		CFLAGS := -O3 $(STD) $(STACK) $(WARNS) -Wno-gnu-statement-expression -fsanitize=address
     endif
 endif
 

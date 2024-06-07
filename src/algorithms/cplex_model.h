@@ -61,7 +61,7 @@ ERROR_CODE cx_initialize(instance* inst, CPXENVptr env, CPXLPptr lp);
  * @param inst Tsp instance
  * @return int Position in the CPLEX matrix
  */
-int cx_xpos(int i, int j, instance *inst);
+int cx_xpos(int i, int j, int nnodes);
 
 /**
  * @brief Util for Benders Loop method to add subtour elimination constraints to the model
@@ -92,7 +92,7 @@ void cx_build_model(instance *inst, CPXENVptr env, CPXLPptr lp);
  * @param comp An array indicating the component to which each node belongs
  * @param ncomp Number of independent components
  */
-void cx_build_sol(const double *xstar, instance *inst, int *comp, int *ncomp, tsp_solution* solution);
+void cx_build_sol(const double *xstar, instance *inst, tsp_solution* solution);
 
 /**
  * @brief Check CPLEX status codes after mip opt and returns an ERROR_CODE corresponding to its status
@@ -116,7 +116,7 @@ ERROR_CODE cx_handle_cplex_status(CPXENVptr env, CPXLPptr lp);
  * @param ncomp total number of components
  * @param solution current Tsp solution
  */
-void cx_patching(instance *inst, int *comp, int *ncomp, tsp_solution* solution);
+void cx_patching(instance *inst, tsp_solution* solution);
 
 //================================================================================
 // BRANCH & CUT UTILS
