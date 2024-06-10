@@ -85,9 +85,9 @@ ERROR_CODE tsp_run_algorithm(){
         break;
     }
 
-    //if(err_ok(e)){
-    //    tsp_plot_solution(inst);
-    //}
+    if(err_ok(e)){
+        tsp_plot_solution();
+    }
 
     return e;
 }

@@ -20,8 +20,8 @@
 #include "errors.h"
 
 
-#define MAX_COORDINATE 10000
-#define MIN_COORDINATE -10000
+#define MAX_COORDINATE 5000
+#define MIN_COORDINATE -5000
 
 #define TSP_RAND() ( ((double)rand() / RAND_MAX) * (MAX_COORDINATE - MIN_COORDINATE) + MIN_COORDINATE )
 

@@ -149,7 +149,7 @@ ERROR_CODE mh_LocalBranching()
 
     log_info("CPLEX initialized correctly");
 
-    int K = 10;
+    int K = tsp_env.lb_initk;
 
     tsp_solution solution;
 	tsp_init_solution(tsp_inst.nnodes, &solution);
@@ -269,9 +269,6 @@ ERROR_CODE mh_LocalBranching()
 
     log_info("initial K: %d", K);
 
-    double objval;
-    double objbest = __DBL_MAX__;
-
     int st_counter = 0;
 
     // file to hold solution value in each iteration
@@ -328,11 +325,38 @@ ERROR_CODE mh_LocalBranching()
 
         log_info("mip solver done");
 
-        if (CPXgetobjval(env, lp, &objval))
-        {
-            log_error("there is no solution");
-            e = INTERNAL;
-            goto mh_free;
+        // update k
+        // POLICY
+        // keep a stagnation counter to count how many iterations do not improve the solution, if it becomes greater than a threshold, increase k
+        //
+        // if the new solution is better:
+        //  if the improvement is not much (for now 2%), we increase k to generate deeper cuts
+        //  otherwise we stay at the k we are in
+
+        if(tsp_env.lb_dynk){
+            if(solution.cost < tsp_inst.best_solution.cost){
+
+                log_info("solution cost: %.0f", solution.cost);
+                log_info("best solution cost: %.0f", tsp_inst.best_solution.cost);
+                double improvement = (1.0 - solution.cost / tsp_inst.best_solution.cost);
+                log_info("improvement: %.4f", improvement);
+
+                if(improvement < tsp_env.lb_improv){
+                    K += tsp_env.lb_delta;
+                }else{
+                    K = max(K - tsp_env.lb_delta, 10);
+                }
+
+            }else{
+                st_counter++;
+
+                if(st_counter > STAGNATION_THRESHOLD){
+                    st_counter = 0;
+                    K += tsp_env.lb_delta;
+                }
+            }
+
+            log_info("new K: %d", K);
         }
 
         // save the best solution
@@ -342,35 +366,6 @@ ERROR_CODE mh_LocalBranching()
             log_error("code %d : error in updating best solution of Local Branching");
             goto mh_free;
         }
-
-        // update k
-        // POLICY
-        // keep a stagnation counter to count how many iterations do not improve the solution, if it becomes greater than a threshold, increase k
-        //
-        // if the new solution is better:
-        //  if the improvement is not much (for now 2%), we increase k to generate deeper cuts
-        //  otherwise we stay at the k we are in
-
-        if(objval < objbest){
-
-            double improvement = 1.0 - objval / objbest;
-
-            if(improvement < tsp_env.lb_improv){
-                K += tsp_env.lb_delta;
-            }else{
-                K = max(K - tsp_env.lb_delta, 10);
-            }
-
-        }else{
-            st_counter++;
-
-            if(st_counter <= STAGNATION_THRESHOLD){
-                st_counter = 0;
-                K += tsp_env.lb_delta;
-            }
-        }
-
-        log_info("new K: %d", K);
 
         // Remove LB constraint
         e = lb_remove_constraint(env, lp);
@@ -553,8 +548,8 @@ ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp, tsp_solution *solution,
 {
     ERROR_CODE e = T_OK;
 
-    int *index = (int *)calloc(tsp_inst.ncols, sizeof(int));
-    double *value = (double *)calloc(tsp_inst.ncols, sizeof(double));
+    int *index = (int *)calloc(tsp_inst.nnodes, sizeof(int));
+    double *value = (double *)calloc(tsp_inst.nnodes, sizeof(double));
 
     double rhs = tsp_inst.nnodes - k;
     char sense = 'G';

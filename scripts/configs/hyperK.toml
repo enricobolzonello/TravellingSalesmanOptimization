@@ -1,0 +1,18 @@
+[10]
+algorithm = "LOCAL_BRANCHING"
+
+[20]
+algorithm = "LOCAL_BRANCHING"
+flags = "-lb_initk 20"
+
+[30]
+algorithm = "LOCAL_BRANCHING"
+flags = "-lb_initk 30"
+
+[40]
+algorithm = "LOCAL_BRANCHING"
+flags = "-lb_initk 40"
+
+[50]
+algorithm = "LOCAL_BRANCHING"
+flags = "-lb_initk 50"

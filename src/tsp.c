@@ -23,6 +23,8 @@ void tsp_init(){
 
     tsp_env.hf_prob = 0.7;
 
+    tsp_env.lb_dynk = false;
+    tsp_env.lb_initk = 10;
     tsp_env.lb_improv = 0.02;
     tsp_env.lb_delta = 10;
     tsp_env.lb_kstar = false;
@@ -261,6 +263,33 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv){
                 continue;
             }
             tsp_env.hf_prob = p;
+            continue;
+        }
+
+        if (strcmp("--lb_dynk", argv[i]) == 0){
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            tsp_env.lb_dynk = true;
+            continue;
+        }
+
+        if (strcmp("-lb_initk", argv[i]) == 0){
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            const double p = atoi(argv[++i]);
+            if(p < 10){
+                log_warn("lb_delta must be >5");
+                continue;
+            }
+            tsp_env.lb_initk = p;
             continue;
         }
 
