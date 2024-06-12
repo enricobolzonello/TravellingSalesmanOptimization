@@ -3,6 +3,7 @@
 #include "../tsp.h"
 
 #define STAGNATION_THRESHOLD 5
+#define SMALL_IMPROV 3
 
 /**
  * @brief runs Hard Fixing algorithm

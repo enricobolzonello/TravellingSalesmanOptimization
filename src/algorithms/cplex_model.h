@@ -9,6 +9,7 @@
 #include <cplex.h>  
 
 #define EPSILON_BC 0.1
+#define THREADS 32
 
 typedef struct{
     CPXCALLBACKCONTEXTptr context;

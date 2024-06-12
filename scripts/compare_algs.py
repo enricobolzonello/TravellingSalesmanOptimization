@@ -93,16 +93,21 @@ def runTSP(paths, csv_filename, data, logger, start_time):
 # methods: heuristic
 if __name__ == '__main__':
 
-    if len(sys.argv) < 2:
-        print("Usage: python script.py <file>")
+    if len(sys.argv) < 3:
+        print("Usage: python compare_algs.py <config file> <data folder>")
         sys.exit()
     
     # parse for method in command line
     filepath = sys.argv[1]
     if not os.path.isfile(filepath):
-        print("file does not exist")
+        print("toml config file does not exist")
         sys.exit()
     basename = os.path.splitext(os.path.basename(filepath))[0]
+
+    datadir = sys.argv[2]
+    if not os.path.isdir(datadir):
+        print("data folder does not exist")
+        sys.exit()
 
     with open(filepath, "rb") as f:
         data = tomllib.load(f)
@@ -118,7 +123,7 @@ if __name__ == '__main__':
         start_time = time.time()
 
         paths = []
-        for root, _, files in os.walk("data/matheuristic"):
+        for root, _, files in os.walk(datadir):
             # Append file paths to the list
             for file in files:
                 paths.append(os.path.join(root, file))

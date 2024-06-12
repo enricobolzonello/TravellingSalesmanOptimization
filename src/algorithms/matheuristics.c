@@ -270,6 +270,7 @@ ERROR_CODE mh_LocalBranching()
     log_info("initial K: %d", K);
 
     int st_counter = 0;
+    int small_improv = 0;
 
     // file to hold solution value in each iteration
     FILE* f = fopen("results/LocalBranchingK.dat", "w+");
@@ -342,9 +343,13 @@ ERROR_CODE mh_LocalBranching()
                 log_info("improvement: %.4f", improvement);
 
                 if(improvement < tsp_env.lb_improv){
-                    K += tsp_env.lb_delta;
+                    small_improv++;
+                    if(small_improv % SMALL_IMPROV == 0){
+                        K = max(K - tsp_env.lb_delta, 10);
+                    }
                 }else{
-                    K = max(K - tsp_env.lb_delta, 10);
+                    K += tsp_env.lb_delta;
+                    small_improv = 0;
                 }
 
             }else{

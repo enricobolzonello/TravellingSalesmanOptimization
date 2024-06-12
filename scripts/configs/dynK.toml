@@ -1,0 +1,7 @@
+[fixed]
+algorithm = "LOCAL_BRANCHING"
+flags = "-lb_initk 40"
+
+[dynamic]
+algorithm = "LOCAL_BRANCHING"
+flags = "-lb_initk 40 --lb_dynk"
