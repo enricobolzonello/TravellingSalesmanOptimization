@@ -14,7 +14,7 @@ from logging import Handler, Formatter
 import logging
 import datetime
 import time
-TIME_LIMIT = "200"
+TIME_LIMIT = "2000"
  
 # create an .env file to contain telegram token and chat id
 # the file has the following format

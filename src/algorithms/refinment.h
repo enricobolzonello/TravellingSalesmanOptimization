@@ -16,8 +16,7 @@
 /**
  * @brief 2opt refinment algorithm
  * 
- * @param inst tsp instance
- * @param solution solution struct
+ * @param solution Tsp_solution to hold the best solution
  * @return ERROR_CODE 
  */
 ERROR_CODE ref_2opt(tsp_solution* solution, double* costs, bool update_incumbent);
@@ -29,20 +28,19 @@ ERROR_CODE ref_2opt(tsp_solution* solution, double* costs, bool update_incumbent
 /**
  * @brief Util for one 2opt move
  * 
- * @param inst tsp instance
- * @param solution_path solution struct
- * @return double best delta
+ * @param solution_path Tsp_solution to hold the best solution
+ * @param costs Matrix of costs
+ * @return double Best delta
  */
 double ref_2opt_once(tsp_solution* solution, double* costs);
 
 /**
  * @brief Util to reverse a path from start_node to end_node in solution_path
  * 
- * @param inst tsp instance
- * @param start_node 
- * @param end_node 
- * @param prev array path before the 2opt move
- * @param solution_path path that will be modified
+ * @param start_node Starting node
+ * @param end_node End node
+ * @param prev array Path before the 2opt move
+ * @param solution_path Path that will be modified
  */
 void ref_reverse_path(int a, int succ_a, int b, int succ_b, int *prev, int* solution_path);
 

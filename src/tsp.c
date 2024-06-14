@@ -4,7 +4,7 @@ instance tsp_inst;
 options tsp_env;
 
 void tsp_init(){
-    // enviornment initialization
+    // environment initialization
     tsp_env.graph_random = false;
     tsp_env.graph_input = false;
     tsp_env.timelimit = -1;
@@ -470,7 +470,6 @@ ERROR_CODE tsp_generate_randompoints(){
     return T_OK;
 }
 
-// TODO: better naming of files
 ERROR_CODE tsp_plot_points(){
     int i;
     char* plotfile;

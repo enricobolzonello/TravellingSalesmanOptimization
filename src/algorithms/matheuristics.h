@@ -6,17 +6,15 @@
 #define SMALL_IMPROV 3
 
 /**
- * @brief runs Hard Fixing algorithm
+ * @brief Solves the TSP using Hard Fixing
  * 
- * @param inst 
  * @return ERROR_CODE 
  */
 ERROR_CODE mh_HardFixing(void);
 
 /**
- * @brief runs Local Branching algorithm
+ * @brief Solves the TSP using Local Branching
  * 
- * @param inst 
  * @return ERROR_CODE 
  */
 ERROR_CODE mh_LocalBranching(void);
@@ -26,24 +24,23 @@ ERROR_CODE mh_LocalBranching(void);
 //================================================================================
 
 /**
- * @brief util for running mip solver with branch&cut with candidate and relaxation callback. Currently not stable
+ * @brief Util for running mip solver with branch&cut with candidate and relaxation callback. Currently not stable
  * 
  * @param env CPXENVptr
  * @param lp CPXLPptr
- * @param inst Tsp instance
- * @param solution pointer to solution struct to hold the result found
+ * @param solution Pointer to solution struct to hold the result found
+ * * @param time_available Time assigned to the mip solver
  * @return ERROR_CODE 
  */
-ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution);
+ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution, double time_available);
 
 /**
  * @brief util for running mip solver with mipopt and patching
  * 
  * @param env CPXENVptr
  * @param lp CPXLPptr
- * @param inst Tsp instance
- * @param solution pointer to solution struct to hold the result found
- * @param time_available time assigned to the mip solver
+ * @param solution Pointer to solution struct to hold the result found
+ * @param time_available Time assigned to the mip solver
  * @return ERROR_CODE 
  */
 ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution, double time_available);
@@ -53,22 +50,20 @@ ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution, do
 //================================================================================
 
 /**
- * @brief util for fixing variables for the Hard Fixing algorithm
+ * @brief Util for fixing variables for the Hard Fixing algorithm
  * 
  * @param env CPXENVptr
  * @param lp CPXLPptr
- * @param inst Tsp instance
- * @param solution pointer to solution struct to know what variables to fix
+ * @param solution Pointer to solution struct to know what variables to fix
  * @return ERROR_CODE 
  */
 ERROR_CODE hf_fixing(CPXENVptr env, CPXLPptr lp, tsp_solution* solution);
 
 /**
- * @brief util for unfixing all previously fixed variables
+ * @brief Util for unfixing all previously fixed variables
  * 
  * @param env CPXENVptr
  * @param lp CPXLPptr
- * @param inst Tsp instance
  * @return ERROR_CODE 
  */
 ERROR_CODE hf_undofixing(CPXENVptr env, CPXLPptr lp);
@@ -78,22 +73,31 @@ ERROR_CODE hf_undofixing(CPXENVptr env, CPXLPptr lp);
 //================================================================================
 
 /**
- * @brief util to add the local branching constraint
+ * @brief Util to add the local branching constraint
  * 
  * @param env CPXENVptr
  * @param lp CPXLPptr
- * @param inst Tsp instance
- * @param solution pointer to solution struct to know how to write the constraint
- * @param k degree of freedom 
+ * @param solution Pointer to solution struct to know how to write the constraint
+ * @param k Degree of freedom 
  * @return ERROR_CODE 
  */
 ERROR_CODE lb_add_constraint(CPXENVptr env, CPXLPptr lp,  tsp_solution* solution, int k);
 
 /**
- * @brief util to remove the last constraint added which corresponds to the local branching constraint
+ * @brief Util to remove the last constraint added which corresponds to the local branching constraint
  * 
  * @param env CPXENVptr
  * @param lp CPXLPptr
  * @return ERROR_CODE 
  */
 ERROR_CODE lb_remove_constraint(CPXENVptr env, CPXLPptr lp);
+
+/**
+ * @brief Computes Kstar, the minimum value of K needed to avoid generating cuts.
+ * 
+ * @param env CPXENVptr
+ * @param lp CPXLPptr
+ * @param Kstar Pointer to int variable to hold the computed kstar
+ * @return ERROR_CODE 
+ */
+ERROR_CODE lb_kstar(CPXENVptr env, CPXLPptr lp, int* Kstar);

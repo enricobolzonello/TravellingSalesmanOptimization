@@ -19,25 +19,22 @@
 //================================================================================
 
 /**
- * @brief Runs greedy algorithm and updates the best solution
+ * @brief Solves the TSP with the Nearest Neighbor heuristic
  * 
- * @param inst 
  * @return ERROR_CODE 
  */
 ERROR_CODE h_Greedy(void);
 
 /**
- * @brief Runs greedy iteratively on all nodes and picks the best solution
+ * @brief Solves the TSP with the All Nearest Neighbor heuristic
  * 
- * @param inst 
  * @return ERROR_CODE 
  */
 ERROR_CODE h_Greedy_iterative(void);
 
 /**
- * @brief Runs greedy iteratively on all nodes and perform 2-opt on each solution until no improvement
+ * @brief Solves the TSP with the Nearest Neighbor heuristic + 2-OPT
  * 
- * @param inst tsp instance
  * @return ERROR_CODE 
  */
 ERROR_CODE h_greedy_2opt(void);
@@ -47,7 +44,7 @@ ERROR_CODE h_greedy_2opt(void);
 //================================================================================
 
 /**
- * @brief Runs Extra Mileage heuristic
+ * @brief Solves the TSP with the Extra Mileage heuristic
  * 
  * @param inst tsp instance
  * @return ERROR_CODE 
@@ -55,9 +52,10 @@ ERROR_CODE h_greedy_2opt(void);
 ERROR_CODE h_ExtraMileage(void);
 
 /**
- * @brief Runs greedy iteratively on all nodes and picks the best solution. The edge costs are given as an argument so they can be modified as you want.
+ * @brief Solves the TSP with the All Nearest Neighbor heuristic + 2-OPT. The edge costs are given as an argument so they can be modified as you want.
  * 
- * @param inst 
+ * @param solution Tsp solution struct to hold the best solution
+ * @param costs Matrix of costs
  * @return ERROR_CODE 
  */
 ERROR_CODE h_Greedy_2opt_mod_costs(tsp_solution* solution, double* costs);
@@ -67,21 +65,21 @@ ERROR_CODE h_Greedy_2opt_mod_costs(tsp_solution* solution, double* costs);
 //================================================================================
 
 /**
- * @brief Solves with nearest neighbor heuristic starting from a fixed point
+ * @brief Solves with Nearest Neighbor heuristic starting from a fixed node
  * 
- * @param inst 
- * @param starting_node 
+ * @param starting_node Integer value between 0 and |V|-1 to indicate where the NN heuristic starts
+ * @param solution Tsp solution struct to hold the best solution
+ * @param costs Matrix of costs
  * @return ERROR_CODE 
  */
 ERROR_CODE h_greedyutil(int starting_node, tsp_solution* solution, double* costs);
 
 /**
- * @brief 
+ * @brief Solves with Extra Mileage heuristic starting from two nodes
  * 
- * @param inst 
- * @param solution 
- * @param nodeA 
- * @param nodeB 
+ * @param solution Tsp solution struct to hold the best solution
+ * @param nodeA First node
+ * @param nodeB Second node
  * @return ERROR_CODE 
  */
 ERROR_CODE h_extramileage_util(tsp_solution* solution, int nodeA, int nodeB);

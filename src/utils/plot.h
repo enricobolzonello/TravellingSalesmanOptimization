@@ -19,41 +19,41 @@ typedef FILE* PLOT;
 /**
  * @brief Opens a new gnuplot
  * 
- * @param title name of the plot 
- * @return PLOT plot instance
+ * @param   title Name of the plot 
+ * @return  PLOT Plot instance
  */
 PLOT plot_open(char* title);
 
 /**
  * @brief Plots a single point
  * 
- * @param plot 
- * @param p 
+ * @param plot  Plot instance
+ * @param p Pointer to a point struct
  */
 void plot_point(PLOT plot, point* p);
 
 /**
  * @brief Plots an edge between two points
  * 
- * @param plot 
- * @param u
- * @param v
+ * @param plot  Plot instance
+ * @param u Point struct 
+ * @param v Point struct 
  */
 void plot_edge(PLOT plot, point u, point v);
 
 /**
  * @brief Saves the plot to a jpg file in the directory /plots
  * 
- * @param plot  plot instance
- * @param filename  name of the output file
+ * @param plot Plot instance
+ * @param filename Name of the output file
  */
 void plot_tofile(PLOT plot, char* filename);
 
 /**
  * @brief Add additional arguments to the plot, like style options
  * 
- * @param plot  plot instance
- * @param args  string with gnuplot commands
+ * @param plot  Plot instance
+ * @param args  String with gnuplot commands
  */
 void plot_args(PLOT plot, char* args);
 
@@ -62,7 +62,7 @@ void plot_stats(PLOT plot, char* filename);
 /**
  * @brief Free resources
  * 
- * @param plot  plot instance
+ * @param plot  Plot instance
  */
 void plot_free(PLOT plot);
 

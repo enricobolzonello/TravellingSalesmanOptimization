@@ -24,7 +24,7 @@ ERROR_CODE mh_HardFixing()
     }
 
     // initialize CPLEX model
-    e = cx_initialize( env, lp);
+    e = cx_initialize(env, lp);
     if (!err_ok(e))
     {
         log_error("error in initializing cplex model");
@@ -36,7 +36,7 @@ ERROR_CODE mh_HardFixing()
 
     // initialize the current solution as the best solution found by heuristic
     tsp_solution solution;
-	tsp_init_solution(tsp_inst.nnodes, &solution);
+    tsp_init_solution(tsp_inst.nnodes, &solution);
     memcpy(solution.path, tsp_inst.best_solution.path, tsp_inst.nnodes * sizeof(int));
     solution.cost = tsp_inst.best_solution.cost;
 
@@ -58,7 +58,7 @@ ERROR_CODE mh_HardFixing()
         log_info("iteration: %d", i);
 
         // add solution as a MIP start
-        e = cx_add_mip_starts(env, lp,  &solution);
+        e = cx_add_mip_starts(env, lp, &solution);
         if (!err_ok(e))
         {
             log_error("error add mip start");
@@ -71,7 +71,7 @@ ERROR_CODE mh_HardFixing()
         log_debug("time assigned to mip solver : %.4f", time_remain);
 
         // FIXING
-        e = hf_fixing(env, lp,  &solution);
+        e = hf_fixing(env, lp, &solution);
         if (!err_ok(e))
         {
             log_error("error in fixing");
@@ -88,7 +88,7 @@ ERROR_CODE mh_HardFixing()
 
         log_info("MIP SOLVER DONE");
 
-        e = tsp_update_best_solution( &solution);
+        e = tsp_update_best_solution(&solution);
         if (!err_ok(e))
         {
             log_error("code %d : error in updating best solution of Hard Fixing");
@@ -139,7 +139,7 @@ ERROR_CODE mh_LocalBranching()
     }
 
     // initialize CPLEX model
-    e = cx_initialize( env, lp);
+    e = cx_initialize(env, lp);
     if (!err_ok(e))
     {
         log_error("error in initializing cplex model");
@@ -152,119 +152,19 @@ ERROR_CODE mh_LocalBranching()
     int K = tsp_env.lb_initk;
 
     tsp_solution solution;
-	tsp_init_solution(tsp_inst.nnodes, &solution);
+    tsp_init_solution(tsp_inst.nnodes, &solution);
     // initialize the current solution as the best solution found by heuristic
     memcpy(solution.path, tsp_inst.best_solution.path, tsp_inst.nnodes * sizeof(int));
     solution.cost = tsp_inst.best_solution.cost;
 
-    // TODO: un botto di memory leaks
     if (tsp_env.lb_kstar)
     {
-
-        int Kstar = 0;
-
-        // ESTENSIONE
-
-        // 0) get the heuristic solution xh (must be done when the model is MIP)
-        int nzcnt = tsp_inst.ncols;
-        int beg;
-        int *varindices = (int *)calloc(tsp_inst.ncols, sizeof(int));
-        double *values = (double *)calloc(tsp_inst.ncols, sizeof(double));
-        int effortlevel;
-        int startspace = tsp_inst.ncols;
-        int surplus;
-
-        int error = CPXgetmipstarts(env, lp, &nzcnt, &beg, varindices, values, &effortlevel, tsp_inst.ncols, &surplus, 0, 0);
-        if (error)
-        {
-            log_error("error code: %d, surplus: %d", error, surplus);
-            e = INTERNAL;
-            goto mh_free;
+        int Kstar;
+        if(!err_ok(lb_kstar(env, lp, &Kstar))){
+            log_warn("kstar computation failed, dropping back to fixed K");
+        }else{
+            K = Kstar / 2;
         }
-
-        // 1) LP relaxation
-
-        // 1.1) change variable types
-        int *indices = (int *)calloc(tsp_inst.ncols, sizeof(int));
-        char *xctype = (char *)calloc(tsp_inst.ncols, sizeof(char));
-
-        for (int i = 0; i < tsp_inst.ncols; i++)
-        {
-            indices[i] = i;
-            xctype[i] = 'C';
-        }
-
-        if (CPXchgctype(env, lp, tsp_inst.ncols, indices, xctype))
-        {
-            log_error("error in chgctype");
-            e = INTERNAL;
-            goto mh_free;
-        }
-
-        // 1.2) change the current problem to a related problem
-        if (CPXchgprobtype(env, lp, CPXPROB_LP))
-        {
-            log_error("error in chgprobtype");
-            e = INTERNAL;
-            goto mh_free;
-        }
-
-        // 2) solve lp relaxation
-        if (CPXlpopt(env, lp))
-        {
-            log_error("error in lpopt");
-            e = INTERNAL;
-            goto mh_free;
-        }
-
-        // 3) get xstar
-        // check that cplex solved it right
-        double *xstar = (double *)calloc(tsp_inst.ncols, sizeof(double));
-        if (CPXgetx(env, lp, xstar, 0, tsp_inst.ncols - 1))
-        {
-            log_fatal("CPX : CPXgetx() error");
-            goto mh_free;
-        }
-
-        // 4) compute kstar
-        double temp = 0.0;
-
-        for (int i = 0; i < nzcnt; i++)
-        {
-            if (values[i] > 0.5)
-            {
-                // positions should match
-                temp += (1 - xstar[i]);
-            }
-        }
-
-        // 5) revert to MIP
-        for (int i = 0; i < tsp_inst.ncols; i++)
-        {
-            indices[i] = i;
-            xctype[i] = 'B';
-        }
-
-        if (CPXchgctype(env, lp, tsp_inst.ncols, indices, xctype))
-        {
-            log_error("error in chgctype");
-            e = INTERNAL;
-            goto mh_free;
-        }
-
-        if (CPXchgprobtype(env, lp, CPXPROB_MILP))
-        {
-            log_error("error in chgprobtype");
-            e = INTERNAL;
-            goto mh_free;
-        }
-
-        Kstar = (int)(temp + 0.5);
-
-        log_info("K-star: %d", Kstar);
-
-        // K = average between 0 and Kstar
-        K = Kstar / 2;
     }
 
     log_info("initial K: %d", K);
@@ -273,8 +173,8 @@ ERROR_CODE mh_LocalBranching()
     int small_improv = 0;
 
     // file to hold solution value in each iteration
-    FILE* f = fopen("results/LocalBranchingK.dat", "w+");
-    int i=0;
+    FILE *f = fopen("results/LocalBranchingK.dat", "w+");
+    int i = 0;
 
     while (1)
     {
@@ -296,7 +196,7 @@ ERROR_CODE mh_LocalBranching()
         fprintf(f, "%d,%d\n", i, K);
 
         // add solution as a MIP start
-        e = cx_add_mip_starts(env, lp,  &solution);
+        e = cx_add_mip_starts(env, lp, &solution);
         if (!err_ok(e))
         {
             log_error("error add mip start");
@@ -334,28 +234,36 @@ ERROR_CODE mh_LocalBranching()
         //  if the improvement is not much (for now 2%), we increase k to generate deeper cuts
         //  otherwise we stay at the k we are in
 
-        if(tsp_env.lb_dynk){
-            if(solution.cost < tsp_inst.best_solution.cost){
+        if (tsp_env.lb_dynk)
+        {
+            if (solution.cost < tsp_inst.best_solution.cost)
+            {
 
                 log_info("solution cost: %.0f", solution.cost);
                 log_info("best solution cost: %.0f", tsp_inst.best_solution.cost);
                 double improvement = (1.0 - solution.cost / tsp_inst.best_solution.cost);
                 log_info("improvement: %.4f", improvement);
 
-                if(improvement < tsp_env.lb_improv){
+                if (improvement < tsp_env.lb_improv)
+                {
                     small_improv++;
-                    if(small_improv % SMALL_IMPROV == 0){
+                    if (small_improv % SMALL_IMPROV == 0)
+                    {
                         K = max(K - tsp_env.lb_delta, 10);
                     }
-                }else{
+                }
+                else
+                {
                     K += tsp_env.lb_delta;
                     small_improv = 0;
                 }
-
-            }else{
+            }
+            else
+            {
                 st_counter++;
 
-                if(st_counter > STAGNATION_THRESHOLD){
+                if (st_counter > STAGNATION_THRESHOLD)
+                {
                     st_counter = 0;
                     K += tsp_env.lb_delta;
                 }
@@ -365,7 +273,7 @@ ERROR_CODE mh_LocalBranching()
         }
 
         // save the best solution
-        e = tsp_update_best_solution( &solution);
+        e = tsp_update_best_solution(&solution);
         if (!err_ok(e))
         {
             log_error("code %d : error in updating best solution of Local Branching");
@@ -380,7 +288,7 @@ ERROR_CODE mh_LocalBranching()
             goto mh_free;
         }
 
-        i+=1;
+        i += 1;
     }
 
 mh_free:
@@ -399,15 +307,23 @@ mh_free:
 // GENERAL UTILS
 //================================================================================
 
-ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, tsp_solution *solution)
+ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, tsp_solution *solution, double time_available)
 {
     ERROR_CODE e = T_OK;
+
+    // set the time limit
+    if (CPXsetdblparam(env, CPXPARAM_TimeLimit, time_available))
+    {
+        log_error("error in CPXsetdblparam");
+        e = INTERNAL;
+        goto hf_free;
+    }
 
     double *xstar = (double *)calloc(tsp_inst.ncols, sizeof(double));
     int ncomp = 0;
     int *comp = (int *)calloc(tsp_inst.ncols, sizeof(int));
 
-    e = cx_branchcut_util(env, lp,  tsp_inst.ncols, xstar);
+    e = cx_branchcut_util(env, lp, tsp_inst.ncols, xstar);
     if (!err_ok(e))
     {
         log_error("error in branch&cut util");
@@ -415,7 +331,7 @@ ERROR_CODE mh_mipsolver(CPXENVptr env, CPXLPptr lp, tsp_solution *solution)
     }
 
     // with the solution found by CPLEX, build the corresponding solution
-    cx_build_sol(xstar,  solution);
+    cx_build_sol(xstar, solution);
 
     log_info("cost: %.2f", solution->cost);
     log_info("ncomp: %d", ncomp);
@@ -460,17 +376,18 @@ ERROR_CODE mh_mipsolver2(CPXENVptr env, CPXLPptr lp, tsp_solution *solution, dou
         goto mh_free;
     }
 
-    cx_build_sol(xstar,  solution);
+    cx_build_sol(xstar, solution);
 
     log_info("solution found with %d components and cost %.0f", solution->ncomp, solution->cost);
 
     // apply patching to fix the solution
-    while(solution->ncomp > 1){
-		cx_patching( solution);
-		log_debug("number of components: %d", solution->ncomp);
-		log_debug("current solution cost: %f", solution->cost);
-		log_debug("is solution a tour? %d", tsp_is_tour(solution->path, tsp_inst.nnodes));
-	}
+    while (solution->ncomp > 1)
+    {
+        cx_patching(solution);
+        log_debug("number of components: %d", solution->ncomp);
+        log_debug("current solution cost: %f", solution->cost);
+        log_debug("is solution a tour? %d", tsp_is_tour(solution->path, tsp_inst.nnodes));
+    }
 
     log_info("applied Patching, updated cost: %.0f", solution->cost);
 
@@ -630,5 +547,121 @@ ERROR_CODE lb_remove_constraint(CPXENVptr env, CPXLPptr lp)
     }
 
 lb_free:
+    return e;
+}
+
+ERROR_CODE lb_kstar(CPXENVptr env, CPXLPptr lp, int *Kstar)
+{
+    ERROR_CODE e = T_OK;
+
+    int *varindices = (int *)calloc(tsp_inst.ncols, sizeof(int));
+    double *values = (double *)calloc(tsp_inst.ncols, sizeof(double));
+    int *indices = (int *)calloc(tsp_inst.ncols, sizeof(int));
+    char *xctype = (char *)calloc(tsp_inst.ncols, sizeof(char));
+    double *xstar = (double *)calloc(tsp_inst.ncols, sizeof(double));
+
+    // ESTENSIONE
+
+    // 0) get the heuristic solution xh (must be done when the model is MIP)
+    int nzcnt = tsp_inst.ncols;
+    int beg;
+
+    int effortlevel;
+    int startspace = tsp_inst.ncols;
+    int surplus;
+
+    int error = CPXgetmipstarts(env, lp, &nzcnt, &beg, varindices, values, &effortlevel, tsp_inst.ncols, &surplus, 0, 0);
+    if (error)
+    {
+        log_error("error code: %d, surplus: %d", error, surplus);
+        e = INTERNAL;
+        goto mh_free;
+    }
+
+    // 1) LP relaxation
+
+    // 1.1) change variable types
+
+    for (int i = 0; i < tsp_inst.ncols; i++)
+    {
+        indices[i] = i;
+        xctype[i] = 'C';
+    }
+
+    if (CPXchgctype(env, lp, tsp_inst.ncols, indices, xctype))
+    {
+        log_error("error in chgctype");
+        e = INTERNAL;
+        goto mh_free;
+    }
+
+    // 1.2) change the current problem to a related problem
+    if (CPXchgprobtype(env, lp, CPXPROB_LP))
+    {
+        log_error("error in chgprobtype");
+        e = INTERNAL;
+        goto mh_free;
+    }
+
+    // 2) solve lp relaxation
+    if (CPXlpopt(env, lp))
+    {
+        log_error("error in lpopt");
+        e = INTERNAL;
+        goto mh_free;
+    }
+
+    // 3) get xstar
+    // check that cplex solved it right
+    if (CPXgetx(env, lp, xstar, 0, tsp_inst.ncols - 1))
+    {
+        log_fatal("CPX : CPXgetx() error");
+        goto mh_free;
+    }
+
+    // 4) compute kstar
+    double temp = 0.0;
+
+    for (int i = 0; i < nzcnt; i++)
+    {
+        if (values[i] > 0.5)
+        {
+            // positions should match
+            temp += (1 - xstar[i]);
+        }
+    }
+
+    // 5) revert to MIP
+    for (int i = 0; i < tsp_inst.ncols; i++)
+    {
+        indices[i] = i;
+        xctype[i] = 'B';
+    }
+
+    if (CPXchgctype(env, lp, tsp_inst.ncols, indices, xctype))
+    {
+        log_error("error in chgctype");
+        e = INTERNAL;
+        goto mh_free;
+    }
+
+    if (CPXchgprobtype(env, lp, CPXPROB_MILP))
+    {
+        log_error("error in chgprobtype");
+        e = INTERNAL;
+        goto mh_free;
+    }
+
+    *Kstar = (int)(temp + 0.5);
+
+    log_info("K-star: %d", Kstar);
+
+mh_free:
+    utils_safe_free(varindices);
+    utils_safe_free(values);
+    utils_safe_free(indices);
+    utils_safe_free(xctype);
+    utils_safe_free(xstar);
+
     return e;
 }

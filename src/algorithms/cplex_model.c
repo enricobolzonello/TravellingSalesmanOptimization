@@ -392,11 +392,10 @@ cx_free:
 int cx_xpos(int i, int j, int nnodes)
 {
 
-	// TODO: provvisorio
 	if (i == j)
 	{
 		log_fatal(" i == j in cx_xpos");
-		exit(1);
+		tsp_handlefatal();
 	}
 
 	if (i > j)
@@ -1173,7 +1172,6 @@ static int CPXPUBLIC callback_relaxation(CPXCALLBACKCONTEXTptr context)
 	}
 
 	// call the modified greedy and post its solution
-	// TODO: capire se eseguire ogni volta che esegue la callback o abbassare ancora probabiità
 
 	if (tsp_env.modified_costs)
 	{

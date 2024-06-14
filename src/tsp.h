@@ -133,7 +133,6 @@ typedef struct {
 /**
  * @brief Initialize tsp instance with default parameters
  * 
- * @param inst 
  */
 void tsp_init(void);
 
@@ -142,29 +141,25 @@ void tsp_init(void);
  * 
  * @param argc, number of arguments on command-line
  * @param argv, arguments on command-line
- * @param  pointer to an instance
  */
 ERROR_CODE tsp_parse_commandline(int argc, char** argv);
 
 /**
  * @brief Generate random points with given seed and number of nodes
  * 
- * @param  pointer to an instance
  */
 ERROR_CODE tsp_generate_randompoints(void);
 
 /**
  * @brief Plots instance points 
  * 
- * @param  pointer to an instance
  * @return ERROR_CODE
  */
 ERROR_CODE tsp_plot_points(void);
 
 /**
  * @brief Plots instance solution
- * 
- * @param inst 
+ *  
  * @return ERROR_CODE 
  */
 ERROR_CODE tsp_plot_solution(void);
@@ -172,35 +167,30 @@ ERROR_CODE tsp_plot_solution(void);
 /**
  * @brief Frees all dynamically allocated resources
  * 
- * @param  pointer to an instance
  */
 void tsp_free_instance(void);
 
 /**
  * @brief Util to handle fatal errors, frees all allocated resources
  * 
- * @param inst 
  */
 void tsp_handlefatal(void);
 
 /**
  * @brief Reads a TSPLIB formatted input file
  * 
- * @param  pointer to an instance
  */
 void tsp_read_input(void);
 
 /**
  * @brief Precomputes costs and keeps them in matrix costs of the instance
  * 
- * @param inst 
  */
 ERROR_CODE tsp_compute_costs(void);
 
 /**
  * @brief Validates a tsp solution
  * 
- * @param inst 
  * @return true if the solution is valid
  * @return false if the solution is not valid
  */
@@ -209,22 +199,34 @@ bool tsp_validate_solution(int nnodes, int* current_solution_path);
 /**
  * @brief Updates the best solution iff it is valid and it is better than the current best solution
  * 
- * @param inst 
  */
 ERROR_CODE tsp_update_best_solution(tsp_solution* solution);
 
 /**
  * @brief Get cost of edge i-j, returns -1 if it does not exist
  * 
- * @param inst tsp instance
  * @param i node i
  * @param j node j
  * @return double cost of edge i-j
  */
 double tsp_get_cost(int i, int j);
 
+/**
+ * @brief Checks if the path is actually a valid tour
+ * 
+ * @param path Array to hold the solution path
+ * @param n Number of nodes
+ * @return true If path is a tour
+ * @return false Otherwise
+ */
 bool tsp_is_tour(int path[], int n);
 
+/**
+ * @brief Computes solution cost given a solution path
+ * 
+ * @param path Array to hold the solution path
+ * @return double Solution cost
+ */
 double tsp_solution_cost(int path[]);
 
 extern instance tsp_inst;

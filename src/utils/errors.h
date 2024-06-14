@@ -31,11 +31,11 @@
  * 
  */
 typedef enum{
-    T_OK = 0,                      // not error
-    CANCELLED = 1,               // not error
+    T_OK = 0,               // not error
+    CANCELLED = 1,          // not error
     UNKNOWN = 2,
     INVALID_ARGUMENT = 3,
-    DEADLINE_EXCEEDED = 4,       // not error
+    DEADLINE_EXCEEDED = 4,  // not error
     NOT_FOUND = 5,
     ALREADY_EXISTS = 6,
     PERMISSION_DENIED = 7,
@@ -86,9 +86,9 @@ typedef enum{
 /**
  * @brief returns true if the error\_code is OK
  * 
- * @param error 
- * @return true 
- * @return false 
+ * @param error ERROR_CODE
+ * @return true If it is OK
+ * @return false If it is an error
  */
 bool err_ok(ERROR_CODE error);
 
@@ -100,15 +100,15 @@ bool err_ok(ERROR_CODE error);
 void err_setverbosity(VERBOSITY verbosity);
 
 /**
- * @brief 
+ * @brief Util to check if you can log based on the set verbosity level
  * 
- * @return true 
- * @return false 
+ * @return true If >= VERBOSE
+ * @return false Otherwise
  */
 bool err_dolog(void);
 
 /**
- * @brief helper function to print logs
+ * @brief Helper function to print logs
  * 
  * @param level 
  * @param file 
