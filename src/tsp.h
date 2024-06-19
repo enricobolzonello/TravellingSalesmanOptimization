@@ -74,10 +74,13 @@ typedef struct {
     int k;                      // number of iterations of VNS and Tabu Search, by default sets to the maximum integer
 
     // Tabu Search options
-    ts_policies policy;            // how to update tenure
+    ts_policies policy;         // how to update tenure
 
     // Extra Mileage options
     em_init mileage_init;       // how to initialize extra mileage
+
+    // Benders Loop options
+    bool bl_patching;           // true if it uses patching, false otherwise. Defaults to true
 
     // Branch and Cut options
     bool init_mip;              // set MIP start for CPLEX branch & cut

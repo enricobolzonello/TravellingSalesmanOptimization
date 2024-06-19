@@ -156,7 +156,7 @@ void err_printoutput(double cost, double time, int alg){
 
     printf("Program finished, shutting down...\n");
   }else{
-    if(alg == 8 || alg == 9){
+    if(alg == 6 || alg == 8 || alg == 9){
       // exact methods need to be compared on time
       printf("Time: %.2f\n", time);
     }else{

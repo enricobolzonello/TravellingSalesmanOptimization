@@ -7,6 +7,7 @@ import shlex
 from py_reminder import config
 import tomllib
 from alive_progress import alive_bar
+import random
 
 
 import requests
@@ -14,7 +15,9 @@ from logging import Handler, Formatter
 import logging
 import datetime
 import time
-TIME_LIMIT = "2000"
+TIME_LIMIT = "600"
+NODES_UPPER = 450
+NODES_LOWER = 400
  
 # create an .env file to contain telegram token and chat id
 # the file has the following format
@@ -89,6 +92,48 @@ def runTSP(paths, csv_filename, data, logger, start_time):
     
     logger.warning(f"Program finished in {(time.time() - start_time):.4f} seconds")
 
+def runTSPRand(number, csv_filename, data, logger, start_time):
+    with alive_bar(total=number * len(data), calibrate=50) as pbar:
+        for i in range(number):
+            row = [i]
+            seed = random.randint(100, 10000)
+            nodes = random.randint(NODES_LOWER, NODES_UPPER)
+            for m in data:
+                try:
+                    if 'algorithm' not in m:
+                        raise ValueError("Missing 'algorithm' key in dictionary, skipping this iteration")
+                    algorithm = m['algorithm']
+                    flags = m.get('flags', '')
+                    str_exec = f"make/bin/tsp -n {nodes} -seed {seed} -q -alg {algorithm} -t {TIME_LIMIT} --to_file {flags}"
+                    print(str_exec)
+                    print("Running " + algorithm + " on instance " + str(i))
+
+                    output = subprocess.run(shlex.split(str_exec), capture_output=True, text=True).stdout
+
+                    cost = output.split(":")[1].strip()
+                    print("Cost: " + cost)
+                    row.append(cost)
+                except subprocess.CalledProcessError as e:
+                    logger.error(f"Error executing {m} on instance {i}: {e}")
+                    continue
+                except IndexError as e:
+                    logger.error(f"Skipping instance {i}")
+                    row.append('error')
+                    continue
+                finally:
+                    pbar()
+        
+            if len(row) > 1: # to not write files not done
+                with open(csv_filename, 'a', newline='') as csvfile:
+                    writer = csv.writer(csvfile)
+                    writer.writerow(row)
+
+            # log every 30 documents done
+            if i%20 == 0:
+                logger.info(f"Done {i} documents")
+    
+    logger.warning(f"Program finished in {(time.time() - start_time):.4f} seconds")
+
 # python compare_algs.py {method}
 # methods: heuristic
 if __name__ == '__main__':
@@ -137,4 +182,5 @@ if __name__ == '__main__':
             writer.writerow(header)
 
         data = list(data.values())
-        runTSP(paths, csv_filename, data, logger, start_time)
+        #runTSP(paths, csv_filename, data, logger, start_time)
+        runTSPRand(20, csv_filename, data, logger, start_time)

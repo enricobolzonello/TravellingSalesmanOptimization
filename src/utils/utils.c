@@ -67,10 +67,12 @@ void utils_plotname(char* buffer, int buffersize){
 
 }
 
-void utils_format_title(char *fname, int alg)
-{
-    // escape the underscore character (because it's LaTeX)
-    size_t length = strlen(fname);
+void utils_format_title(char *fname, int alg) {
+  size_t num_algs = sizeof(algs_string) / sizeof(algs_string[0]);
+
+    log_debug("fname: %s", fname);
+    // Escape the underscore character (because it's LaTeX)
+    size_t length = strlen(fname) + 50;
     size_t new_length = length; // Length of the modified string
     for (size_t i = 0; i < length; i++) {
         if (fname[i] == '_') {
@@ -78,42 +80,52 @@ void utils_format_title(char *fname, int alg)
         }
     }
 
+    log_debug("old size: %d", length);
+    log_debug("new size: %d", new_length);
+
+    // Ensure there's enough space for the modifications
+    char *new_fname = (char *)malloc(new_length + 1); // +1 for the null terminator
+    if (new_fname == NULL) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return;
+    }
+
     // Move characters to their new positions, inserting backslashes before underscores
-    for (size_t i = length - 1, j = new_length - 1; i < new_length && i < j; i--, j--) {
+    int j=0;
+    for (size_t i = 0; i < length; i++) {
         if (fname[i] == '_') {
-            fname[j--] = '_'; // Move underscore to its new position
-            fname[j] = '\\'; // Insert backslash before underscore
+            new_fname[j++] = '\\'; // Insert backslash before underscore
+            new_fname[j++] = '_'; // Move underscore to its new position
         } else {
-            fname[j] = fname[i]; // Move other characters as they are
+            new_fname[j++] = fname[i]; // Move other characters as they are
         }
     }
+    new_fname[new_length] = '\0';
 
-    // strip the extension
-    char *end = fname + strlen(fname);
+    log_debug("new_fname: %s", new_fname);
 
-    while (end > fname && *end != '.') {
-        --end;
+    // Strip the extension
+    char *dot_position = strrchr(new_fname, '.');
+    if (dot_position != NULL) {
+        *dot_position = '\0';
     }
 
-    if (end > fname) {
-        *end = '\0';
-    }
-
-    // get string of algorithm
-    const char* alg_s = NULL;
-    if (alg >= 0 && alg < (int) (sizeof(algs_string) / sizeof(char*)) ) {
+    // Get string of algorithm
+    const char *alg_s = NULL;
+    if (alg >= 0 && alg < (int)num_algs) {
         alg_s = algs_string[alg];
     }
 
-    // Copy characters from s2 to the end of s1
-    while (*alg_s) {
-        *end = *alg_s;
-        end++;
-        alg_s++;
+    // Concatenate the algorithm string
+    if (alg_s != NULL) {
+        strcat(new_fname, alg_s);
     }
-    
-    // Add the null terminator at the end
-    *end = '\0';
+
+    // Copy the new string back to the original pointer (ensure it fits)
+    strncpy(fname, new_fname, new_length + 1);
+
+    // Free allocated memory
+    utils_safe_free(new_fname);
 }
 
 void swap(int* a, int* b){

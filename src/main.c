@@ -45,15 +45,9 @@ ERROR_CODE tsp_run_algorithm(){
         } 
         break;
     case ALG_CX_BENDERS:
-        e = cx_BendersLoop(false);
+        e = cx_BendersLoop(tsp_env.bl_patching);
         if(!err_ok(e)){
             log_fatal("Benders Loop did not finish correctly");
-        } 
-        break;
-    case ALG_CX_BENDERS_PAT:
-        e = cx_BendersLoop(true);
-        if(!err_ok(e)){
-            log_fatal("Benders Loop with patching did not finish correctly");
         } 
         break;
     case ALG_EXTRAMILEAGE:

@@ -16,6 +16,8 @@ void tsp_init(){
 
     tsp_env.mileage_init = EM_MAX;
 
+    tsp_env.bl_patching = true;
+
     tsp_env.init_mip = true;
     tsp_env.skip_policy = 0;
     tsp_env.callback_relaxation = true;
@@ -140,9 +142,6 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv){
             }else if (strcmp("EXTRA_MILEAGE", method) == 0){
                 tsp_inst.alg = ALG_EXTRAMILEAGE;
                 log_info("selected EXTRA MILEAGE");
-            }else if (strcmp("CPLEX_BENDERS_PAT", method) == 0){
-                tsp_inst.alg = ALG_CX_BENDERS_PAT;
-                log_info("selected BENDERS LOOP with PATCHING");
             }else if (strcmp("CPLEX_BRANCH_CUT", method) == 0){
                 tsp_inst.alg = ALG_CX_BRANCH_AND_CUT;
                 log_info("selected CPLEX BRANCH AND CUT");
@@ -197,6 +196,17 @@ ERROR_CODE tsp_parse_commandline(int argc, char** argv){
             }
 
             tsp_env.tofile = true;
+            continue;
+        }
+
+        if(strcmp("--no_patching", argv[i]) == 0){
+
+            if(utils_invalid_input(i, argc, &help)){
+                log_warn("invalid input");
+                continue;
+            }
+
+            tsp_env.bl_patching = false;
             continue;
         }
 
