@@ -62,6 +62,17 @@ Each algorithm has a set of hyper-parameters to change the behaviour or fine-tun
 
 ## 📈 Results
 
+Heuristics perform exceptionally well with 2000 nodes, whereas exact models struggle even with 400 nodes. However, this speed advantage comes with a trade-off: the best metaheuristic (VNS) has a gap of less than 4\% from the optimal solution. 
+![metaheuristics comparison](./results/metaheur.png)
+
+For exact solutions, the best choice, in terms of the time to reach the optimal solution, is Branch\&Cut with fractional cuts and a heuristic initial solution.
+![exact models comparison](./results/exact2.png)
+
+Matheuristics are effective when exact models cannot find the optimal solution within a feasible time limit, enabling us to solve instances with more nodes by leveraging the CPLEX mathematical model. The best performing matheuristic is Hard Fixing, though it has a small gap compared to Local Branching. 
+![matheuristics comparison](./results/matheuristics_rnd.png)
+
+Further results can be found in the [project report](./BolzonelloVendramin_OR2report.pdf) 
+
 ## 🛡️ License
 
 ![GitHub License](https://img.shields.io/github/license/enricobolzonello/TravellingSalesmanOptimization?style=for-the-badge)
