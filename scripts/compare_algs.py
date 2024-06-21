@@ -16,8 +16,8 @@ import logging
 import datetime
 import time
 TIME_LIMIT = "600"
-NODES_UPPER = 450
-NODES_LOWER = 400
+NODES_UPPER = 350
+NODES_LOWER = 300
  
 # create an .env file to contain telegram token and chat id
 # the file has the following format
